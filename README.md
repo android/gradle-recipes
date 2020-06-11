@@ -5,3 +5,5 @@ customizations that showcase the Android Gradle plugin's public APIs and DSL.
 
 We are currently working on publishing the first version, please check back soon.
 
+The Master branch current represents the state of AGP 4.1
+
