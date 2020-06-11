@@ -1,0 +1,120 @@
+plugins {
+    id 'com.android.application'
+}
+import java.nio.file.Files
+import javax.inject.Inject
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
+import org.gradle.workers.WorkerExecutor
+
+import com.android.build.api.artifact.ArtifactTransformationRequest 
+import com.android.build.api.artifact.ArtifactType 
+import com.android.build.api.artifact.ArtifactTransformationRequest
+import com.android.build.api.variant.BuiltArtifact
+
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.TaskAction
+import org.gradle.workers.WorkerExecutor
+import com.android.build.api.variant.BuiltArtifact
+import com.android.build.api.artifact.ArtifactTransformationRequest
+import org.gradle.api.tasks.Internal
+
+import java.nio.file.Files
+
+interface WorkItemParameters extends WorkParameters, Serializable {
+    RegularFileProperty getInputApkFile()
+    RegularFileProperty getOutputApkFile()
+}
+
+abstract class WorkItem implements WorkAction<WorkItemParameters> {
+
+    WorkItemParameters workItemParameters
+
+    @Inject
+    WorkItem(WorkItemParameters parameters) {
+       this.workItemParameters = parameters
+    }
+
+    void execute() {
+        Files.copy(
+            workItemParameters.getInputApkFile().getAsFile().get().toPath(),
+            workItemParameters.getOutputApkFile().get().getAsFile().toPath())
+    } 
+}
+
+abstract class CopyApksTask extends DefaultTask {
+
+    WorkerExecutor workers
+
+    @Inject
+    CopyApksTask(WorkerExecutor workerExecutor) {
+        this.workers = workerExecutor
+    }
+
+    @InputFiles
+    abstract DirectoryProperty getApkFolder()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutFolder()
+
+    @Internal
+    abstract Property<ArtifactTransformationRequest<CopyApksTask>> getTransformationRequest()
+
+    @TaskAction
+    void taskAction() {
+
+         transformationRequest.get().submit(
+             this,
+             workers.noIsolation(),
+             WorkItem,
+             WorkItemParameters, {
+                 BuiltArtifact builtArtifact,
+                 Directory outputLocation,
+                 WorkItemParameters param ->
+                    File inputFile = new File(builtArtifact.outputFile)
+                    param.getInputApkFile().set(inputFile)
+                    param.getOutputApkFile().set(new File(outputLocation.asFile, inputFile.name))
+                    param.getOutputApkFile().get().getAsFile()
+             }
+        )
+    }
+}
+
+
+android {
+    
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+
+    onVariantProperties {
+        TaskProvider copyApksProvider = tasks.register('copy' + it.getName() + 'Apks', CopyApksTask)
+
+        ArtifactTransformationRequest request =
+            it.artifacts.use(copyApksProvider)
+                .wiredWithDirectories(
+                    { it.getApkFolder() },
+                    { it.getOutFolder()})
+                .toTransformMany(ArtifactType.APK.INSTANCE)
+
+        copyApksProvider.configure {
+            it.transformationRequest.set(request)
+            it.getOutFolder().set(new File("/usr/local/google/home/jedo/src/studio-4.1-dev/out/apiTests/Groovy/workerEnabledTransformation/build/acme_apks"))
+        }
+    }
+}
