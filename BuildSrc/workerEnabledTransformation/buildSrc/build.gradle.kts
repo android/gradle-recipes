@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.3.72"
 }
 
 repositories {
@@ -8,5 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.1.0-beta01")
+    implementation("com.android.tools.build:gradle-api:4.1.0-beta01")
+    implementation(kotlin("stdlib"))
+    gradleApi()
 }
