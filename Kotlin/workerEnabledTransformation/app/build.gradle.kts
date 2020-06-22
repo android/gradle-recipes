@@ -76,6 +76,7 @@ android {
                 CopyApksTask::outFolder)
             .toTransformMany(ArtifactType.APK)
 
+
         copyApksProvider.configure {
             this.transformationRequest.set(transformationRequest)
             this.outFolder.set(File("/usr/local/google/home/jedo/src/studio-4.1-dev/out/apiTests/Kotlin/workerEnabledTransformation/build/acme_apks"))

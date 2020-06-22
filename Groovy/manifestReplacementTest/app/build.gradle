@@ -14,11 +14,12 @@ abstract class GitVersionTask extends DefaultTask {
 
     @TaskAction
     void taskAction() {
-        String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
-        if (gitVersion.isEmpty()) {
-            gitVersion="12"
-        }
-        getGitVersionOutputFile().get().asFile.write(gitVersion)
+        // this would be the code to get the tip of tree version,
+        // String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
+        // if (gitVersion.isEmpty()) {
+        //    gitVersion="12"
+        //}
+        getGitVersionOutputFile().get().asFile.write("1234")
     }
 }
 

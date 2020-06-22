@@ -25,7 +25,7 @@ abstract class VerifyManifestTask: DefaultTask() {
         if (builtArtifacts.elements.size != 1)
             throw RuntimeException("Expected one APK !")
         val apk = File(builtArtifacts.elements.single().outputFile).toPath()
-        println("Insert code that verifies manifest in APK")
+        println("Insert code to verify manifest file in ${apk}")
         println("SUCCESS")
     }
 }
