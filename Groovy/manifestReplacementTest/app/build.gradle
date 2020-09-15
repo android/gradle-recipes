@@ -39,7 +39,7 @@ abstract class ManifestProducerTask extends DefaultTask {
 
     @TaskAction
     void taskAction() {
-        String manifest = '''<?xml version=\"1.0\" encoding=\"utf-8\"?>
+        String manifest = """<?xml version=\"1.0\" encoding=\"utf-8\"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.android.build.example.minimal"
             android:versionName="${new String(getGitInfoFile().get().asFile.readBytes())}"
@@ -54,7 +54,7 @@ abstract class ManifestProducerTask extends DefaultTask {
                 </activity>
             </application>
         </manifest>
-            '''
+            """
         println("Writes to " + getOutputManifest().get().getAsFile().getAbsolutePath())
         getOutputManifest().get().getAsFile().write(manifest)
     }
