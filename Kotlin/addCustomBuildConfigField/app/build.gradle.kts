@@ -1,8 +1,11 @@
+import com.android.build.api.variant.BuildConfigField
+
 plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
 }
+
 android {
     
     compileSdkVersion(29)
@@ -12,8 +15,8 @@ android {
     }
 
     onVariantProperties {
-        addBuildConfigField("FloatValue", "\"1f\"", "Float Value")
-        addBuildConfigField("LongValue", "\"1L\"", "Long Value")
+        buildConfigFields.put("FloatValue", BuildConfigField("float", "1f", "Float Value"))
+        buildConfigFields.put("LongValue", BuildConfigField("long", "1L", "Long Value"))
         addBuildConfigField("VariantName", "\"$name\"", "Variant Name")
     }
 }
