@@ -45,8 +45,7 @@ abstract class CopyApksTask @Inject constructor(private val workers: WorkerExecu
       transformationRequest.get().submit(
          this, 
          workers.noIsolation(),
-         WorkItem::class.java,
-         WorkItemParameters::class.java) {
+         WorkItem::class.java) {
              builtArtifact: BuiltArtifact, 
              outputLocation: Directory, 
              param: WorkItemParameters -> 
@@ -79,7 +78,7 @@ android {
 
         copyApksProvider.configure {
             this.transformationRequest.set(transformationRequest)
-            this.outFolder.set(File("/usr/local/google/home/jedo/src/studio-4.1-dev/out/apiTests/Kotlin/workerEnabledTransformation/build/acme_apks"))
+            this.outFolder.set(File("/usr/local/google/home/jedo/src/studio-4.2-dev/out/apiTests/Kotlin/workerEnabledTransformation/build/acme_apks"))
         }
     }
 }
