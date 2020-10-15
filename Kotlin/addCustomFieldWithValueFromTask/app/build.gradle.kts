@@ -55,7 +55,7 @@ android {
         buildConfigFields.put("GitVersion", gitVersionProvider.map {  task ->
             BuildConfigField(
                 "String",
-                task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8), 
+                "\"{task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)}\"", 
                 "Git Version")
         })
     }
