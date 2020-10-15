@@ -12,8 +12,8 @@ android {
     }
 
     onVariantProperties {
-        addBuildConfigField("FloatValue", "1f", "Float Value")
-        addBuildConfigField("LongValue", "1L", "Long Value")
-        addBuildConfigField("VariantName", "${name}", "Variant Name")
+        addBuildConfigField("FloatValue", "\"1f\"", "Float Value")
+        addBuildConfigField("LongValue", "\"1L\"", "Long Value")
+        addBuildConfigField("VariantName", "\"${name}\"", "Variant Name")
     }
 }
