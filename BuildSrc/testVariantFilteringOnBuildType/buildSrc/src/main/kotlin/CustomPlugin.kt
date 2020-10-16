@@ -8,7 +8,7 @@ import org.gradle.api.Project
 class CustomPlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withType(AppPlugin::class.java) {
-            val extension = project.extensions.getByName("android") as ApplicationExtension<*,*,*,*,*>
+            val extension = project.extensions.getByName("android") as ApplicationExtension<*, *, *, *, *>
 
             extension.onVariants {
                 // disable all unit tests for apps (only using instrumentation tests)
@@ -19,7 +19,7 @@ class CustomPlugin: Plugin<Project> {
         }
 
         project.plugins.withType(LibraryPlugin::class.java) {
-            val extension = project.extensions.getByName("android") as LibraryExtension<*,*,*,*,*>
+            val extension = project.extensions.getByName("android") as LibraryExtension<*, *, *, *, *>
 
             extension.onVariants.withBuildType("debug") {
                 // Disable instrumentation for debug

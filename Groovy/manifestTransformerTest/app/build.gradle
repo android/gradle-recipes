@@ -57,16 +57,17 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
+TaskProvider gitVersionProvider = tasks.register('gitVersionProvider', GitVersionTask) {
+    task ->
+        task.gitVersionOutputFile.set(
+            new File(project.buildDir, "intermediates/gitVersionProvider/output")
+        )
+        task.outputs.upToDateWhen { false }
+}
 
-    TaskProvider gitVersionProvider = tasks.register('gitVersionProvider', GitVersionTask) {
-        task ->
-            task.gitVersionOutputFile.set(
-                new File(project.buildDir, "intermediates/gitVersionProvider/output")
-            )
-            task.outputs.upToDateWhen { false }
-    }
-
-    onVariantProperties {
+androidComponents {
+    onVariants(selector().all(), {
         TaskProvider manifestUpdater = tasks.register(it.getName() + 'ManifestUpdater', ManifestTransformerTask) {
             task ->
                 task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
@@ -76,5 +77,5 @@ android {
                 { it.mergedManifest },
                 { it.updatedManifest })
             .toTransform(ArtifactType.MERGED_MANIFEST.INSTANCE)
-    }
+    })
 }

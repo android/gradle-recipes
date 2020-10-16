@@ -1,6 +1,21 @@
-import com.android.build.api.dsl.ApplicationExtension
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.VariantOutputConfiguration.OutputType
 import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
@@ -9,15 +24,13 @@ import org.gradle.api.Project
 class CustomPlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withType(AppPlugin::class.java) {
-            // NOTE: BaseAppModuleExtension is internal. This will be replaced by a public
-            // interface
-            val extension = project.extensions.getByName("android") as ApplicationExtension<*,*,*,*,*>
+            val extension = project.extensions.getByName("android") as ApplicationExtension<*, *, *, *, *>
             extension.configure(project)
         }
     }
 }
 
-fun ApplicationExtension<*,*,*,*,*>.configure(project: Project) {
+fun ApplicationExtension<*, *, *, *, *>.configure(project: Project) {
     // Note: Everything in there is incubating.
 
     // onVariantProperties registers an action that configures variant properties during
@@ -52,7 +65,7 @@ fun ApplicationExtension<*,*,*,*,*>.configure(project: Project) {
         mainOutput.versionName.set(versionNameTask.map { it.outputFile.get().asFile.readText() })
 
         // finally add the verifier task that will check that the merged manifest
-        // does contain the version code and version name from the tasks added 
+        // does contain the version code and version name from the tasks added
         // above.
         project.tasks.register("verifierFor${name}", VerifyManifestTask::class.java) {
             it.apkFolder.set(artifacts.get(ArtifactType.APK))
