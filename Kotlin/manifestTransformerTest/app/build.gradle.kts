@@ -13,7 +13,7 @@ abstract class GitVersionTask: DefaultTask() {
     @TaskAction
     fun taskAction() {
 
-        // this would be the code to get the tip of tree version, 
+        // this would be the code to get the tip of tree version,
         // val firstProcess = ProcessBuilder("git","rev-parse --short HEAD").start()
         // val error = firstProcess.errorStream.readBytes().decodeToString()
         // if (error.isNotBlank()) {
@@ -21,7 +21,7 @@ abstract class GitVersionTask: DefaultTask() {
         // }
         // var gitVersion = firstProcess.inputStream.readBytes().decodeToString()
 
-        // but here, we are just hardcoding : 
+        // but here, we are just hardcoding :
         gitVersionOutputFile.get().asFile.writeText("1234")
     }
 }
@@ -57,21 +57,22 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        val gitVersionProvider = tasks.register<GitVersionTask>("${name}GitVersionProvider") {
+}
+androidComponents {
+    onVariants { variant ->
+        val gitVersionProvider = tasks.register<GitVersionTask>("${variant.name}GitVersionProvider") {
             gitVersionOutputFile.set(
                 File(project.buildDir, "intermediates/gitVersionProvider/output"))
             outputs.upToDateWhen { false }
         }
 
-        val manifestUpdater = tasks.register<ManifestTransformerTask>("${name}ManifestUpdater") {
+        val manifestUpdater = tasks.register<ManifestTransformerTask>("${variant.name}ManifestUpdater") {
             gitInfoFile.set(gitVersionProvider.flatMap(GitVersionTask::gitVersionOutputFile))
         }
-        artifacts.use(manifestUpdater)
+        variant.artifacts.use(manifestUpdater)
             .wiredWithFiles(
                 ManifestTransformerTask::mergedManifest,
                 ManifestTransformerTask::updatedManifest)
-            .toTransform(com.android.build.api.artifact.ArtifactType.MERGED_MANIFEST)  
+            .toTransform(com.android.build.api.artifact.ArtifactType.MERGED_MANIFEST)
     }
 }

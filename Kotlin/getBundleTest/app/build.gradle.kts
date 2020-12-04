@@ -31,10 +31,11 @@ android {
     defaultConfig {
         versionCode = 3
     }
-
-    onVariantProperties {
-        project.tasks.register<DisplayBundleFileTask>("${name}DisplayBundleFile") {
-            bundleFile.set(artifacts.get(ArtifactType.BUNDLE))
+}
+androidComponents {
+    onVariants { variant ->
+        project.tasks.register<DisplayBundleFileTask>("${variant.name}DisplayBundleFile") {
+            bundleFile.set(variant.artifacts.get(ArtifactType.BUNDLE))
         }
     }
 }

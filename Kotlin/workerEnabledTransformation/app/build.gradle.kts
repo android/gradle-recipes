@@ -43,13 +43,12 @@ abstract class CopyApksTask @Inject constructor(private val workers: WorkerExecu
     fun taskAction() {
 
       transformationRequest.get().submit(
-         this, 
+         this,
          workers.noIsolation(),
-         WorkItem::class.java,
-         WorkItemParameters::class.java) {
-             builtArtifact: BuiltArtifact, 
-             outputLocation: Directory, 
-             param: WorkItemParameters -> 
+         WorkItem::class.java) {
+             builtArtifact: BuiltArtifact,
+             outputLocation: Directory,
+             param: WorkItemParameters ->
                 val inputFile = File(builtArtifact.outputFile)
                 param.inputApkFile.set(inputFile)
                 param.outputApkFile.set(File(outputLocation.asFile, inputFile.name))
@@ -66,11 +65,12 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
+androidComponents {
+    onVariants { variant ->
+        val copyApksProvider = tasks.register<CopyApksTask>("copy${variant.name}Apks")
 
-    onVariantProperties {
-        val copyApksProvider = tasks.register<CopyApksTask>("copy${name}Apks")
-
-        val transformationRequest = artifacts.use(copyApksProvider)
+        val transformationRequest = variant.artifacts.use(copyApksProvider)
             .wiredWithDirectories(
                 CopyApksTask::apkFolder,
                 CopyApksTask::outFolder)
@@ -79,7 +79,7 @@ android {
 
         copyApksProvider.configure {
             this.transformationRequest.set(transformationRequest)
-            this.outFolder.set(File("/usr/local/google/home/jedo/src/studio-4.1-dev/out/apiTests/Kotlin/workerEnabledTransformation/build/acme_apks"))
+            this.outFolder.set(File("/usr/local/google/home/jedo/src/studio-master-dev/out/apiTests/Kotlin/workerEnabledTransformation/build/acme_apks"))
         }
     }
 }
