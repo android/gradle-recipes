@@ -30,10 +30,11 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        project.tasks.register<AarUploadTask>("${name}AarUpload") {
-            aar.set(artifacts.get(ArtifactType.AAR))
+}
+androidComponents {
+    onVariants { variant ->
+        project.tasks.register<AarUploadTask>("${variant.name}AarUpload") {
+            aar.set(variant.artifacts.get(ArtifactType.AAR))
         }
     }
 }

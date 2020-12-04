@@ -46,12 +46,14 @@ android {
     defaultConfig {
         versionCode = 3
     }
-    onVariantProperties {
-        val updateArtifact = project.tasks.register<UpdateArtifactTask>("${name}UpdateArtifact")
-        val finalArtifact = project.tasks.register<ConsumeArtifactTask>("${name}ConsumeArtifact") {
-            finalArtifact.set(artifacts.get(ArtifactType.BUNDLE))
+}
+androidComponents {
+    onVariants {
+        val updateArtifact = project.tasks.register<UpdateArtifactTask>("${it.name}UpdateArtifact")
+        val finalArtifact = project.tasks.register<ConsumeArtifactTask>("${it.name}ConsumeArtifact") {
+            finalArtifact.set(it.artifacts.get(ArtifactType.BUNDLE))
         }
-        artifacts.use(updateArtifact)
+        it.artifacts.use(updateArtifact)
             .wiredWithFiles(
                 UpdateArtifactTask::initialArtifact,
                 UpdateArtifactTask::updatedArtifact)
