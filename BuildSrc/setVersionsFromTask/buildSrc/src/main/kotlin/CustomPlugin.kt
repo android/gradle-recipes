@@ -15,7 +15,7 @@
  */
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.ArtifactType
-import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.extension.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantOutputConfiguration.OutputType
 import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
@@ -24,30 +24,30 @@ import org.gradle.api.Project
 class CustomPlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withType(AppPlugin::class.java) {
-            val extension = project.extensions.getByName("android") as ApplicationExtension<*, *, *, *, *>
+            val extension = project.extensions.getByName("androidComponents") as ApplicationAndroidComponentsExtension
             extension.configure(project)
         }
     }
 }
 
-fun ApplicationExtension<*, *, *, *, *>.configure(project: Project) {
+fun ApplicationAndroidComponentsExtension.configure(project: Project) {
     // Note: Everything in there is incubating.
 
-    // onVariantProperties registers an action that configures variant properties during
+    // onVariants registers an action that configures variant properties during
     // variant computation (which happens during afterEvaluate)
-    onVariantProperties {
+    onVariants {
         // applies to all variants. This excludes test components (unit test and androidTest)
     }
 
-    // use filter to apply onVariantProperties to a subset of the variants
-    onVariantProperties.withBuildType("release") {
+    // use filter to apply onVariants to a subset of the variants
+    onVariants(selector().withBuildType("release")) { variant ->
         // Because app module can have multiple output when using mutli-APK, versionCode/Name
         // are only available on the variant output.
         // Here gather the output when we are in single mode (ie no multi-apk)
-        val mainOutput = this.outputs.single { it.outputType == OutputType.SINGLE }
+        val mainOutput = variant.outputs.single { it.outputType == OutputType.SINGLE }
 
         // create version Code generating task
-        val versionCodeTask = project.tasks.register("computeVersionCodeFor${name}", VersionCodeTask::class.java) {
+        val versionCodeTask = project.tasks.register("computeVersionCodeFor${variant.name}", VersionCodeTask::class.java) {
             it.outputFile.set(project.layout.buildDirectory.file("versionCode.txt"))
         }
 
@@ -59,7 +59,7 @@ fun ApplicationExtension<*, *, *, *, *>.configure(project: Project) {
         mainOutput.versionCode.set(versionCodeTask.map { it.outputFile.get().asFile.readText().toInt() })
 
         // same for version Name
-        val versionNameTask = project.tasks.register("computeVersionNameFor${name}", VersionNameTask::class.java) {
+        val versionNameTask = project.tasks.register("computeVersionNameFor${variant.name}", VersionNameTask::class.java) {
             it.outputFile.set(project.layout.buildDirectory.file("versionName.txt"))
         }
         mainOutput.versionName.set(versionNameTask.map { it.outputFile.get().asFile.readText() })
@@ -67,9 +67,9 @@ fun ApplicationExtension<*, *, *, *, *>.configure(project: Project) {
         // finally add the verifier task that will check that the merged manifest
         // does contain the version code and version name from the tasks added
         // above.
-        project.tasks.register("verifierFor${name}", VerifyManifestTask::class.java) {
-            it.apkFolder.set(artifacts.get(ArtifactType.APK))
-            it.builtArtifactsLoader.set(artifacts.getBuiltArtifactsLoader())
+        project.tasks.register("verifierFor${variant.name}", VerifyManifestTask::class.java) {
+            it.apkFolder.set(variant.artifacts.get(ArtifactType.APK))
+            it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
         }
     }
 }

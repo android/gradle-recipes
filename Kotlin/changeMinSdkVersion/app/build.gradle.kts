@@ -12,10 +12,11 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariants {
-        if (name == "release") {
-            minSdkVersion = AndroidVersion(23)
+}
+androidComponents {
+    beforeVariants { variant ->
+        if (variant.name == "release") {
+            variant.minSdkVersion = AndroidVersion(23)
         }
     }
 }

@@ -35,10 +35,11 @@ android {
             isMinifyEnabled = true
         }
     }
-
-    onVariantProperties {
-        project.tasks.register<MappingFileUploadTask>("${name}MappingFileUpload") {
-            mappingFile.set(artifacts.get(ArtifactType.OBFUSCATION_MAPPING_FILE))
+}
+androidComponents {
+    onVariants { variant ->
+        project.tasks.register<MappingFileUploadTask>("${variant.name}MappingFileUpload") {
+            mappingFile.set(variant.artifacts.get(ArtifactType.OBFUSCATION_MAPPING_FILE))
         }
     }
 }

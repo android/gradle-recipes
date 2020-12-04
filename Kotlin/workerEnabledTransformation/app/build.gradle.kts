@@ -65,11 +65,12 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
+androidComponents {
+    onVariants { variant ->
+        val copyApksProvider = tasks.register<CopyApksTask>("copy${variant.name}Apks")
 
-    onVariantProperties {
-        val copyApksProvider = tasks.register<CopyApksTask>("copy${name}Apks")
-
-        val transformationRequest = artifacts.use(copyApksProvider)
+        val transformationRequest = variant.artifacts.use(copyApksProvider)
             .wiredWithDirectories(
                 CopyApksTask::apkFolder,
                 CopyApksTask::outFolder)

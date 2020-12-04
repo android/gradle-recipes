@@ -58,12 +58,13 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
+}
+androidComponents {
+    onVariants { variant ->
         @OptIn(ExperimentalStdlibApi::class)
-        val capitalizedName = name.capitalize(Locale.US)
+        val capitalizedName = variant.name.capitalize(Locale.US)
         project.tasks.register<PublicResourcesValidatorTask>("validate${capitalizedName}PublicResources") {
-            publicAndroidResources.set(artifacts.get(ArtifactType.PUBLIC_ANDROID_RESOURCES_LIST))
+            publicAndroidResources.set(variant.artifacts.get(ArtifactType.PUBLIC_ANDROID_RESOURCES_LIST))
             expectedPublicResources.set(project.file("src/test/expectedApi/public-resources.txt"))
             fakeOutput.set(project.layout.buildDirectory.dir("intermediates/PublicResourcesValidatorTask/$name"))
         }
