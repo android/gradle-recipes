@@ -15,7 +15,7 @@ import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.artifact.ArtifactType
 import com.android.build.api.variant.BuiltArtifacts
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Internal 
+import org.gradle.api.tasks.Internal
 
 abstract class DisplayApksTask extends DefaultTask {
 
@@ -46,11 +46,13 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
 
-    onVariantProperties {
-        project.tasks.register(it.getName() + "DisplayApks", DisplayApksTask.class) {
-            it.apkFolder.set(artifacts.get(ArtifactType.APK.INSTANCE))
-            it.builtArtifactsLoader.set(artifacts.getBuiltArtifactsLoader())
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        project.tasks.register(variant.getName() + "DisplayApks", DisplayApksTask.class) {
+            it.apkFolder.set(variant.artifacts.get(ArtifactType.APK.INSTANCE))
+            it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
         }
-    }
+    })
 }

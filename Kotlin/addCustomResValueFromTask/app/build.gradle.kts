@@ -20,7 +20,7 @@ abstract class GitVersionTask: DefaultTask() {
     @TaskAction
     fun taskAction() {
 
-        // this would be the code to get the tip of tree version, 
+        // this would be the code to get the tip of tree version,
         // val firstProcess = ProcessBuilder("git","rev-parse --short HEAD").start()
         // val error = firstProcess.errorStream.readBytes().decodeToString()
         // if (error.isNotBlank()) {
@@ -28,7 +28,7 @@ abstract class GitVersionTask: DefaultTask() {
         // }
         // var gitVersion = firstProcess.inputStream.readBytes().decodeToString()
 
-        // but here, we are just hardcoding : 
+        // but here, we are just hardcoding :
         gitVersionOutputFile.get().asFile.writeText("1234")
     }
 }
@@ -49,11 +49,12 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        addResValue( "GitVersion", "string", gitVersionProvider.map {  task ->
+}
+androidComponents {
+    onVariants {
+        it.addResValue( "GitVersion", "string", gitVersionProvider.map {  task ->
                 task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)
-            }, 
+            },
             "git version")
     }
 }

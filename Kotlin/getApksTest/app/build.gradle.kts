@@ -7,12 +7,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
-
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.artifact.ArtifactType
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
-
 
 abstract class DisplayApksTask: DefaultTask() {
 
@@ -40,11 +38,13 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
 
-    onVariantProperties {
-        project.tasks.register<DisplayApksTask>("${name}DisplayApks") {
-            apkFolder.set(artifacts.get(ArtifactType.APK))
-            builtArtifactsLoader.set(artifacts.getBuiltArtifactsLoader())
+androidComponents {
+    onVariants { variant ->
+        project.tasks.register<DisplayApksTask>("${variant.name}DisplayApks") {
+            apkFolder.set(variant.artifacts.get(ArtifactType.APK))
+            builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
         }
     }
 }
