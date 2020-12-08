@@ -10,6 +10,10 @@ The top level folder represents different ways to use the APIs:
 
 The Master branch currently represents the state of AGP 4.1.
 
+The agp-4.2 branch currently represents the state of AGP 4.2.
+
+The agp-7.0 branch currently represents the state of AGP 7.0
+
 ## License ##
 
     Copyright 2020 The Android Open Source Project
