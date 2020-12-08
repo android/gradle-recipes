@@ -8,7 +8,9 @@ The top level folder represents different ways to use the APIs:
 - From Kotlin-based `build.gradle.kts` files
 - From `buildSrc`
 
-The agp-7.0 branch currently represents the state of AGP 7.0.
+The Master branch currently represents the state of AGP 4.1.
+The agp-4.2 branch currently represents the state of AGP 4.2.
+the agp-7.0 branch currently represents the state of AGP 7.0
 
 ## License ##
 
@@ -25,3 +27,4 @@ The agp-7.0 branch currently represents the state of AGP 7.0.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+    
