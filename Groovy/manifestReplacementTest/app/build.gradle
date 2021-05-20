@@ -70,8 +70,11 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
 
-    onVariantProperties {
+androidComponents {
+
+    onVariants(selector().all(), {
         TaskProvider gitVersionProvider = tasks.register(it.getName() + 'GitVersionProvider', GitVersionTask) {
             task ->
                 task.gitVersionOutputFile.set(
@@ -83,12 +86,9 @@ android {
         TaskProvider manifestProducer = tasks.register(it.getName() + 'ManifestProducer', ManifestProducerTask) {
             task ->
                 task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
-                task.outputManifest.set(
-                    new File(project.buildDir, "intermediates/" + getName() + "ManifestProducer/output")
-                )
         }
         it.artifacts.use(manifestProducer)
             .wiredWith({ it.outputManifest })
             .toCreate(ArtifactType.MERGED_MANIFEST.INSTANCE)
-    }
+    })
 }

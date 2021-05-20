@@ -49,11 +49,12 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        addResValue( "GitVersion", "string", gitVersionProvider.map {  task ->
+}
+androidComponents {
+    onVariants {
+        it.addResValue( "GitVersion", "string", gitVersionProvider.map {  task ->
                 task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)
-            }, 
+            },
             "git version")
     }
 }

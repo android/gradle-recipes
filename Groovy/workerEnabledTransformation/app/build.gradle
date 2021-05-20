@@ -14,7 +14,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 
-import com.android.build.api.artifact.ArtifactType 
+import com.android.build.api.artifact.ArtifactType
 import com.android.build.api.artifact.ArtifactTransformationRequest
 import com.android.build.api.variant.BuiltArtifact
 
@@ -33,7 +33,7 @@ import org.gradle.api.tasks.Internal
 
 import java.nio.file.Files
 
-interface WorkItemParameters extends WorkParameters, Serializable {
+interface WorkItemParameters extends WorkParameters {
     RegularFileProperty getInputApkFile()
     RegularFileProperty getOutputApkFile()
 }
@@ -48,6 +48,7 @@ abstract class WorkItem implements WorkAction<WorkItemParameters> {
     }
 
     void execute() {
+        workItemParameters.getOutputApkFile().get().getAsFile().delete()
         Files.copy(
             workItemParameters.getInputApkFile().getAsFile().get().toPath(),
             workItemParameters.getOutputApkFile().get().getAsFile().toPath())
@@ -78,8 +79,7 @@ abstract class CopyApksTask extends DefaultTask {
          transformationRequest.get().submit(
              this,
              workers.noIsolation(),
-             WorkItem,
-             WorkItemParameters, {
+             WorkItem, {
                  BuiltArtifact builtArtifact,
                  Directory outputLocation,
                  WorkItemParameters param ->
@@ -100,12 +100,15 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
+}
 
-    onVariantProperties {
-        TaskProvider copyApksProvider = tasks.register('copy' + it.getName() + 'Apks', CopyApksTask)
+androidComponents {
+
+    onVariants(selector().all(), { variant ->
+        TaskProvider copyApksProvider = tasks.register('copy' + variant.getName() + 'Apks', CopyApksTask)
 
         ArtifactTransformationRequest request =
-            it.artifacts.use(copyApksProvider)
+            variant.artifacts.use(copyApksProvider)
                 .wiredWithDirectories(
                     { it.getApkFolder() },
                     { it.getOutFolder()})
@@ -113,7 +116,6 @@ android {
 
         copyApksProvider.configure {
             it.transformationRequest.set(request)
-            it.getOutFolder().set(new File("/usr/local/google/home/jedo/src/studio-4.1-dev/out/apiTests/Groovy/workerEnabledTransformation/build/acme_apks"))
         }
-    }
+    })
 }
