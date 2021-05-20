@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import com.android.build.api.artifact.Artifacts
-import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.extension.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantOutputConfiguration.OutputType
 import com.android.build.gradle.AppPlugin
@@ -68,7 +68,7 @@ fun ApplicationAndroidComponentsExtension.configure(project: Project) {
         // does contain the version code and version name from the tasks added
         // above.
         project.tasks.register("verifierFor${variant.name}", VerifyManifestTask::class.java) {
-            it.apkFolder.set(variant.artifacts.get(ArtifactType.APK))
+            it.apkFolder.set(variant.artifacts.get(SingleArtifact.APK))
             it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
         }
     }

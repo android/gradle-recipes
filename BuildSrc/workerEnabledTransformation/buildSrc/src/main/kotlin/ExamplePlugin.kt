@@ -17,7 +17,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
 import com.android.build.api.extension.AndroidComponentsExtension
-import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.artifact.SingleArtifact
 
 abstract class ExamplePlugin: Plugin<Project> {
 
@@ -33,11 +33,10 @@ abstract class ExamplePlugin: Plugin<Project> {
                 .wiredWithDirectories(
                     CopyApksTask::apkFolder,
                     CopyApksTask::outFolder)
-                .toTransformMany(ArtifactType.APK)
+                .toTransformMany(SingleArtifact.APK)
 
             copyApksProvider.configure {
                 it.transformationRequest.set(transformationRequest)
-                it.outFolder.set(File("/usr/local/google/home/jedo/src/studio-master-dev/out/apiTests/BuildSrc/workerEnabledTransformation/build/acme_apks"))
             }
         }
     }

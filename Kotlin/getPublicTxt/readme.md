@@ -3,9 +3,9 @@
 This sample show how to obtain the file listing the public artifacts from the Android Gradle Plugin.
 The [onVariants] block will wire the [PublicResourcesValidatorTask] input property
 (publicAndroidResources) by using
-the [Artifacts.get] call with the right [ArtifactType].
+the [Artifacts.get] call with the right [SingleArtifact..
 
-```publicAndroidResources.set(artifacts.get(ArtifactType.PUBLIC_ANDROID_RESOURCES_LIST))```
+```publicAndroidResources.set(artifacts.get(SingleArtifact.PUBLIC_ANDROID_RESOURCES_LIST))```
 
 For more information about how to mark resources as public see
 [Choose resources to make public](https://developer.android.com/studio/projects/android-library.html#PrivateResources)
