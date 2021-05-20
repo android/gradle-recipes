@@ -1,3 +1,4 @@
+
 include(":app")
 
-rootProject.name = "GivenBuilder"
+rootProject.name = "testVariantFilteringOnBuildType"
