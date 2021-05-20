@@ -1,17 +1,22 @@
-plugins {
-        id("com.android.application")
-        kotlin("android")
-        kotlin("android.extensions")
-}
-android {
-    
-    compileSdkVersion(29)
-    defaultConfig {
-        minSdkVersion(21)
-        targetSdkVersion(29)
-    }
+        import com.android.build.api.variant.ResValue
 
-    onVariantProperties {
-        addResValue("VariantName", "string", name, "Variant Name")
-    }
+        plugins {
+                id("com.android.application")
+                kotlin("android")
+                kotlin("android.extensions")
+        }
+        android {
+            
+compileSdkVersion(29)
+defaultConfig {
+    minSdkVersion(21)
+    targetSdkVersion(29)
 }
+        }
+
+        androidComponents {
+            onVariants { variant ->
+                variant.resValues.put(variant.makeResValueKey("string", "VariantName"),
+                    ResValue(name, "Variant Name"))
+            }
+        }

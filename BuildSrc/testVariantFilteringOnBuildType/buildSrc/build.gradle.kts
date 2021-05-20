@@ -1,5 +1,7 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    kotlin("jvm") version "1.3.72"
+    maven("/home/jedo/src/studio-main/prebuilts/tools/common/m2/repository")
 }
 
 repositories {
@@ -7,11 +9,15 @@ repositories {
     jcenter()
 }
 
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.apiVersion = "1.3"
+}
+
 dependencies {
-    implementation("com.android.tools.build:gradle-api:4.1.0")
+    implementation("com.android.tools.build:gradle-api:7.1.0-alpha01")
     implementation(kotlin("stdlib"))
     gradleApi()
 }
 dependencies {
-    implementation("com.android.tools.build:gradle:4.1.0")
+    implementation("com.android.tools.build:gradle:7.1.0-alpha01")
 }
