@@ -24,20 +24,20 @@ class CustomPlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withType(AppPlugin::class.java) {
             val extension = project.extensions.getByName("androidComponents") as ApplicationAndroidComponentsExtension
-            extension.beforeUnitTest {
+            extension.beforeVariants {
                 // disable all unit tests for apps (only using instrumentation tests)
-                it.enabled = false
+                it.enableUnitTest = false
             }
         }
         project.plugins.withType(LibraryPlugin::class.java) {
             val extension = project.extensions.getByName("androidComponents") as LibraryAndroidComponentsExtension
-            extension.beforeAndroidTest(extension.selector().withBuildType("debug")) {
+            extension.beforeVariants(extension.selector().withBuildType("debug")) {
                 // Disable instrumentation for debug
-                it.enabled = false
+                it.enableAndroidTest = false
             }
-            extension.beforeUnitTest(extension.selector().withBuildType("release")) {
+            extension.beforeVariants(extension.selector().withBuildType("release")) {
                 // disable all unit tests for apps (only using instrumentation tests)
-                it.enabled = false
+                it.enableUnitTest = false
             }
         }
     }

@@ -28,7 +28,7 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 import org.gradle.workers.WorkAction
-import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.artifact.ArtifactKind
 import com.android.build.api.artifact.Artifact
 import com.android.build.api.artifact.Artifact.Replaceable
@@ -45,6 +45,7 @@ interface WorkItemParameters: WorkParameters, Serializable {
 abstract class WorkItem @Inject constructor(private val workItemParameters: WorkItemParameters)
     : WorkAction<WorkItemParameters> {
     override fun execute() {
+        workItemParameters.outputApkFile.get().asFile.delete()
         workItemParameters.inputApkFile.asFile.get().copyTo(
             workItemParameters.outputApkFile.get().asFile)
     }

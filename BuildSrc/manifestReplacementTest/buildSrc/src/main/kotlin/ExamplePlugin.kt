@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.build.api.artifact.ArtifactType
+import com.android.build.api.artifact.SingleArtifact
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
@@ -40,10 +40,10 @@ abstract class ExamplePlugin: Plugin<Project> {
                 }
             variant.artifacts.use(manifestProducer)
                 .wiredWith(ManifestProducerTask::outputManifest)
-                .toCreate(ArtifactType.MERGED_MANIFEST)
+                .toCreate(SingleArtifact.MERGED_MANIFEST)
 
             project.tasks.register(variant.name + "Verifier", VerifyManifestTask::class.java) {
-                it.apkFolder.set(variant.artifacts.get(ArtifactType.APK))
+                it.apkFolder.set(variant.artifacts.get(SingleArtifact.APK))
                 it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
             }
         }

@@ -1,15 +1,15 @@
-plugins {
-        id("com.android.application")
-        kotlin("android")
-        kotlin("android.extensions")
-}
+            plugins {
+                    id("com.android.application")
+                    kotlin("android")
+                    kotlin("android.extensions")
+            }
 
-apply<CustomPlugin>()
+            apply<CustomPlugin>()
 
-android { 
+            android { 
 compileSdkVersion(29)
 defaultConfig {
     minSdkVersion(21)
     targetSdkVersion(29)
 }
-}
+            }

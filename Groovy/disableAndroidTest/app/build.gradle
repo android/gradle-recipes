@@ -1,0 +1,26 @@
+        plugins {
+            id 'com.android.application'
+        }
+
+        android {
+            
+compileSdkVersion(29)
+defaultConfig {
+    minSdkVersion(21)
+    targetSdkVersion(29)
+}
+        }
+
+        androidComponents {
+            beforeVariants(selector().withName("debug"), { variantBuilder ->
+                variantBuilder.enableAndroidTest = false
+            })
+            onVariants(selector().withName("debug"), { variant ->
+                if (variant.unitTest == null) {
+                    throw new RuntimeException("Unit test is not active, it should be")
+                }
+                if (variant.androidTest != null) {
+                    throw new RuntimeException("AndroidTest is active while it was deactivated")
+                }
+            })
+        }
