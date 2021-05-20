@@ -71,20 +71,18 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
+}
+androidComponents {
     val gitVersionProvider = tasks.register<GitVersionTask>("gitVersionProvider") {
         gitVersionOutputFile.set(
             File(project.buildDir, "intermediates/gitVersionProvider/output"))
         outputs.upToDateWhen { false }
     }
-    onVariantProperties {
-        val manifestProducer = tasks.register<ManifestProducerTask>("${name}ManifestProducer") {
+    onVariants { variant ->
+        val manifestProducer = tasks.register<ManifestProducerTask>("${variant.name}ManifestProducer") {
             gitInfoFile.set(gitVersionProvider.flatMap(GitVersionTask::gitVersionOutputFile))
-            outputManifest.set(
-                File(project.buildDir, "intermediates/${name}/ManifestProducer/output")
-            )
         }
-        artifacts.use(manifestProducer)
+        variant.artifacts.use(manifestProducer)
             .wiredWith(ManifestProducerTask::outputManifest)
             .toCreate(ArtifactType.MERGED_MANIFEST)
     }

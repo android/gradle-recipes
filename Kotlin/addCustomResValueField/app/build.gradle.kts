@@ -10,8 +10,9 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        addResValue("VariantName", "string", name, "Variant Name")
+}
+androidComponents {
+    onVariants {
+        it.addResValue("VariantName", "string", name, "Variant Name")
     }
 }

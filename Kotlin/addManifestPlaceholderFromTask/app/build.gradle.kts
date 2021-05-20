@@ -51,8 +51,8 @@ abstract class ManifestReaderTask: DefaultTask() {
     @TaskAction
     fun taskAction() {
         val manifest = mergedManifest.asFile.get().readText()
-        // ensure that merged manifest contains the right activity name. 
-        if (!manifest.contains("activity android:name=\"com.android.build.example.minimal.NameWithGit"))
+        // ensure that merged manifest contains the right activity name.
+        if (!manifest.contains("activity android:name=\"com.android.build.example.minimal.NameWithGit-"))
             throw RuntimeException("Manifest Placeholder not replaced successfully")
     }
 }
@@ -64,13 +64,14 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        val manifestReader = tasks.register<ManifestReaderTask>("${name}ManifestReader") { 
-            mergedManifest.set(artifacts.get(ArtifactType.MERGED_MANIFEST))
+}
+androidComponents {
+    onVariants {
+        val manifestReader = tasks.register<ManifestReaderTask>("${it.name}ManifestReader") {
+            mergedManifest.set(it.artifacts.get(ArtifactType.MERGED_MANIFEST))
         }
-        manifestPlaceholders.put("MyName", gitVersionProvider.map { task ->
-            "NameWithGit" + task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)
+        it.manifestPlaceholders.put("MyName", gitVersionProvider.map { task ->
+            "NameWithGit-" + task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)
         })
     }
 }

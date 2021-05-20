@@ -50,12 +50,13 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-
-    onVariantProperties {
-        buildConfigFields.put("GitVersion", gitVersionProvider.map {  task ->
+}
+androidComponents {
+    onVariants {
+        it.buildConfigFields.put("GitVersion", gitVersionProvider.map {  task ->
             BuildConfigField(
                 "String",
-                "\"{task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)}\"", 
+                "\"{task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)}\"",
                 "Git Version")
         })
     }
