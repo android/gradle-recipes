@@ -12,10 +12,10 @@
         import com.android.build.api.artifact.SingleArtifact
 
         
-        abstract class GitVersionTask: DefaultTask() {
+        abstract class StringProducerTask: DefaultTask() {
 
             @get:OutputFile
-            abstract val gitVersionOutputFile: RegularFileProperty
+            abstract val outputFile: RegularFileProperty
 
             @ExperimentalStdlibApi
             @TaskAction
@@ -30,15 +30,15 @@
                 // var gitVersion = firstProcess.inputStream.readBytes().decodeToString()
 
                 // but here, we are just hardcoding :
-                gitVersionOutputFile.get().asFile.writeText("1234")
+                outputFile.get().asFile.writeText("android.intent.action.MAIN")
             }
         }
         
 
-        val gitVersionProvider = tasks.register<GitVersionTask>("gitVersionProvider") {
-            File(project.buildDir, "intermediates/gitVersionProvider/output").also {
+        val androidNameProvider = tasks.register<StringProducerTask>("androidNameProvider") {
+            File(project.buildDir, "intermediates/androidNameProvider/output").also {
                 it.parentFile.mkdirs()
-                gitVersionOutputFile.set(it)
+                outputFile.set(it)
             }
             outputs.upToDateWhen { false }
         }
@@ -52,7 +52,7 @@
             fun taskAction() {
                 val manifest = mergedManifest.asFile.get().readText()
                 // ensure that merged manifest contains the right activity name.
-                if (!manifest.contains("activity android:name=\"com.android.build.example.minimal.NameWithGit-"))
+                if (!manifest.contains("activity android:name=\"android.intent.action.MAIN"))
                     throw RuntimeException("Manifest Placeholder not replaced successfully")
             }
         }
@@ -70,8 +70,8 @@ defaultConfig {
                 val manifestReader = tasks.register<ManifestReaderTask>("${it.name}ManifestReader") {
                     mergedManifest.set(it.artifacts.get(SingleArtifact.MERGED_MANIFEST))
                 }
-                it.manifestPlaceholders.put("MyName", gitVersionProvider.map { task ->
-                    "NameWithGit-" + task.gitVersionOutputFile.get().asFile.readText(Charsets.UTF_8)
+                it.manifestPlaceholders.put("MyName", androidNameProvider.map { task ->
+                    task.outputFile.get().asFile.readText(Charsets.UTF_8)
                 })
             }
         }
