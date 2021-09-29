@@ -18,7 +18,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import java.io.File
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.extension.AndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.artifact.SingleArtifact
 
 abstract class ExamplePlugin: Plugin<Project> {

@@ -16,7 +16,7 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
-import com.android.build.api.extension.AndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 
 abstract class ConsumerPlugin: Plugin<Project> {
 
