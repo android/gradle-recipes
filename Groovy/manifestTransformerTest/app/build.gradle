@@ -1,81 +1,80 @@
-        plugins {
-            id 'com.android.application'
-        }
-        
-        import org.gradle.api.DefaultTask
-        import org.gradle.api.file.RegularFileProperty
-        import org.gradle.api.tasks.OutputFile
-        import org.gradle.api.tasks.TaskAction
-
-        abstract class GitVersionTask extends DefaultTask {
-
-            @OutputFile
-            abstract RegularFileProperty getGitVersionOutputFile()
-
-            @TaskAction
-            void taskAction() {
-                // this would be the code to get the tip of tree version,
-                // String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
-                // if (gitVersion.isEmpty()) {
-                //    gitVersion="12"
-                //}
-                getGitVersionOutputFile().get().asFile.write("1234")
-            }
-        }
-        
-        
-        import org.gradle.api.file.RegularFileProperty
-
-        abstract class ManifestTransformerTask extends DefaultTask {
-
-            @InputFile
-            abstract RegularFileProperty getGitInfoFile()
-
-            @InputFile
-            abstract RegularFileProperty getMergedManifest()
-
-            @OutputFile
-            abstract RegularFileProperty getUpdatedManifest()
-
-            @TaskAction
-            void taskAction() {
-                String gitVersion = new String(getGitInfoFile().get().asFile.readBytes())
-                String manifest = new String(getMergedManifest().get().asFile.readBytes())
-                manifest = manifest.replace("android:versionCode=\"1\"",
-                    "android:versionCode=\""+ gitVersion +"\"")
-                getUpdatedManifest().get().asFile.write(manifest)
-            }
-        }
-        
-
-        import com.android.build.api.artifact.SingleArtifact
-
-        android {
-            
-compileSdkVersion(29)
-defaultConfig {
-    minSdkVersion(21)
-    targetSdkVersion(29)
+plugins {
+    id 'com.android.application'
 }
-        }
-        TaskProvider gitVersionProvider = tasks.register('gitVersionProvider', GitVersionTask) {
-            task ->
-                task.gitVersionOutputFile.set(
-                    new File(project.buildDir, "intermediates/gitVersionProvider/output")
-                )
-                task.outputs.upToDateWhen { false }
-        }
 
-        androidComponents {
-            onVariants(selector().all(), {
-                TaskProvider manifestUpdater = tasks.register(it.getName() + 'ManifestUpdater', ManifestTransformerTask) {
-                    task ->
-                        task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
-                }
-                it.artifacts.use(manifestUpdater)
-                    .wiredWithFiles(
-                        { it.mergedManifest },
-                        { it.updatedManifest })
-                    .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
-            })
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+
+abstract class GitVersionTask extends DefaultTask {
+
+    @OutputFile
+    abstract RegularFileProperty getGitVersionOutputFile()
+
+    @TaskAction
+    void taskAction() {
+        // this would be the code to get the tip of tree version,
+        // String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
+        // if (gitVersion.isEmpty()) {
+        //    gitVersion="12"
+        //}
+        getGitVersionOutputFile().get().asFile.write("1234")
+    }
+}
+
+
+import org.gradle.api.file.RegularFileProperty
+
+abstract class ManifestTransformerTask extends DefaultTask {
+
+    @InputFile
+    abstract RegularFileProperty getGitInfoFile()
+
+    @InputFile
+    abstract RegularFileProperty getMergedManifest()
+
+    @OutputFile
+    abstract RegularFileProperty getUpdatedManifest()
+
+    @TaskAction
+    void taskAction() {
+        String gitVersion = new String(getGitInfoFile().get().asFile.readBytes())
+        String manifest = new String(getMergedManifest().get().asFile.readBytes())
+        manifest = manifest.replace("android:versionCode=\"1\"",
+            "android:versionCode=\""+ gitVersion +"\"")
+        getUpdatedManifest().get().asFile.write(manifest)
+    }
+}
+
+
+import com.android.build.api.artifact.SingleArtifact
+
+android {
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+TaskProvider gitVersionProvider = tasks.register('gitVersionProvider', GitVersionTask) {
+    task ->
+        task.gitVersionOutputFile.set(
+            new File(project.buildDir, "intermediates/gitVersionProvider/output")
+        )
+        task.outputs.upToDateWhen { false }
+}
+
+androidComponents {
+    onVariants(selector().all(), {
+        TaskProvider manifestUpdater = tasks.register(it.getName() + 'ManifestUpdater', ManifestTransformerTask) {
+            task ->
+                task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
         }
+        it.artifacts.use(manifestUpdater)
+            .wiredWithFiles(
+                { it.mergedManifest },
+                { it.updatedManifest })
+            .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
+    })
+}

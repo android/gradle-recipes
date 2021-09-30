@@ -1,6 +1,6 @@
-# artifacts.get in Kotlin
+# Changing the minimum SDK version in Kotlin
 
-This sample show how to change the minSdkVersion for a particular variant. Because the min sdk
+This sample show how to change the minSdkVersion for a particular variant. Because the min SDK
 version will impact the build flow, in particular how dexing is performed, it must be provided at
 configuration time.
 

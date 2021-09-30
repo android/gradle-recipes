@@ -1,54 +1,53 @@
-        plugins {
-            id 'com.android.application'
-        }
-
-        
-        import org.gradle.api.DefaultTask
-        import org.gradle.api.file.DirectoryProperty
-        import org.gradle.api.tasks.InputFiles
-        import org.gradle.api.tasks.TaskAction
-        import com.android.build.api.artifact.SingleArtifact
-        import com.android.build.api.variant.BuiltArtifactsLoader
-        import com.android.build.api.variant.BuiltArtifacts
-        import org.gradle.api.provider.Property
-        import org.gradle.api.tasks.Internal
-
-        abstract class DisplayApksTask extends DefaultTask {
-
-            @InputFiles
-            abstract DirectoryProperty getApkFolder()
-
-            @Internal
-            abstract Property<BuiltArtifactsLoader> getBuiltArtifactsLoader()
-
-            @TaskAction
-            void taskAction() {
-
-                BuiltArtifacts artifacts = getBuiltArtifactsLoader().get().load(getApkFolder().get())
-                if (artifacts == null) {
-                    throw new RuntimeException("Cannot load APKs")
-                }
-                artifacts.elements.forEach {
-                    println("Got an APK at ${it.outputFile}")
-                }
-            }
-        }
-        
-
-        android {
-            
-compileSdkVersion(29)
-defaultConfig {
-    minSdkVersion(21)
-    targetSdkVersion(29)
+plugins {
+    id 'com.android.application'
 }
-        }
 
-        androidComponents {
-            onVariants(selector().all(), { variant ->
-                project.tasks.register(variant.getName() + "DisplayApks", DisplayApksTask.class) {
-                    it.apkFolder.set(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
-                    it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
-                }
-            })
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.TaskAction
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.BuiltArtifactsLoader
+import com.android.build.api.variant.BuiltArtifacts
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Internal
+
+abstract class DisplayApksTask extends DefaultTask {
+
+    @InputFiles
+    abstract DirectoryProperty getApkFolder()
+
+    @Internal
+    abstract Property<BuiltArtifactsLoader> getBuiltArtifactsLoader()
+
+    @TaskAction
+    void taskAction() {
+
+        BuiltArtifacts artifacts = getBuiltArtifactsLoader().get().load(getApkFolder().get())
+        if (artifacts == null) {
+            throw new RuntimeException("Cannot load APKs")
         }
+        artifacts.elements.forEach {
+            println("Got an APK at ${it.outputFile}")
+        }
+    }
+}
+
+
+android {
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        project.tasks.register(variant.getName() + "DisplayApks", DisplayApksTask.class) {
+            it.apkFolder.set(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
+            it.builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+        }
+    })
+}

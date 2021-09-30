@@ -16,8 +16,8 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
-import com.android.build.api.extension.AndroidComponentsExtension
-import com.android.build.api.extension.DslExtension
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.DslExtension
 
 abstract class ProviderPlugin: Plugin<Project> {
 

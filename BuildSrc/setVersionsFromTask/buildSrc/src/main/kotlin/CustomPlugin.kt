@@ -15,7 +15,7 @@
  */
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.extension.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantOutputConfiguration.OutputType
 import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
