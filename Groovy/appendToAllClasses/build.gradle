@@ -1,0 +1,17 @@
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.1.0-alpha12")
+        classpath("org.javassist:javassist:3.22.0-GA")
+    }
+}
+allprojects {
+        repositories {
+        google()
+        jcenter()
+    }
+}

@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application'
+}
+import com.android.build.api.artifact.MultipleArtifact;
+
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.Directory;
+import org.gradle.api.tasks.TaskAction;
+import javassist.ClassPool;
+import javassist.CtClass;
+import java.io.FileInputStream;
+
+abstract class AddClassesTask extends DefaultTask {
+
+    @OutputFiles
+    abstract DirectoryProperty getOutput();
+
+    @TaskAction
+    void taskAction() {
+
+        ClassPool pool = new ClassPool(ClassPool.getDefault());
+        CtClass interfaceClass = pool.makeInterface("com.android.api.tests.SomeInterface");
+        System.out.println("Adding $interfaceClass");
+        interfaceClass.writeFile(output.get().asFile.absolutePath);
+    }
+}
+
+android {
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        TaskProvider<AddClassesTask> taskProvider = project.tasks.register(variant.getName() + "AddAllClasses", AddClassesTask.class)
+        variant.artifacts.use(taskProvider)
+            .wiredWith( { it.getOutput() })
+            .toAppendTo(MultipleArtifact.ALL_CLASSES_DIRS.INSTANCE)
+    })
+}

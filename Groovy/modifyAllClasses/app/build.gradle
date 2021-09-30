@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+import com.android.build.api.artifact.MultipleArtifact;
+
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.Directory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.TaskAction;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import java.io.FileInputStream;
+
+abstract class ModifyClassesTask extends DefaultTask {
+
+    @InputFiles
+    abstract ListProperty<Directory> getAllClasses();
+
+    @OutputFiles
+    abstract DirectoryProperty getOutput();
+
+    @TaskAction
+    void taskAction() {
+
+        ClassPool pool = new ClassPool(ClassPool.getDefault());
+
+        allClasses.get().forEach { directory ->
+            System.out.println("Directory : ${directory.asFile.absolutePath}");
+            directory.asFile.traverse(type: groovy.io.FileType.FILES) { file ->
+                System.out.println(file.absolutePath);
+                if (file.name == "SomeSource.class") {
+                    System.out.println("File : ${file.absolutePath}");
+                    CtClass interfaceClass = pool.makeInterface("com.android.api.tests.SomeInterface");
+                    System.out.println("Adding $interfaceClass");
+                    interfaceClass.writeFile(output.get().asFile.absolutePath);
+                    new FileInputStream(file).withCloseable {
+                        CtClass ctClass = pool.makeClass(it);
+                        ctClass.addInterface(interfaceClass);
+                        CtMethod m = ctClass.getDeclaredMethod("toString");
+                        if (m != null) {
+                            m.insertBefore("{ System.out.println(\"Some Extensive Tracing\"); }");
+                        }
+                        ctClass.writeFile(output.get().asFile.absolutePath);
+                    }
+                }
+            }
+        }
+    }
+}
+
+android {
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        TaskProvider<ModifyClassesTask> taskProvider = project.tasks.register(variant.getName() + "ModifyAllClasses", ModifyClassesTask.class)
+        variant.artifacts.use(taskProvider)
+            .wiredWith( { it.getAllClasses() }, { it.getOutput() })
+            .toTransform(MultipleArtifact.ALL_CLASSES_DIRS.INSTANCE)
+    })
+}

@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.ListProperty
+
+abstract class GetAllClassesTask extends DefaultTask {
+
+    @InputFiles
+    abstract ListProperty<Directory> getAllClasses()
+
+    @InputFiles
+    abstract ListProperty<RegularFile> getAllJarsWithClasses()
+
+    @TaskAction
+    void taskAction() {
+
+        allClasses.get().forEach { directory ->
+            println("Directory : ${directory.asFile.absolutePath}")
+            directory.asFile.traverse(type: groovy.io.FileType.FILES) { file ->
+                println("File : ${file.absolutePath}")
+            }
+            allJarsWithClasses.get().forEach { file ->
+                println("JarFile : ${file.asFile.absolutePath}")
+            }
+        }
+    }
+}
+
+
+android {
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+
+import com.android.build.api.artifact.MultipleArtifact
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        project.tasks.register(variant.getName() + "GetAllClasses", GetAllClassesTask.class) {
+            it.allClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_DIRS.INSTANCE))
+            it.allJarsWithClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_JARS.INSTANCE))
+
+        }
+    })
+}
