@@ -20,16 +20,6 @@
             @ExperimentalStdlibApi
             @TaskAction
             fun taskAction() {
-
-                // this would be the code to get the tip of tree version,
-                // val firstProcess = ProcessBuilder("git","rev-parse --short HEAD").start()
-                // val error = firstProcess.errorStream.readBytes().decodeToString()
-                // if (error.isNotBlank()) {
-                //      System.err.println("Git error : $error")
-                // }
-                // var gitVersion = firstProcess.inputStream.readBytes().decodeToString()
-
-                // but here, we are just hardcoding :
                 outputFile.get().asFile.writeText("android.intent.action.MAIN")
             }
         }
@@ -70,8 +60,8 @@ defaultConfig {
                 val manifestReader = tasks.register<ManifestReaderTask>("${it.name}ManifestReader") {
                     mergedManifest.set(it.artifacts.get(SingleArtifact.MERGED_MANIFEST))
                 }
-                it.manifestPlaceholders.put("MyName", androidNameProvider.map { task ->
-                    task.outputFile.get().asFile.readText(Charsets.UTF_8)
+                it.manifestPlaceholders.put("MyName", androidNameProvider.flatMap { task ->
+                    task.outputFile.map { it.asFile.readText(Charsets.UTF_8) }
                 })
             }
         }

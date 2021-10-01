@@ -56,13 +56,13 @@ fun ApplicationAndroidComponentsExtension.configure(project: Project) {
         // 1. runs just before the consumer(s), ensuring that the producer (VersionCodeTask) has run
         //    and therefore the file is created.
         // 2. contains task dependency information so that the consumer(s) run after the producer.
-        mainOutput.versionCode.set(versionCodeTask.map { it.outputFile.get().asFile.readText().toInt() })
+        mainOutput.versionCode.set(versionCodeTask.flatMap { it.outputFile.map { it.asFile.readText().toInt() } })
 
         // same for version Name
         val versionNameTask = project.tasks.register("computeVersionNameFor${variant.name}", VersionNameTask::class.java) {
             it.outputFile.set(project.layout.buildDirectory.file("versionName.txt"))
         }
-        mainOutput.versionName.set(versionNameTask.map { it.outputFile.get().asFile.readText() })
+        mainOutput.versionName.set(versionNameTask.flatMap { it.outputFile.map { it.asFile.readText() }})
 
         // finally add the verifier task that will check that the merged manifest
         // does contain the version code and version name from the tasks added
