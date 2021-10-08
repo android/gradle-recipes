@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion(29)
+defaultConfig {
+    minSdkVersion(21)
+    targetSdkVersion(29)
+}
+}
+
+abstract class ApplicationIdProducerTask extends DefaultTask {
+
+    @OutputFile
+    abstract RegularFileProperty getOutputFile()
+
+    @TaskAction
+    void taskAction() {
+        getOutputFile().get().getAsFile().write("set.from.task." + name)
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("debug")) { variant ->
+        TaskProvider appIdProducer = tasks.register(variant.name + "AppIdProducerTask", ApplicationIdProducerTask.class) { task ->
+            File outputDir = new File(getBuildDir(), task.name)
+            task.getOutputFile().set(new File(outputDir, "appId.txt"))
+
+        }
+        variant.setApplicationId(appIdProducer.flatMap { task ->
+                task.getOutputFile().map { it.getAsFile().text }
+        })
+    }
+}
