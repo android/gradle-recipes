@@ -1,7 +1,6 @@
 plugins {
         id("com.android.library")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -24,10 +23,10 @@ abstract class AarUploadTask: DefaultTask() {
     }
 }
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 androidComponents {

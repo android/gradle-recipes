@@ -36,11 +36,11 @@ abstract class ExamplePlugin : Plugin<Project> {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
 
         androidComponents.onVariants { variant ->
-            variant.transformClassesWith(ExampleClassVisitorFactory::class.java,
-                                 InstrumentationScope.ALL) {
+            variant.instrumentation.transformClassesWith(ExampleClassVisitorFactory::class.java,
+                                                         InstrumentationScope.ALL) {
                 it.writeToStdout.set(true)
             }
-            variant.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
+            variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
     }
 

@@ -1,7 +1,6 @@
 plugins {
         id("com.android.library")
         kotlin("android")
-        kotlin("android.extensions")
 }
 
 
@@ -28,10 +27,10 @@ abstract class ManifestTransformerTask: DefaultTask() {
 }
 
 android {
+    namespace = "com.android.build.example.module"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 androidComponents {

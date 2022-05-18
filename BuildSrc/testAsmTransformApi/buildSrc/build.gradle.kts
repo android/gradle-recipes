@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.31"
 }
 
 repositories {
@@ -14,7 +14,7 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle-api:7.1.0-alpha13")
+    implementation("com.android.tools.build:gradle-api:7.3.0-beta01")
     implementation(kotlin("stdlib"))
     gradleApi()
 }

@@ -1,7 +1,6 @@
 plugins {
         id("com.android.application")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -32,10 +31,10 @@ abstract class DisplayApksTask: DefaultTask() {
 }
 
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 
