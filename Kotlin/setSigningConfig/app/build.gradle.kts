@@ -1,7 +1,6 @@
 plugins {
         id("com.android.application")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -12,10 +11,10 @@ import com.android.build.api.artifact.SingleArtifact
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
     signingConfigs {
 

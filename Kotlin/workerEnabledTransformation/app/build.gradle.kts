@@ -1,7 +1,6 @@
 plugins {
         id("com.android.application")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import java.io.Serializable
 import javax.inject.Inject
@@ -60,10 +59,10 @@ abstract class CopyApksTask @Inject constructor(private val workers: WorkerExecu
 
 
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 androidComponents {

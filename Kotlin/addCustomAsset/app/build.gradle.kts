@@ -1,16 +1,15 @@
 plugins {
         id("com.android.application")
         kotlin("android")
-        kotlin("android.extensions")
 }
 
 import com.android.build.api.artifact.MultipleArtifact
 
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 
@@ -32,10 +31,8 @@ androidComponents {
 
         val assetCreationTask =
             project.tasks.register<AssetCreatorTask>("create${variant.name}Asset")
-        variant.artifacts.use(assetCreationTask)
-                .wiredWith(
-                    AssetCreatorTask::outputDirectory
-                )
-                .toAppendTo(MultipleArtifact.ASSETS)
+        variant.sources.assets?.addGeneratedSourceDirectory(
+                assetCreationTask,
+                AssetCreatorTask::outputDirectory)
     }
 }

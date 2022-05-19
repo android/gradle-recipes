@@ -1,7 +1,6 @@
 plugins {
         id("com.android.application")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import com.android.build.api.artifact.MultipleArtifact
 
@@ -35,10 +34,10 @@ abstract class GetAllClassesTask: DefaultTask() {
 }
 
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 

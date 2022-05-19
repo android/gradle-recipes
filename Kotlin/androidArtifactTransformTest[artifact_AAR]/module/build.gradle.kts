@@ -1,7 +1,6 @@
 plugins {
         id("com.android.library")
         kotlin("android")
-        kotlin("android.extensions")
 }
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -24,6 +23,8 @@ abstract class UpdateArtifactTask: DefaultTask() {
     fun taskAction() {
         val versionCode = "artifactTransformed = true"
         println("artifactPresent = " + initialArtifact.isPresent)
+        println("initialArtifact = " + initialArtifact.get().asFile)
+        println("updatedArtifact = " + updatedArtifact.get().asFile)
         updatedArtifact.get().asFile.writeText(versionCode)
     }
 }
@@ -37,10 +38,10 @@ abstract class ConsumeArtifactTask: DefaultTask() {
     }
 }
 android {
-    compileSdkVersion(29)
+    namespace = "com.android.build.example.minimal"
+        compileSdkVersion(29)
         defaultConfig {
             minSdkVersion(21)
-            targetSdkVersion(29)
         }
     
 }

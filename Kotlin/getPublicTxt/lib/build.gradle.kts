@@ -52,10 +52,10 @@ abstract class PublicResourcesValidatorTask: DefaultTask() {
     }
 }
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 androidComponents {

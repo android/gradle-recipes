@@ -46,10 +46,9 @@ abstract class ToyPlugin: Plugin<Project> {
             val taskProvider =
                 project.tasks.register(variant.name + "AddAsset", AddAssetTask::class.java) { it.content.set(content) }
 
-            variant.artifacts
-                .use(taskProvider)
-                .wiredWith(AddAssetTask::outputDir)
-                .toAppendTo(MultipleArtifact.ASSETS)
+            variant.sources.assets?.addGeneratedSourceDirectory(
+                taskProvider,
+                AddAssetTask::outputDir)
         }
     }
 }

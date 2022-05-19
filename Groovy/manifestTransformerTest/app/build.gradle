@@ -51,10 +51,10 @@ abstract class ManifestTransformerTask extends DefaultTask {
 import com.android.build.api.artifact.SingleArtifact
 
 android {
+    namespace = "com.android.build.example.minimal"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
-        targetSdkVersion(29)
     }
 }
 TaskProvider gitVersionProvider = tasks.register('gitVersionProvider', GitVersionTask) {
