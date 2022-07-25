@@ -1,0 +1,18 @@
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.4.0-alpha08")
+        classpath(kotlin("gradle-plugin", version = "1.7.0"))
+        classpath("org.javassist:javassist:3.26.0-GA")
+    }
+}
+allprojects {
+        repositories {
+        google()
+        jcenter()
+    }
+}
