@@ -1,5 +1,5 @@
 # artifacts.get in Kotlin
-This sample show how to obtain a built artifact from the AGP. The built artifact is identified by
+This sample shows how to obtain a built artifact from the AGP. The built artifact is identified by
 its [SingleArtifact. and in this case, it's [SingleArtifact.APK].
 The [onVariants] block will wire the [DisplayApksTask] input property (apkFolder) by using
 the [Artifacts.get] call with the right [SingleArtifact.

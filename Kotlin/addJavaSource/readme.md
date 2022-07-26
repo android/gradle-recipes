@@ -1,5 +1,5 @@
 # artifacts.get in Kotlin
-This sample show how to obtain the java sources and add a [Directory] to the list of java sources
+This sample shows how to obtain the java sources and add a [Directory] to the list of java sources
 that will be used for compilation.
 
 To access all java sources, you just need to use

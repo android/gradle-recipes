@@ -1,5 +1,5 @@
 # Add custom source folders in Kotlin
-This sample show how to add a new custom source folders to the Variant. Note the sources will not
+This sample shows how to add a new custom source folders to the Variant. Note the sources will not
 be added to the DSL and therefore to the usual src/ locations. The source folder will
 not be used by any AGP tasks (since we do not know about it), however, it can be used by plugins and
 tasks participating into the Variant API callbacks.

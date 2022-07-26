@@ -13,22 +13,22 @@ import org.gradle.api.provider.ListProperty
 abstract class GetAllClassesTask extends DefaultTask {
 
     @InputFiles
-    abstract ListProperty<Directory> getAllClasses()
+    abstract ListProperty<Directory> getAllDirectories()
 
     @InputFiles
-    abstract ListProperty<RegularFile> getAllJarsWithClasses()
+    abstract ListProperty<RegularFile> getAllJars()
 
     @TaskAction
     void taskAction() {
 
-        allClasses.get().forEach { directory ->
+        allDirectories.get().forEach { directory ->
             println("Directory : ${directory.asFile.absolutePath}")
             directory.asFile.traverse(type: groovy.io.FileType.FILES) { file ->
                 println("File : ${file.absolutePath}")
             }
-            allJarsWithClasses.get().forEach { file ->
-                println("JarFile : ${file.asFile.absolutePath}")
-            }
+        }
+        allJars.get().forEach { file ->
+            println("JarFile : ${file.asFile.absolutePath}")
         }
     }
 }
@@ -42,13 +42,17 @@ android {
     }
 }
 
-import com.android.build.api.artifact.MultipleArtifact
+import com.android.build.api.variant.ScopedArtifacts
+import com.android.build.api.artifact.ScopedArtifact
 androidComponents {
     onVariants(selector().all(), { variant ->
-        project.tasks.register(variant.getName() + "GetAllClasses", GetAllClassesTask.class) {
-            it.allClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_DIRS.INSTANCE))
-            it.allJarsWithClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_JARS.INSTANCE))
-
-        }
+        TaskProvider taskProvider = project.tasks.register(variant.getName() + "GetAllClasses", GetAllClassesTask.class)
+        variant.artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
+            .use(taskProvider)
+            .toGet(
+                ScopedArtifact.CLASSES.INSTANCE,
+                { it.allJars },
+                { it.allDirectories }
+            )
     })
 }

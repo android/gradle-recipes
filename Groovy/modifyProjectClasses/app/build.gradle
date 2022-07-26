@@ -1,0 +1,111 @@
+plugins {
+    id 'com.android.application'
+}
+import com.android.build.api.artifact.MultipleArtifact;
+
+import com.android.build.api.artifact.ScopedArtifact;
+import com.android.build.api.variant.ScopedArtifacts;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.file.Directory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.TaskAction;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import java.io.FileInputStream;
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+
+abstract class ModifyClassesTask extends DefaultTask {
+
+    @InputFiles
+    abstract ListProperty<RegularFile> getAllJars();
+
+    @InputFiles
+    abstract ListProperty<Directory> getAllDirectories();
+
+    @OutputFiles
+    abstract RegularFileProperty getOutput();
+
+    @TaskAction
+    void taskAction() {
+
+        ClassPool pool = new ClassPool(ClassPool.getDefault());
+
+        OutputStream jarOutput = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(
+           output.get().getAsFile()
+        )))
+
+        // Adding new Interface.
+        CtClass interfaceClass = pool.makeInterface("com.android.api.tests.SomeInterface");
+        System.out.println("Adding $interfaceClass");
+        jarOutput.putNextEntry(new JarEntry("com/android/api/tests/SomeInterface.class"))
+        jarOutput.write(interfaceClass.toBytecode())
+        jarOutput.closeEntry()
+
+        allJars.get().forEach { file ->
+            println("JarFile : " + file.asFile.getAbsolutePath())
+            JarFile jarFile = new JarFile(file.asFile)
+            for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
+                JarEntry jarEntry = e.nextElement();
+                println("Adding from jar ${jarEntry.name}")
+                jarOutput.putNextEntry(new JarEntry(jarEntry.name))
+                jarFile.getInputStream(jarEntry).withCloseable {
+                    jarOutput << it
+                }
+                jarOutput.closeEntry()
+            }
+            jarFile.close()
+       }
+
+        allDirectories.get().forEach { directory ->
+            System.out.println("Directory : ${directory.asFile.absolutePath}");
+            directory.asFile.traverse(type: groovy.io.FileType.FILES) { file ->
+                System.out.println(file.absolutePath);
+                if (file.name == "SomeSource.class") {
+                    System.out.println("File : ${file.absolutePath}");
+                    new FileInputStream(file).withCloseable {
+                        CtClass ctClass = pool.makeClass(it);
+                        ctClass.addInterface(interfaceClass);
+                        CtMethod m = ctClass.getDeclaredMethod("toString");
+                        if (m != null) {
+                            m.insertBefore("{ System.out.println(\"Some Extensive Tracing\"); }");
+                        }
+                        // write modified class.
+                        jarOutput.putNextEntry(new JarEntry("com/android/api/tests/SomeSource.class"))
+                        jarOutput.write(ctClass.toBytecode())
+                        jarOutput.closeEntry()
+                    }
+                } else {
+                    String relativePath = directory.asFile.toURI().relativize(file.toURI()).getPath()
+                    println("Adding from directory ${relativePath.replace(File.separatorChar, '/' as char)}")
+                    jarOutput.putNextEntry(new JarEntry(relativePath.replace(File.separatorChar, '/' as char)))
+                    new FileInputStream(file).withCloseable { inputStream ->
+                        jarOutput << inputStream
+                    }
+                    jarOutput.closeEntry()
+                }
+            }
+        }
+        jarOutput.close()
+    }
+}
+
+android {
+    namespace = "com.android.build.example.minimal"
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+    }
+}
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        TaskProvider<ModifyClassesTask> taskProvider = project.tasks.register(variant.getName() + "ModifyAllClasses", ModifyClassesTask.class)
+        variant.artifacts
+            .forScope(ScopedArtifacts.Scope.PROJECT)
+            .use(taskProvider)
+            .toTransform(ScopedArtifact.CLASSES.INSTANCE,  { it.getAllJars() }, { it.getAllDirectories() }, { it.getOutput() })
+    })
+}

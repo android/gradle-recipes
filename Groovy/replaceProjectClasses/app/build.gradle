@@ -1,0 +1,59 @@
+plugins {
+    id 'com.android.application'
+}
+import com.android.build.api.variant.ScopedArtifacts;
+import com.android.build.api.artifact.MultipleArtifact;
+import com.android.build.api.artifact.ScopedArtifact;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.TaskAction;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+
+abstract class ReplaceClassesTask extends DefaultTask {
+
+    @OutputFiles
+    abstract RegularFileProperty getOutput();
+
+    @TaskAction
+    void taskAction() {
+
+        ClassPool pool = new ClassPool(ClassPool.getDefault());
+
+        new JarOutputStream(new BufferedOutputStream(new FileOutputStream(
+           output.get().getAsFile()
+        ))).withCloseable {
+
+            // Adding new Interface.
+            CtClass interfaceClass = pool.makeInterface("com.android.api.tests.SomeInterface");
+            System.out.println("Adding $interfaceClass");
+            it.putNextEntry(new JarEntry("com/android/api/tests/SomeInterface.class"))
+            it.write(interfaceClass.toBytecode())
+            it.closeEntry()
+        }
+    }
+}
+
+android {
+    namespace = "com.android.build.example.minimal"
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+    }
+}
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        TaskProvider<ReplaceClassesTask> taskProvider = project.tasks.register(variant.getName() + "ReplaceAllClasses", ReplaceClassesTask.class)
+        variant.artifacts
+            .forScope(ScopedArtifacts.Scope.PROJECT)
+            .use(taskProvider)
+            .toReplace(
+                ScopedArtifact.CLASSES.INSTANCE,
+                { it.getOutput() }
+            )
+    })
+}

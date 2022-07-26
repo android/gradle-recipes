@@ -2,7 +2,8 @@ plugins {
         id("com.android.application")
         kotlin("android")
 }
-import com.android.build.api.artifact.MultipleArtifact
+import com.android.build.api.variant.ScopedArtifacts
+import com.android.build.api.artifact.ScopedArtifact
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.Directory
@@ -13,22 +14,22 @@ import org.gradle.api.tasks.TaskAction
 abstract class GetAllClassesTask: DefaultTask() {
 
     @get:InputFiles
-    abstract val allClasses: ListProperty<Directory>
+    abstract val allDirectories: ListProperty<Directory>
 
     @get:InputFiles
-    abstract val allJarsWithClasses: ListProperty<RegularFile>
+    abstract val allJars: ListProperty<RegularFile>
 
     @TaskAction
     fun taskAction() {
 
-        allClasses.get().forEach { directory ->
+        allDirectories.get().forEach { directory ->
             println("Directory : ${directory.asFile.absolutePath}")
             directory.asFile.walk().filter(File::isFile).forEach { file ->
                 println("File : ${file.absolutePath}")
             }
-            allJarsWithClasses.get().forEach { file ->
-                println("JarFile : ${file.asFile.absolutePath}")
-            }
+        }
+        allJars.get().forEach { file ->
+            println("JarFile : ${file.asFile.absolutePath}")
         }
     }
 }
@@ -43,9 +44,13 @@ android {
 
 androidComponents {
     onVariants { variant ->
-        project.tasks.register<GetAllClassesTask>("${variant.name}GetAllClasses") {
-            allClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_DIRS))
-            allJarsWithClasses.set(variant.artifacts.getAll(MultipleArtifact.ALL_CLASSES_JARS))
-        }
+        val taskProvider = project.tasks.register<GetAllClassesTask>("${variant.name}GetAllClasses")
+        variant.artifacts.forScope(ScopedArtifacts.Scope.PROJECT)
+            .use(taskProvider)
+            .toGet(
+                ScopedArtifact.CLASSES,
+                GetAllClassesTask::allJars,
+                GetAllClassesTask::allDirectories
+            )
     }
 }
