@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.build.api.artifact.Artifacts
+
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.VariantOutputConfiguration.OutputType
@@ -21,10 +21,12 @@ import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class CustomPlugin: Plugin<Project> {
+class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.withType(AppPlugin::class.java) {
-            val extension = project.extensions.getByName("androidComponents") as ApplicationAndroidComponentsExtension
+            val extension =
+                project.extensions.getByName("androidComponents")
+                    as ApplicationAndroidComponentsExtension
             extension.configure(project)
         }
     }
@@ -47,22 +49,28 @@ fun ApplicationAndroidComponentsExtension.configure(project: Project) {
         val mainOutput = variant.outputs.single { it.outputType == OutputType.SINGLE }
 
         // create version Code generating task
-        val versionCodeTask = project.tasks.register("computeVersionCodeFor${variant.name}", VersionCodeTask::class.java) {
-            it.outputFile.set(project.layout.buildDirectory.file("versionCode.txt"))
-        }
+        val versionCodeTask =
+            project.tasks.register(
+                "computeVersionCodeFor${variant.name}", VersionCodeTask::class.java) {
+                    it.outputFile.set(project.layout.buildDirectory.file("versionCode.txt"))
+                }
 
         // wire version code from the task output
         // map will create a lazy Provider that
         // 1. runs just before the consumer(s), ensuring that the producer (VersionCodeTask) has run
         //    and therefore the file is created.
         // 2. contains task dependency information so that the consumer(s) run after the producer.
-        mainOutput.versionCode.set(versionCodeTask.flatMap { it.outputFile.map { it.asFile.readText().toInt() } })
+        mainOutput.versionCode.set(
+            versionCodeTask.flatMap { it.outputFile.map { it.asFile.readText().toInt() } })
 
         // same for version Name
-        val versionNameTask = project.tasks.register("computeVersionNameFor${variant.name}", VersionNameTask::class.java) {
-            it.outputFile.set(project.layout.buildDirectory.file("versionName.txt"))
-        }
-        mainOutput.versionName.set(versionNameTask.flatMap { it.outputFile.map { it.asFile.readText() }})
+        val versionNameTask =
+            project.tasks.register(
+                "computeVersionNameFor${variant.name}", VersionNameTask::class.java) {
+                    it.outputFile.set(project.layout.buildDirectory.file("versionName.txt"))
+                }
+        mainOutput.versionName.set(
+            versionNameTask.flatMap { it.outputFile.map { it.asFile.readText() } })
 
         // finally add the verifier task that will check that the merged manifest
         // does contain the version code and version name from the tasks added

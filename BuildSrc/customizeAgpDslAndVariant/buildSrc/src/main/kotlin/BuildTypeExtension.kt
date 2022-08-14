@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
-* Simple DSL extension interface that will be attached to the android build type
-* DSL element.
-*/
+/** Simple DSL extension interface that will be attached to the android build type DSL element. */
 interface BuildTypeExtension {
     var invocationParameters: String?
 }

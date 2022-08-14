@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.AndroidComponentsExtension
+import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
-import com.android.build.api.variant.AndroidComponentsExtension
 
-abstract class ExamplePlugin: Plugin<Project> {
+abstract class ExamplePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val gitVersionProvider =
             project.tasks.register("gitVersionProvider", GitVersionTask::class.java) {
                 it.gitVersionOutputFile.set(
-                    File(project.buildDir, "intermediates/gitVersionProvider/output")
-                )
+                    File(project.buildDir, "intermediates/gitVersionProvider/output"))
                 it.outputs.upToDateWhen { false }
             }
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
 
         androidComponents.onVariants { variant ->
-
             val manifestUpdater =
-                project.tasks.register(variant.name + "ManifestUpdater", ManifestTransformerTask::class.java) {
-                    it.gitInfoFile.set(gitVersionProvider.flatMap(GitVersionTask::gitVersionOutputFile))
-                }
-            variant.artifacts.use(manifestUpdater)
+                project.tasks.register(
+                    variant.name + "ManifestUpdater", ManifestTransformerTask::class.java) {
+                        it.gitInfoFile.set(
+                            gitVersionProvider.flatMap(GitVersionTask::gitVersionOutputFile))
+                    }
+            variant.artifacts
+                .use(manifestUpdater)
                 .wiredWithFiles(
                     ManifestTransformerTask::mergedManifest,
                     ManifestTransformerTask::updatedManifest)

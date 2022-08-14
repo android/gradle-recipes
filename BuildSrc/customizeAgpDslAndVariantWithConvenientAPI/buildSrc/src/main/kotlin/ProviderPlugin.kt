@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import java.io.File
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DslExtension
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-abstract class ProviderPlugin: Plugin<Project> {
+abstract class ProviderPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.extensions.getByType(AndroidComponentsExtension::class.java)
-            .registerExtension(
-                DslExtension.Builder("exampleDsl")
-                    .extendBuildTypeWith(BuildTypeExtension::class.java)
-                    .build()
-                ) { variantExtensionConfig ->
-                    project.objects.newInstance(ExampleVariantExtension::class.java).also {
-                        it.parameters.set(
-                            variantExtensionConfig.buildTypeExtension(BuildTypeExtension::class.java)
-                                .invocationParameters
-                        )
-                    }
+        project.extensions.getByType(AndroidComponentsExtension::class.java).registerExtension(
+            DslExtension.Builder("exampleDsl")
+                .extendBuildTypeWith(BuildTypeExtension::class.java)
+                .build()) { variantExtensionConfig ->
+                project.objects.newInstance(ExampleVariantExtension::class.java).also {
+                    it.parameters.set(
+                        variantExtensionConfig
+                            .buildTypeExtension(BuildTypeExtension::class.java)
+                            .invocationParameters)
                 }
+            }
     }
 }

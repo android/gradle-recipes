@@ -13,40 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import java.io.File
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.AndroidComponentsExtension
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-abstract class ProviderPlugin: Plugin<Project> {
+abstract class ProviderPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val objects = project.getObjects();
+        val objects = project.getObjects()
 
         val android = project.extensions.getByType(ApplicationExtension::class.java)
         android.buildTypes.forEach {
-            it.extensions.add(
-                "exampleDsl",
-                BuildTypeExtension::class.java)
+            it.extensions.add("exampleDsl", BuildTypeExtension::class.java)
         }
-
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.beforeVariants { variantBuilder ->
             val variantExtension = objects.newInstance(VariantExtension::class.java)
 
             val debug = android.buildTypes.getByName(variantBuilder.name)
-            val buildTypeExtension = debug.extensions.findByName("exampleDsl")
-                as BuildTypeExtension
-            variantExtension.parameters.set(
-                buildTypeExtension.invocationParameters ?: ""
-            )
+            val buildTypeExtension = debug.extensions.findByName("exampleDsl") as BuildTypeExtension
+            variantExtension.parameters.set(buildTypeExtension.invocationParameters ?: "")
 
-            variantBuilder.registerExtension(
-                VariantExtension::class.java,
-                variantExtension
-            )
+            variantBuilder.registerExtension(VariantExtension::class.java, variantExtension)
         }
     }
 }

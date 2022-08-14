@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import com.android.build.api.variant.AndroidComponentsExtension
 
-abstract class ExamplePlugin: Plugin<Project> {
+abstract class ExamplePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.finalizeDsl { extension ->
-            extension.buildTypes.create("extra").let {
-                it.isJniDebuggable = true
-            }
+            extension.buildTypes.create("extra").let { it.isJniDebuggable = true }
         }
     }
 }

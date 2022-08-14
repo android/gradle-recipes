@@ -20,8 +20,7 @@ import org.gradle.api.tasks.TaskAction
 
 abstract class VersionNameTask : DefaultTask() {
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun action() {

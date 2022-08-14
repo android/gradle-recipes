@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
-import com.android.build.api.variant.AndroidComponentsExtension
 
-abstract class ConsumerPlugin: Plugin<Project> {
+abstract class ConsumerPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.extensions.getByType(AndroidComponentsExtension::class.java)
-            .onVariants { variant ->
-                project.tasks.register(variant.name + "Example", ExampleTask::class.java) { task ->
-                    task.parameters.set(
-                        variant.getExtension(ExampleVariantExtension::class.java)?.parameters
-                    )
-                }
+        project.extensions.getByType(AndroidComponentsExtension::class.java).onVariants { variant ->
+            project.tasks.register(variant.name + "Example", ExampleTask::class.java) { task ->
+                task.parameters.set(
+                    variant.getExtension(ExampleVariantExtension::class.java)?.parameters)
+            }
         }
     }
 }

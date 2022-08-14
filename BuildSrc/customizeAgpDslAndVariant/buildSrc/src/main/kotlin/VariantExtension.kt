@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
-* Simple Variant scoped extension interface that will be attached to the AGP
-* variant object.
-*/
+/** Simple Variant scoped extension interface that will be attached to the AGP variant object. */
 import org.gradle.api.provider.Property
 
 interface VariantExtension {
     /**
-     * the parameters is declared a Property<> so other plugins can declare a
-     * task providing this value that will then be determined at execution time.
+     * the parameters is declared a Property<> so other plugins can declare a task providing this
+     * value that will then be determined at execution time.
      */
     val parameters: Property<String>
 }

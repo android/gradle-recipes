@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
-import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.artifact.SingleArtifact
 
-abstract class ExamplePlugin: Plugin<Project> {
+abstract class ExamplePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
 
         androidComponents.onVariants { variant ->
+            val copyApksProvider =
+                project.tasks.register("copy${variant.name}Apks", CopyApksTask::class.java)
 
-            val copyApksProvider = project.tasks.register("copy${variant.name}Apks", CopyApksTask::class.java)
+            val transformationRequest =
+                variant.artifacts
+                    .use(copyApksProvider)
+                    .wiredWithDirectories(CopyApksTask::apkFolder, CopyApksTask::outFolder)
+                    .toTransformMany(SingleArtifact.APK)
 
-            val transformationRequest = variant.artifacts.use(copyApksProvider)
-                .wiredWithDirectories(
-                    CopyApksTask::apkFolder,
-                    CopyApksTask::outFolder)
-                .toTransformMany(SingleArtifact.APK)
-
-            copyApksProvider.configure {
-                it.transformationRequest.set(transformationRequest)
-            }
+            copyApksProvider.configure { it.transformationRequest.set(transformationRequest) }
         }
     }
 }

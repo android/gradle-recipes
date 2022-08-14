@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
-import java.io.File
-import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.artifact.SingleArtifact
 
-abstract class ExamplePlugin: Plugin<Project> {
+abstract class ExamplePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         // attach the BuildTypeExtension to each elements returned by the
         // android buildTypes API.
         val android = project.extensions.getByType(ApplicationExtension::class.java)
         android.buildTypes.forEach {
-            (it as ExtensionAware).extensions.add(
-                "exampleDsl",
-                BuildTypeExtension::class.java)
+            (it as ExtensionAware).extensions.add("exampleDsl", BuildTypeExtension::class.java)
         }
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
@@ -39,8 +36,9 @@ abstract class ExamplePlugin: Plugin<Project> {
             // get the associated DSL BuildType element from the variant name
             val buildTypeDsl = android.buildTypes.getByName(variant.name)
             // find the extension on that DSL element.
-            val buildTypeExtension = (buildTypeDsl as ExtensionAware).extensions.findByName("exampleDsl")
-                as BuildTypeExtension
+            val buildTypeExtension =
+                (buildTypeDsl as ExtensionAware).extensions.findByName("exampleDsl")
+                    as BuildTypeExtension
             // create and configure the Task using the extension DSL values.
             project.tasks.register(variant.name + "Example", ExampleTask::class.java) { task ->
                 task.parameters.set(buildTypeExtension.invocationParameters ?: "")

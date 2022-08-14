@@ -5,7 +5,6 @@ plugins {
 }
 
 android {
-    
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
@@ -14,7 +13,5 @@ android {
 }
 
 androidComponents.finalizeDsl { extension ->
-    extension.buildTypes.create("extra").let {
-       it.isJniDebuggable = true
-    }
+    extension.buildTypes.create("extra").let { it.isJniDebuggable = true }
 }

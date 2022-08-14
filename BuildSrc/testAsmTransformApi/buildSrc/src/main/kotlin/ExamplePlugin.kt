@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.instrumentation.AsmClassVisitorFactory
 import com.android.build.api.instrumentation.ClassContext
 import com.android.build.api.instrumentation.ClassData
 import com.android.build.api.instrumentation.FramesComputationMode
 import com.android.build.api.instrumentation.InstrumentationParameters
 import com.android.build.api.instrumentation.InstrumentationScope
+import com.android.build.api.variant.AndroidComponentsExtension
+import java.io.File
+import java.io.PrintWriter
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.util.TraceClassVisitor
-import java.io.File
-import java.io.PrintWriter
 
 abstract class ExamplePlugin : Plugin<Project> {
 
@@ -36,21 +36,19 @@ abstract class ExamplePlugin : Plugin<Project> {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
 
         androidComponents.onVariants { variant ->
-            variant.transformClassesWith(ExampleClassVisitorFactory::class.java,
-                                 InstrumentationScope.ALL) {
-                it.writeToStdout.set(true)
-            }
+            variant.transformClassesWith(
+                ExampleClassVisitorFactory::class.java, InstrumentationScope.ALL) {
+                    it.writeToStdout.set(true)
+                }
             variant.setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
         }
     }
 
     interface ExampleParams : InstrumentationParameters {
-        @get:Input
-        val writeToStdout: Property<Boolean>
+        @get:Input val writeToStdout: Property<Boolean>
     }
 
-    abstract class ExampleClassVisitorFactory :
-        AsmClassVisitorFactory<ExampleParams> {
+    abstract class ExampleClassVisitorFactory : AsmClassVisitorFactory<ExampleParams> {
 
         override fun createClassVisitor(
             classContext: ClassContext,

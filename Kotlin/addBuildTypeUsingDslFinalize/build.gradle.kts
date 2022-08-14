@@ -1,4 +1,3 @@
-
 buildscript {
     repositories {
         google()
@@ -9,8 +8,9 @@ buildscript {
         classpath(kotlin("gradle-plugin", version = "1.4.32"))
     }
 }
+
 allprojects {
-        repositories {
+    repositories {
         google()
         jcenter()
     }
