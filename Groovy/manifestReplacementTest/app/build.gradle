@@ -1,45 +1,45 @@
-        plugins {
-            id 'com.android.application'
-        }
-        
-        import org.gradle.api.DefaultTask
-        import org.gradle.api.file.RegularFileProperty
-        import org.gradle.api.tasks.OutputFile
-        import org.gradle.api.tasks.TaskAction
+plugins {
+    id 'com.android.application'
+}
 
-        abstract class GitVersionTask extends DefaultTask {
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 
-            @OutputFile
-            abstract RegularFileProperty getGitVersionOutputFile()
+abstract class GitVersionTask extends DefaultTask {
 
-            @TaskAction
-            void taskAction() {
-                // this would be the code to get the tip of tree version,
-                // String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
-                // if (gitVersion.isEmpty()) {
-                //    gitVersion="12"
-                //}
-                getGitVersionOutputFile().get().asFile.write("1234")
-            }
-        }
-        
-        
-        import org.gradle.api.DefaultTask
-        import org.gradle.api.file.RegularFileProperty
-        import org.gradle.api.tasks.InputFile
-        import org.gradle.api.tasks.OutputFile
-        import org.gradle.api.tasks.TaskAction
+    @OutputFile
+    abstract RegularFileProperty getGitVersionOutputFile()
 
-        abstract class ManifestProducerTask extends DefaultTask {
-            @InputFile
-            abstract RegularFileProperty getGitInfoFile()
+    @TaskAction
+    void taskAction() {
+        // this would be the code to get the tip of tree version,
+        // String gitVersion = "git rev-parse --short HEAD".execute().text.trim()
+        // if (gitVersion.isEmpty()) {
+        //    gitVersion="12"
+        //}
+        getGitVersionOutputFile().get().asFile.write("1234")
+    }
+}
 
-            @OutputFile
-            abstract RegularFileProperty getOutputManifest()
 
-            @TaskAction
-            void taskAction() {
-                String manifest = """<?xml version="1.0" encoding="utf-8"?>
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+
+abstract class ManifestProducerTask extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getGitInfoFile()
+
+    @OutputFile
+    abstract RegularFileProperty getOutputManifest()
+
+    @TaskAction
+    void taskAction() {
+        String manifest = """<?xml version="1.0" encoding="utf-8"?>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                     package="com.android.build.example.minimal"
                     android:versionName="${new String(getGitInfoFile().get().asFile.readBytes())}"
@@ -55,40 +55,40 @@
                     </application>
                 </manifest>
                     """
-                println("Writes to " + getOutputManifest().get().getAsFile().getAbsolutePath())
-                getOutputManifest().get().getAsFile().write(manifest)
-            }
-        }
-        
-
-        import com.android.build.api.artifact.SingleArtifact
-
-        android {
-            
-compileSdkVersion(29)
-defaultConfig {
-    minSdkVersion(21)
-    targetSdkVersion(29)
+        println("Writes to " + getOutputManifest().get().getAsFile().getAbsolutePath())
+        getOutputManifest().get().getAsFile().write(manifest)
+    }
 }
+
+
+import com.android.build.api.artifact.SingleArtifact
+
+android {
+
+    compileSdkVersion(29)
+    defaultConfig {
+        minSdkVersion(21)
+        targetSdkVersion(29)
+    }
+}
+
+androidComponents {
+
+    onVariants(selector().all(), {
+        TaskProvider gitVersionProvider = tasks.register(it.getName() + 'GitVersionProvider', GitVersionTask) {
+            task ->
+                task.gitVersionOutputFile.set(
+                        new File(project.buildDir, "intermediates/gitVersionProvider/output")
+                )
+                task.outputs.upToDateWhen { false }
         }
 
-        androidComponents {
-
-            onVariants(selector().all(), {
-                TaskProvider gitVersionProvider = tasks.register(it.getName() + 'GitVersionProvider', GitVersionTask) {
-                    task ->
-                        task.gitVersionOutputFile.set(
-                            new File(project.buildDir, "intermediates/gitVersionProvider/output")
-                        )
-                        task.outputs.upToDateWhen { false }
-                }
-
-                TaskProvider manifestProducer = tasks.register(it.getName() + 'ManifestProducer', ManifestProducerTask) {
-                    task ->
-                        task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
-                }
-                it.artifacts.use(manifestProducer)
-                    .wiredWith({ it.outputManifest })
-                    .toCreate(SingleArtifact.MERGED_MANIFEST.INSTANCE)
-            })
+        TaskProvider manifestProducer = tasks.register(it.getName() + 'ManifestProducer', ManifestProducerTask) {
+            task ->
+                task.gitInfoFile.set(gitVersionProvider.flatMap { it.getGitVersionOutputFile() })
         }
+        it.artifacts.use(manifestProducer)
+                .wiredWith({ it.outputManifest })
+                .toCreate(SingleArtifact.MERGED_MANIFEST.INSTANCE)
+    })
+}
