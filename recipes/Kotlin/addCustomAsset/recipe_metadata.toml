@@ -1,0 +1,21 @@
+title = "addCustomAsset"
+
+description ="""
+  addCustomAsset recipe
+  """
+
+[agpVersion]
+min = "7.4.0-alpha09"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+  "help",
+  "dependencies"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+  "Kotlin"
+]
