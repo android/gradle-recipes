@@ -32,7 +32,7 @@ val agpToGradleVersions = mapOf(
     "7.0" to "7.0",
     "7.1" to "7.2",
     "7.2" to "7.3.3",
-    "7.4" to "7.3.3"
+    "7.4" to "7.5"
 )
 
 fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
@@ -130,15 +130,19 @@ class RecipeConverter(
                         "build.gradle.kts" -> {
                             converter.convertBuildGradleKts(sourceFile, destinationFile)
                         }
+
                         "settings.gradle" -> {
                             converter.convertSettingsGradle(sourceFile, destinationFile)
                         }
+
                         "settings.gradle.kts" -> {
                             converter.convertSettingsGradleKts(sourceFile, destinationFile)
                         }
+
                         "gradle-wrapper.properties" -> {
                             converter.convertGradleWrapper(sourceFile, destinationFile)
                         }
+
                         else -> {
                             Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING)
                         }
