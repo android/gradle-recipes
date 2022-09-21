@@ -32,15 +32,22 @@ class ReleaseConverter(
 ) : Converter {
 
     private var pathToGradle: String = ""
-    private var pathToRepo: String = ""
+    private var pathToAgpRepo: String = ""
+
+    private var pluginRepo: List<String> = listOf()
+    private var dependencyRepo: List<String> = listOf()
 
     init {
-
         if (gradleVersion != null) {
+            // github release
             pathToGradle = "https\\://services.gradle.org/distributions/gradle-" +
                     "$gradleVersion-bin.zip"
+            pluginRepo = listOf("        gradlePluginPortal()", "        google()", "        mavenCentral()")
+            dependencyRepo = listOf("        google()", "        mavenCentral()")
+
         } else {
-            pathToRepo = repoLocation ?: error("must specify path to repo")
+            // internal CI release
+            pathToAgpRepo = repoLocation ?: error("must specify path to repo")
             pathToGradle = gradlePath ?: error("must specify path to Gradle")
         }
     }
@@ -51,27 +58,48 @@ class ReleaseConverter(
 
     override fun convertBuildGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = replacePlaceHolderWithValue(
+        val agpVersionReplaced: List<String> = replaceGradlePlaceholdersWithInlineValue(
             originalLines,
             "\$AGP_VERSION",
             "\"$agpVersion\""
         )
 
-        target.writeLines(resultLines, Charsets.UTF_8)
+        val kotlinAndAgpVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(
+                agpVersionReplaced,
+                "\$KOTLIN_VERSION",
+                "\"$kotlinPluginVersion\""
+            )
+        
+        target.writeLines(kotlinAndAgpVersionReplaced, Charsets.UTF_8)
     }
 
     override fun convertSettingsGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = replacePlaceHolderWithValue(
-            originalLines, "\$AGP_REPOSITORY", "$pathToRepo"
+
+        val agpRepoConverted =
+            replacePlaceHolderWithLine(
+                originalLines,
+                "\$AGP_REPOSITORY",
+                "$pathToAgpRepo"
+            )
+
+        val agpAndPluginRepoConverted = replacePlaceHolderWithList(
+            agpRepoConverted, "\$PLUGIN_REPOSITORIES",
+            pluginRepo
         )
 
-        target.writeLines(resultLines, Charsets.UTF_8)
+        val agpAndPluginAndDependencyRepoConverted = replacePlaceHolderWithList(
+            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+            dependencyRepo
+        )
+
+        target.writeLines(agpAndPluginAndDependencyRepoConverted, Charsets.UTF_8)
     }
 
     override fun convertGradleWrapper(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = replacePlaceHolderWithValue(
+        val resultLines: List<String> = replaceGradlePlaceholdersWithInlineValue(
             originalLines, "\$GRADLE_LOCATION", "$pathToGradle"
         )
 

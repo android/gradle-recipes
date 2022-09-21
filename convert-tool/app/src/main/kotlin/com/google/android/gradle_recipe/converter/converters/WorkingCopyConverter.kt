@@ -40,19 +40,34 @@ class WorkingCopyConverter : Converter {
         val agpVersion = recipe?.minAgpVersion ?: error("min Agp version is badly specified in the metadata")
 
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = wrapGradlePlaceholders(
+        val agpVersionWrapped: List<String> = wrapGradlePlaceholdersWithInlineValue(
             originalLines, "\$AGP_VERSION", "\"$agpVersion\""
         )
-        target.writeLines(resultLines, Charsets.UTF_8)
+        val kotlinAndAgpVersionWrapped =
+            wrapGradlePlaceholdersWithInlineValue(
+                agpVersionWrapped,
+                "\$KOTLIN_VERSION",
+                "\"$kotlinPluginVersion\""
+            )
+
+        target.writeLines(kotlinAndAgpVersionWrapped, Charsets.UTF_8)
     }
 
     override fun convertSettingsGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = wrapGradlePlaceholders(
-            originalLines, "\$AGP_REPOSITORY", ""
+
+        val agpConverted = wrapGradlePlaceholdersWithInlineValue(originalLines, "\$AGP_REPOSITORY", "")
+        val agpAndPluginRepoConverted = wrapGradlePlaceholdersWithList(
+            agpConverted, "\$PLUGIN_REPOSITORIES",
+            listOf("        gradlePluginPortal()", "        google()", "        mavenCentral()")
         )
 
-        target.writeLines(resultLines, Charsets.UTF_8)
+        val agpAndPluginRepoAndDepsRepoConverted = wrapGradlePlaceholdersWithList(
+            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+            listOf("        google()", "        mavenCentral()")
+        )
+
+        target.writeLines(agpAndPluginRepoAndDepsRepoConverted, Charsets.UTF_8)
     }
 
     override fun convertGradleWrapper(source: Path, target: Path) {

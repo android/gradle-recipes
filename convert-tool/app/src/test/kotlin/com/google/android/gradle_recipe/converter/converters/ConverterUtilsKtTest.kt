@@ -25,7 +25,7 @@ internal class ConverterUtilsKtTest {
     private val buildGradleSource = listOf(
         "id 'com.android.application' version \$AGP_VERSION apply false",
         "id 'com.android.library' version \$AGP_VERSION apply false",
-        "id 'org.jetbrains.kotlin.android' version '1.6.10' apply false"
+        "id 'org.jetbrains.kotlin.android' version \$KOTLIN_VERSION apply false"
     )
 
     private val buildGradleWorkingCopy = listOf(
@@ -37,13 +37,24 @@ internal class ConverterUtilsKtTest {
         "//  id 'com.android.library' version \$AGP_VERSION apply false",
         "id 'com.android.library' version \"7.4.4\" apply false",
         "//  <<< WORKING_COPY <<<",
-        "id 'org.jetbrains.kotlin.android' version '1.6.10' apply false",
+        "//  >>> WORKING_COPY >>>",
+        "//  id 'org.jetbrains.kotlin.android' version \$KOTLIN_VERSION apply false",
+        "id 'org.jetbrains.kotlin.android' version \"1.5.20\" apply false",
+        "//  <<< WORKING_COPY <<<"
+    )
+
+    private val buildGradleRelease = listOf(
+        "id 'com.android.application' version \"7.4.4\" apply false",
+        "id 'com.android.library' version \"7.4.4\" apply false",
+        "id 'org.jetbrains.kotlin.android' version \"1.5.20\" apply false"
     )
 
     @Test
-    fun testBuildGradleRelease() {
-        val result = wrapGradlePlaceholders(buildGradleSource, "\$AGP_VERSION", "\"7.4.4\"")
-        assertThat(result).isEqualTo(buildGradleWorkingCopy)
+    fun testBuildGradleWorkingCopy() {
+        val agpVersionWrapped = wrapGradlePlaceholdersWithInlineValue(buildGradleSource, "\$AGP_VERSION", "\"7.4.4\"")
+        val kotlinAndAgpVersionWrapped =
+            wrapGradlePlaceholdersWithInlineValue(agpVersionWrapped, "\$KOTLIN_VERSION", "\"$kotlinPluginVersion\"")
+        assertThat(kotlinAndAgpVersionWrapped).isEqualTo(buildGradleWorkingCopy)
     }
 
     @Test
@@ -52,34 +63,44 @@ internal class ConverterUtilsKtTest {
         assertThat(result).isEqualTo(buildGradleSource)
     }
 
+    @Test
+    fun testBuildGradleRelease() {
+        val agpVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(buildGradleSource, "\$AGP_VERSION", "\"7.4.4\"")
+        val kotlinAndAgpVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(agpVersionReplaced, "\$KOTLIN_VERSION", "\"$kotlinPluginVersion\"")
+
+        assertThat(kotlinAndAgpVersionReplaced).isEqualTo(buildGradleRelease)
+    }
+
     // Tests for settings.gradle
     private val settingsGradleSource = """
 pluginManagement {
     repositories {
 ${'$'}AGP_REPOSITORY
-        gradlePluginPortal()
-        google()
-        mavenCentral()
+${'$'}PLUGIN_REPOSITORIES
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
 ${'$'}AGP_REPOSITORY
-        google()
-        mavenCentral()
+${'$'}DEPENDENCY_REPOSITORIES
     }
 }"""
 
-    private val settingsGradleTest = """
+    private val settingsGradleWorkingCopy = """
 pluginManagement {
     repositories {
 //  >>> WORKING_COPY >>>
 //  ${'$'}AGP_REPOSITORY
 //  <<< WORKING_COPY <<<
+//  >>> WORKING_COPY >>>
+//  ${'$'}PLUGIN_REPOSITORIES
         gradlePluginPortal()
         google()
         mavenCentral()
+//  <<< WORKING_COPY <<<
     }
 }
 dependencyResolutionManagement {
@@ -88,18 +109,17 @@ dependencyResolutionManagement {
 //  >>> WORKING_COPY >>>
 //  ${'$'}AGP_REPOSITORY
 //  <<< WORKING_COPY <<<
+//  >>> WORKING_COPY >>>
+//  ${'$'}DEPENDENCY_REPOSITORIES
         google()
         mavenCentral()
+//  <<< WORKING_COPY <<<
     }
 }"""
 
-    private val settingsGradleRelease = """
+    private val settingsGradleGithubRelease = """
 pluginManagement {
     repositories {
-//  >>> WORKING_COPY >>>
-//  ${'$'}AGP_REPOSITORY
-..\..\private-repo\
-//  <<< WORKING_COPY <<<
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -108,31 +128,92 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-//  >>> WORKING_COPY >>>
-//  ${'$'}AGP_REPOSITORY
-..\..\private-repo\
-//  <<< WORKING_COPY <<<
         google()
         mavenCentral()
+    }
+}"""
+
+    private val settingsGradleCIRelease = """
+pluginManagement {
+    repositories {
+..\..\private-repo\
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+..\..\private-repo\
     }
 }"""
 
     @Test
     fun testSettingsGradleWorkingCopy() {
-        val result = wrapGradlePlaceholders(settingsGradleSource.lines(), "\$AGP_REPOSITORY", "")
-        assertThat(result).isEqualTo(settingsGradleTest.lines())
+        val agpRepoConverted = wrapGradlePlaceholdersWithInlineValue(
+            settingsGradleSource.lines(),
+            "\$AGP_REPOSITORY",
+            ""
+        )
+
+        val agpAndPluginRepoConverted = wrapGradlePlaceholdersWithList(
+            agpRepoConverted, "\$PLUGIN_REPOSITORIES",
+            listOf("        gradlePluginPortal()", "        google()", "        mavenCentral()")
+        )
+
+        val agpAndPluginRepoAndDepsRepoConverted = wrapGradlePlaceholdersWithList(
+            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+            listOf("        google()", "        mavenCentral()")
+        )
+        assertThat(agpAndPluginRepoAndDepsRepoConverted).isEqualTo(settingsGradleWorkingCopy.lines())
     }
 
     @Test
     fun testSettingsGradleSource() {
-        val result = unwrapGradlePlaceholders(settingsGradleTest.lines())
+        val result = unwrapGradlePlaceholders(settingsGradleWorkingCopy.lines())
         assertThat(result).isEqualTo(settingsGradleSource.lines())
     }
 
     @Test
-    fun testSettingsGradleRelease() {
-        val result = wrapGradlePlaceholders(settingsGradleSource.lines(), "\$AGP_REPOSITORY", "..\\..\\private-repo\\")
-        assertThat(result).isEqualTo(settingsGradleRelease.lines())
+    fun testSettingsGradleGithubRelease() {
+        val agpRepoConverted =
+            replacePlaceHolderWithLine(
+                settingsGradleSource.lines(),
+                "\$AGP_REPOSITORY",
+                ""
+            )
+
+        val agpAndPluginRepoConverted = replacePlaceHolderWithList(
+            agpRepoConverted, "\$PLUGIN_REPOSITORIES",
+            listOf("        gradlePluginPortal()", "        google()", "        mavenCentral()")
+        )
+
+        val agpAndPluginAndDependencyRepoConverted = replacePlaceHolderWithList(
+            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+            listOf("        google()", "        mavenCentral()")
+        )
+
+        assertThat(agpAndPluginAndDependencyRepoConverted).isEqualTo(settingsGradleGithubRelease.lines())
+    }
+
+    @Test
+    fun testSettingsGradleCIRelease() {
+        val agpRepoConverted =
+            replacePlaceHolderWithLine(
+                settingsGradleSource.lines(),
+                "\$AGP_REPOSITORY",
+                "..\\..\\private-repo\\"
+            )
+
+        val agpAndPluginRepoConverted = replacePlaceHolderWithList(
+            agpRepoConverted, "\$PLUGIN_REPOSITORIES",
+            listOf()
+        )
+
+        val agpAndPluginAndDependencyRepoConverted = replacePlaceHolderWithList(
+            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+            listOf()
+        )
+
+        assertThat(agpAndPluginAndDependencyRepoConverted).isEqualTo(settingsGradleCIRelease.lines())
     }
 
     // gradle wrapper tests
@@ -140,27 +221,41 @@ dependencyResolutionManagement {
         "distributionUrl=\$GRADLE_LOCATION"
     )
 
-    private val gradleWrapperRelease = listOf(
+    private val gradleWrapperWorkingCopy = listOf(
         "#  >>> WORKING_COPY >>>",
         "#  distributionUrl=\$GRADLE_LOCATION",
-        "distributionUrl=../../../tools/external/gradle/gradle-7.4-bin.zip",
+        "distributionUrl=https\\://services.gradle.org/distributions/gradle-7.5-bin.zip",
         "#  <<< WORKING_COPY <<<",
     )
 
+    private val gradleWrapperReleaseGithub = listOf(
+        "distributionUrl=https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
+    )
+
     @Test
-    fun testGradleWrapperRelease() {
+    fun testGradleWrapperWorkingCopy() {
         val result =
             wrapGradleWrapperPlaceholders(
                 gradleWrapperSource,
                 "\$GRADLE_LOCATION",
-                "../../../tools/external/gradle/gradle-7.4-bin.zip"
+                "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
             )
-        assertThat(result).isEqualTo(gradleWrapperRelease)
+        assertThat(result).isEqualTo(gradleWrapperWorkingCopy)
     }
 
     @Test
     fun testGradleWrapperSource() {
-        val result = unwrapGradleWrapperPlaceholders(gradleWrapperRelease)
+        val result = unwrapGradleWrapperPlaceholders(gradleWrapperWorkingCopy)
         assertThat(gradleWrapperSource).isEqualTo(result)
+    }
+
+    @Test
+    fun testGradleWrapperReleaseGithub() {
+        val result = replaceGradlePlaceholdersWithInlineValue(
+            gradleWrapperSource,
+            "\$GRADLE_LOCATION",
+            "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
+        )
+        assertThat(gradleWrapperReleaseGithub).isEqualTo(result)
     }
 }

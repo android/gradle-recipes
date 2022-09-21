@@ -35,6 +35,12 @@ val agpToGradleVersions = mapOf(
     "7.4" to "7.5"
 )
 
+/**
+ * Current supported Kotlin plugin, later we add a
+ * CLI argument to support more versions
+ */
+const val kotlinPluginVersion = "1.5.20"
+
 fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
     return if (modeFromString != null) {
         RecipeConverter.Mode.valueOf(modeFromString.toString().uppercase())
@@ -127,6 +133,7 @@ class RecipeConverter(
                         "build.gradle" -> {
                             converter.convertBuildGradle(sourceFile, destinationFile)
                         }
+
                         "build.gradle.kts" -> {
                             converter.convertBuildGradleKts(sourceFile, destinationFile)
                         }
