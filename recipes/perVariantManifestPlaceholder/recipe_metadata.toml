@@ -1,0 +1,24 @@
+title = "perVariantManifestPlaceholder"
+
+description ="""
+  perVariantManifestPlaceholder recipe
+  """
+
+[agpVersion]
+min = "8.0.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+  "debugManifestVerifier",
+  "releaseManifestVerifier"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+  "onVariant",
+  "Manifest API",
+  "Placeholders",
+  "MERGED_MANIFEST"
+]

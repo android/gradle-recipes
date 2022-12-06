@@ -29,36 +29,38 @@ interface Converter {
      */
     fun isConversionCompliant(recipe: Recipe): Boolean
 
-    /** sets the recipe to convert, before the conversion
+    /** Sets the recipe to convert, before the conversion
      */
-    fun setRecipe(recipe: Recipe) {}
+    fun setRecipe(recipe: Recipe) {
+
+    }
 
     /**
-     *  converts settings.gradle
+     *  Converts settings.gradle
      */
     fun convertSettingsGradle(source: Path, target: Path)
 
     /**
-     *  converts settings.gradle.kts ==> same as settings.gradle
+     *  Converts settings.gradle.kts ==> same as settings.gradle
      */
     fun convertSettingsGradleKts(source: Path, target: Path) {
         convertSettingsGradle(source, target)
     }
 
     /**
-     * converts build.gradle
+     * Converts build.gradle
      */
     fun convertBuildGradle(source: Path, target: Path)
 
     /**
-     *  converts build.gradle.kts ==> same as build.gradle
+     *  Converts build.gradle.kts ==> same as build.gradle
      */
     fun convertBuildGradleKts(source: Path, target: Path) {
         convertBuildGradle(source, target)
     }
 
     /**
-     * converts gradle.wrapper
+     * Converts gradle.wrapper
      */
     fun convertGradleWrapper(source: Path, target: Path)
 }

@@ -17,6 +17,7 @@ package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
+import java.io.File
 import java.io.IOException
 import java.lang.System.err
 import java.nio.file.*
@@ -32,14 +33,16 @@ val agpToGradleVersions = mapOf(
     "7.0" to "7.0",
     "7.1" to "7.2",
     "7.2" to "7.3.3",
-    "7.4" to "7.5"
+    "7.3" to "7.4",
+    "7.4" to "7.5",
+    "8.0" to "7.5"
 )
 
 /**
  * Current supported Kotlin plugin, later we add a
  * CLI argument to support more versions
  */
-const val kotlinPluginVersion = "1.5.20"
+const val kotlinPluginVersion = "1.7.20"
 
 fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
     return if (modeFromString != null) {
@@ -50,6 +53,7 @@ fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
 }
 
 data class ConversionResult(val recipe: Recipe, var isConversionSuccessful: Boolean)
+
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
@@ -66,6 +70,26 @@ class RecipeConverter(
 
     enum class Mode {
         RELEASE, COPY, SOURCE
+    }
+
+    /** A filter for files and folders during a conversion. Filters out Gradle
+     *  and Android Studio temporary and local files.
+     */
+    companion object {
+        private val skippedFilenames = setOf("gradlew", "gradlew.bat", "local.properties")
+        private val skippedFoldernames = setOf("build", ".idea", ".gradle", "out")
+
+        fun accept(file: File): Boolean {
+            if (file.isFile) {
+                return !skippedFilenames.contains(file.name)
+            }
+
+            if (file.isDirectory) {
+                return !skippedFoldernames.contains(file.name)
+            }
+
+            return true
+        }
     }
 
     init {
@@ -120,8 +144,12 @@ class RecipeConverter(
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
                 @Throws(IOException::class)
                 override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                    Files.createDirectories(destination.resolve(source.relativize(dir)))
-                    return FileVisitResult.CONTINUE
+                    if (accept(dir.toFile())) {
+                        Files.createDirectories(destination.resolve(source.relativize(dir)))
+                        return FileVisitResult.CONTINUE
+                    }
+
+                    return FileVisitResult.SKIP_SUBTREE
                 }
 
                 @Throws(IOException::class)
@@ -151,7 +179,9 @@ class RecipeConverter(
                         }
 
                         else -> {
-                            Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING)
+                            if (accept(sourceFile.toFile())) {
+                                Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING)
+                            }
                         }
                     }
 
