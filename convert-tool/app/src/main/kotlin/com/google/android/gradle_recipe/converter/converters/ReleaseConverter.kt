@@ -17,6 +17,8 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
+import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -58,7 +60,7 @@ class ReleaseConverter(
 
     override fun convertBuildGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val agpVersionReplaced: List<String> = replaceGradlePlaceholdersWithInlineValue(
+        val agpVersionReplaced = replaceGradlePlaceholdersWithInlineValue(
             originalLines,
             "\$AGP_VERSION",
             "\"$agpVersion\""
@@ -70,7 +72,7 @@ class ReleaseConverter(
                 "\$KOTLIN_VERSION",
                 "\"$kotlinPluginVersion\""
             )
-        
+
         target.writeLines(kotlinAndAgpVersionReplaced, Charsets.UTF_8)
     }
 
@@ -97,9 +99,44 @@ class ReleaseConverter(
         target.writeLines(agpAndPluginAndDependencyRepoConverted, Charsets.UTF_8)
     }
 
-    override fun convertGradleWrapper(source: Path, target: Path) {
+    override fun convertVersionCatalog(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = replaceGradlePlaceholdersWithInlineValue(
+
+        val agpVersionReplaced = replaceVersionCatalogPlaceholders(
+            originalLines,
+            "\$AGP_VERSION",
+            "\"$agpVersion\""
+        )
+
+        val kotlinAndAgpVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(
+                agpVersionReplaced,
+                "\$KOTLIN_VERSION",
+                "\"$kotlinPluginVersion\""
+            )
+        target.writeLines(kotlinAndAgpVersionReplaced, Charsets.UTF_8)
+    }
+
+    override fun copyGradleFolder(dest: Path) {
+        val source = Path.of(System.getProperty("user.dir")).resolve(GRADLE_RESOURCES_FOLDER)
+        source.toFile().copyRecursively(
+            target = dest.toFile(),
+            overwrite = true,
+            onError = { _: File, _: IOException ->
+                println("Could not create the gradle folder, please create it manually")
+                OnErrorAction.SKIP
+            }
+        )
+
+        convertGradleWrapper(
+            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"),
+            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
+        )
+    }
+
+    private fun convertGradleWrapper(source: Path, target: Path) {
+        val originalLines = Files.readAllLines(source)
+        val resultLines = replaceGradlePlaceholdersWithInlineValue(
             originalLines, "\$GRADLE_LOCATION", "$pathToGradle"
         )
 

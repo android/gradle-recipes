@@ -53,7 +53,7 @@ internal class ConverterUtilsKtTest {
     fun testBuildGradleWorkingCopy() {
         val agpVersionWrapped = wrapGradlePlaceholdersWithInlineValue(buildGradleSource, "\$AGP_VERSION", "\"7.4.4\"")
         val kotlinAndAgpVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(agpVersionWrapped, "\$KOTLIN_VERSION", "\"$kotlinPluginVersion\"")
+            wrapGradlePlaceholdersWithInlineValue(agpVersionWrapped, "\$KOTLIN_VERSION", "\"1.5.20\"")
         assertThat(kotlinAndAgpVersionWrapped).isEqualTo(buildGradleWorkingCopy)
     }
 
@@ -68,7 +68,7 @@ internal class ConverterUtilsKtTest {
         val agpVersionReplaced =
             replaceGradlePlaceholdersWithInlineValue(buildGradleSource, "\$AGP_VERSION", "\"7.4.4\"")
         val kotlinAndAgpVersionReplaced =
-            replaceGradlePlaceholdersWithInlineValue(agpVersionReplaced, "\$KOTLIN_VERSION", "\"$kotlinPluginVersion\"")
+            replaceGradlePlaceholdersWithInlineValue(agpVersionReplaced, "\$KOTLIN_VERSION", "\"1.5.20\"")
 
         assertThat(kotlinAndAgpVersionReplaced).isEqualTo(buildGradleRelease)
     }
@@ -244,12 +244,6 @@ dependencyResolutionManagement {
     }
 
     @Test
-    fun testGradleWrapperSource() {
-        val result = unwrapGradleWrapperPlaceholders(gradleWrapperWorkingCopy)
-        assertThat(gradleWrapperSource).isEqualTo(result)
-    }
-
-    @Test
     fun testGradleWrapperReleaseGithub() {
         val result = replaceGradlePlaceholdersWithInlineValue(
             gradleWrapperSource,
@@ -257,5 +251,45 @@ dependencyResolutionManagement {
             "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
         )
         assertThat(gradleWrapperReleaseGithub).isEqualTo(result)
+    }
+
+    // version catalog tests
+    private val versionCatalogSource = listOf(
+        "androidGradlePlugin = \$AGP_VERSION"
+    )
+
+    private val versionCatalogWorkingCopy = listOf(
+        "#  >>> WORKING_COPY >>>",
+        "#  androidGradlePlugin = \$AGP_VERSION",
+        "androidGradlePlugin = \"8.0.0-alpha10\"",
+        "#  <<< WORKING_COPY <<<",
+    )
+
+    private val versionCatalogRelease = listOf(
+        "androidGradlePlugin = \"8.0.0-alpha10\""
+    )
+
+    @Test
+    fun testVersionCatalogSource() {
+        val result = unwrapVersionCatalogPlaceholders(versionCatalogWorkingCopy)
+        assertThat(versionCatalogSource).isEqualTo(result)
+    }
+
+    @Test
+    fun testVersionCatalogWorkingCopy() {
+        val result = wrapVersionCatalogPlaceholders(
+            versionCatalogSource, "\$AGP_VERSION",
+            "\"8.0.0-alpha10\""
+        )
+        assertThat(versionCatalogWorkingCopy).isEqualTo(result)
+    }
+
+    @Test
+    fun testVersionCatalogRelease() {
+        val result = replaceVersionCatalogPlaceholders(
+            versionCatalogSource, "\$AGP_VERSION",
+            "\"8.0.0-alpha10\""
+        )
+        assertThat(versionCatalogRelease).isEqualTo(result)
     }
 }

@@ -15,6 +15,6 @@
  */
 
 plugins {
-    id("com.android.application") version $AGP_VERSION apply false
-    kotlin("android") version $KOTLIN_VERSION apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
 }

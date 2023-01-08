@@ -29,13 +29,6 @@ class SourceConverter : Converter {
         return true
     }
 
-    override fun convertSettingsGradle(source: Path, target: Path) {
-        val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = unwrapGradlePlaceholders(originalLines)
-
-        target.writeLines(resultLines, Charsets.UTF_8)
-    }
-
     override fun convertBuildGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
         val resultLines: List<String> = unwrapGradlePlaceholders(originalLines)
@@ -43,10 +36,21 @@ class SourceConverter : Converter {
         target.writeLines(resultLines, Charsets.UTF_8)
     }
 
-    override fun convertGradleWrapper(source: Path, target: Path) {
+    override fun convertSettingsGradle(source: Path, target: Path) {
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = unwrapGradleWrapperPlaceholders(originalLines)
+        val resultLines: List<String> = unwrapGradlePlaceholders(originalLines)
 
         target.writeLines(resultLines, Charsets.UTF_8)
+    }
+
+    override fun convertVersionCatalog(source: Path, target: Path) {
+        val originalLines = Files.readAllLines(source)
+        val resultLines: List<String> = unwrapVersionCatalogPlaceholders(originalLines)
+
+        target.writeLines(resultLines, Charsets.UTF_8)
+    }
+
+    override fun copyGradleFolder(dest: Path) {
+
     }
 }

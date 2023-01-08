@@ -18,6 +18,8 @@ package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
 import com.google.android.gradle_recipe.converter.recipe.getAgpVersionMajorMinorFrom
+import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -40,7 +42,7 @@ class WorkingCopyConverter : Converter {
         val agpVersion = recipe?.minAgpVersion ?: error("min Agp version is badly specified in the metadata")
 
         val originalLines = Files.readAllLines(source)
-        val agpVersionWrapped: List<String> = wrapGradlePlaceholdersWithInlineValue(
+        val agpVersionWrapped = wrapGradlePlaceholdersWithInlineValue(
             originalLines, "\$AGP_VERSION", "\"$agpVersion\""
         )
         val kotlinAndAgpVersionWrapped =
@@ -70,7 +72,44 @@ class WorkingCopyConverter : Converter {
         target.writeLines(agpAndPluginRepoAndDepsRepoConverted, Charsets.UTF_8)
     }
 
-    override fun convertGradleWrapper(source: Path, target: Path) {
+    override fun convertVersionCatalog(source: Path, target: Path) {
+        val agpVersion = recipe?.minAgpVersion ?: error("min Agp version is badly specified in the metadata")
+        val originalLines = Files.readAllLines(source)
+
+        val agpVersionWrapped = wrapVersionCatalogPlaceholders(
+            originalLines,
+            "\$AGP_VERSION",
+            "\"$agpVersion\""
+        )
+
+        val kotlinAndAgpVersionWrapped =
+            wrapVersionCatalogPlaceholders(
+                agpVersionWrapped,
+                "\$KOTLIN_VERSION",
+                "\"$kotlinPluginVersion\""
+            )
+
+        target.writeLines(kotlinAndAgpVersionWrapped, Charsets.UTF_8)
+    }
+
+    override fun copyGradleFolder(dest: Path) {
+        val source = Path.of(System.getProperty("user.dir")).resolve(GRADLE_RESOURCES_FOLDER)
+        source.toFile().copyRecursively(
+            target = dest.toFile(),
+            overwrite = true,
+            onError = { _: File, _: IOException ->
+                println("Could not create the gradle folder, please create it manually")
+                OnErrorAction.SKIP
+            }
+        )
+
+        convertGradleWrapper(
+            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"),
+            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
+        )
+    }
+
+    private fun convertGradleWrapper(source: Path, target: Path) {
         // building the line
         // distributionUrl=https\://services.gradle.org/distributions/gradle-7.2-bin.zip
         val agpVersion = recipe?.minAgpVersion ?: error("min Agp version is badly specified in the metadata")
@@ -80,7 +119,7 @@ class WorkingCopyConverter : Converter {
             ?: error("Can't deduce the gradle version from the recipe metadata")
 
         val originalLines = Files.readAllLines(source)
-        val resultLines: List<String> = wrapGradleWrapperPlaceholders(
+        val resultLines = wrapGradleWrapperPlaceholders(
             originalLines,
             "\$GRADLE_LOCATION",
             "https\\://services.gradle.org/distributions/gradle-$gradleVersion-bin.zip"

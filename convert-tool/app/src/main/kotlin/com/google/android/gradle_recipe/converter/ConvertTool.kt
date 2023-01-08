@@ -80,8 +80,8 @@ fun main(args: Array<String>) {
         if (agpVersion == null) {
             if (mode != null) {
                 val cliMode = convertStringToMode(mode)
-                if (cliMode != RecipeConverter.Mode.COPY) {
-                    error("The mode value should be either \"copy\" or nothing")
+                if (cliMode != RecipeConverter.Mode.WORKINGCOPY) {
+                    error("The mode value should be either \"workingcopy\" or nothing")
                 }
 
                 val validator = WorkingCopyValidator()

@@ -39,6 +39,7 @@ class CustomPlugin : Plugin<Project> {
         // Registers a callback on the application of the Android Application plugin.
         // This allows the CustomPlugin to work whether it's applied before or after
         // the Android Application plugin.
+
         project.plugins.withType(AppPlugin::class.java) {
 
             // Queries for the extension set by the Android Application plugin.

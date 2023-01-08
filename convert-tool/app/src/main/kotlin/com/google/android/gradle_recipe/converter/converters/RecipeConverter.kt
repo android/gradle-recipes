@@ -69,7 +69,7 @@ class RecipeConverter(
     private val converter: Converter
 
     enum class Mode {
-        RELEASE, COPY, SOURCE
+        RELEASE, WORKINGCOPY, SOURCE
     }
 
     /** A filter for files and folders during a conversion. Filters out Gradle
@@ -77,7 +77,7 @@ class RecipeConverter(
      */
     companion object {
         private val skippedFilenames = setOf("gradlew", "gradlew.bat", "local.properties")
-        private val skippedFoldernames = setOf("build", ".idea", ".gradle", "out")
+        private val skippedFoldernames = setOf("build", ".idea", ".gradle", "out", "wrapper")
 
         fun accept(file: File): Boolean {
             if (file.isFile) {
@@ -94,7 +94,7 @@ class RecipeConverter(
 
     init {
         converter = when (mode) {
-            Mode.COPY -> {
+            Mode.WORKINGCOPY -> {
                 WorkingCopyConverter()
             }
 
@@ -168,14 +168,20 @@ class RecipeConverter(
 
                         "settings.gradle" -> {
                             converter.convertSettingsGradle(sourceFile, destinationFile)
+                            converter.copyGradleFolder(destinationFile.parent)
                         }
 
                         "settings.gradle.kts" -> {
                             converter.convertSettingsGradleKts(sourceFile, destinationFile)
+                            converter.copyGradleFolder(destinationFile.parent)
                         }
 
-                        "gradle-wrapper.properties" -> {
-                            converter.convertGradleWrapper(sourceFile, destinationFile)
+                        "libs.versions.toml" -> {
+                            converter.convertVersionCatalog(sourceFile, destinationFile)
+                        }
+
+                        "build.libs.versions.toml" -> {
+                            converter.convertVersionCatalog(sourceFile, destinationFile)
                         }
 
                         else -> {

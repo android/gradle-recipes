@@ -19,6 +19,11 @@ package com.google.android.gradle_recipe.converter.converters
 import com.google.android.gradle_recipe.converter.recipe.Recipe
 import java.nio.file.Path
 
+/** The position of the gradle-resources folder
+ *  to take the Gradle wrapper
+ */
+const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
+
 /** Interface for different converters.
  *  The objects are created and called from the RecipeConverter class,
  *  using a Template Method pattern.
@@ -36,31 +41,37 @@ interface Converter {
     }
 
     /**
-     *  Converts settings.gradle
-     */
-    fun convertSettingsGradle(source: Path, target: Path)
-
-    /**
-     *  Converts settings.gradle.kts ==> same as settings.gradle
-     */
-    fun convertSettingsGradleKts(source: Path, target: Path) {
-        convertSettingsGradle(source, target)
-    }
-
-    /**
      * Converts build.gradle
      */
     fun convertBuildGradle(source: Path, target: Path)
 
     /**
-     *  Converts build.gradle.kts ==> same as build.gradle
+     * Converts build.gradle.kts ==> same as build.gradle
      */
     fun convertBuildGradleKts(source: Path, target: Path) {
         convertBuildGradle(source, target)
     }
 
     /**
-     * Converts gradle.wrapper
+     * Converts settings.gradle
      */
-    fun convertGradleWrapper(source: Path, target: Path)
+    fun convertSettingsGradle(source: Path, target: Path)
+
+    /**
+     * Converts settings.gradle.kts ==> same as settings.gradle
+     */
+    fun convertSettingsGradleKts(source: Path, target: Path) {
+        convertSettingsGradle(source, target)
+    }
+
+    /**
+     *  Converts the version catalog file
+     */
+    fun convertVersionCatalog(source: Path, target: Path)
+
+    /**
+     * Copies the gradle folder from the GRADLE_RESOURCES_FOLDER
+     * to dest.
+     */
+    fun copyGradleFolder(dest: Path)
 }

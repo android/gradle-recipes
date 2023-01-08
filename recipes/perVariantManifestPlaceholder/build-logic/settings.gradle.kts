@@ -21,6 +21,12 @@ dependencyResolutionManagement {
 $AGP_REPOSITORY
 $DEPENDENCY_REPOSITORIES
     }
+
+    versionCatalogs {
+        create("buildlibs") {
+            from(files("gradle/libs.versions.toml"))
+        }
+    }
 }
 
 include(":plugins")

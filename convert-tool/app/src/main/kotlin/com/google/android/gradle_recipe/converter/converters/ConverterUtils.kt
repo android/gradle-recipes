@@ -69,12 +69,25 @@ fun wrapGradleWrapperPlaceholders(originalLines: List<String>, from: String, to:
 }
 
 /**
- *  for gradle.wrapper.properties ==> unwraps $GRADLE_LOCATION
+ *  for libs.versions.toml ==> unwraps all converter placeholders
  */
-fun unwrapGradleWrapperPlaceholders(originalLines: List<String>): List<String> {
+fun unwrapVersionCatalogPlaceholders(originalLines: List<String>): List<String> {
     return unwrapPlaceholders(originalLines, "#  ")
 }
 
+/**
+ *  for libs.versions.toml ==> wraps all converter placeholders
+ */
+fun wrapVersionCatalogPlaceholders(originalLines: List<String>, from: String, to: String): List<String> {
+    return wrapPlaceholdersWithInlineValue(originalLines, from, to, "#  ")
+}
+
+/**
+ *  for libs.versions.toml ==> replace all converter placeholders
+ */
+fun replaceVersionCatalogPlaceholders(originalLines: List<String>, from: String, to: String): List<String> {
+    return replaceGradlePlaceholdersWithInlineValue(originalLines, from, to)
+}
 
 /**
  *  replaces placeholders inside line

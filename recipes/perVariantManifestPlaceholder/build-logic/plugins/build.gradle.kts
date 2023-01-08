@@ -16,7 +16,7 @@
 
 plugins {
     `java-gradle-plugin`
-    id("org.jetbrains.kotlin.jvm") version $KOTLIN_VERSION
+    alias(buildlibs.plugins.kotlin.jvm)
 }
 
 java {
@@ -25,7 +25,7 @@ java {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle-api:" + $AGP_VERSION)
+    compileOnly(buildlibs.android.gradlePlugin.api)
 }
 
 gradlePlugin {
