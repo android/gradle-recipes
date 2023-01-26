@@ -8,7 +8,6 @@ android {
     defaultConfig {
         minSdkVersion(21)
     }
-    namespace="com.example.addsourcetype"
 }
 
 
