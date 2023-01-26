@@ -9,7 +9,6 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
     }
-    namespace="com.example.customsourceindsl"
 }
 
 androidComponents {
