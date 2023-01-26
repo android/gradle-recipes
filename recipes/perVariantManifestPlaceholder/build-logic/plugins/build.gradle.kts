@@ -16,7 +16,7 @@
 
 plugins {
     `java-gradle-plugin`
-    alias(buildlibs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.jvm)
 }
 
 java {
@@ -25,7 +25,8 @@ java {
 }
 
 dependencies {
-    compileOnly(buildlibs.android.gradlePlugin.api)
+    compileOnly(libs.android.gradlePlugin.api)
+    implementation(gradleKotlinDsl())
 }
 
 gradlePlugin {

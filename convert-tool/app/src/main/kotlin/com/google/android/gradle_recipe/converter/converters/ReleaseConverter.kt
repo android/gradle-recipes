@@ -73,7 +73,21 @@ class ReleaseConverter(
                 "\"$kotlinPluginVersion\""
             )
 
-        target.writeLines(kotlinAndAgpVersionReplaced, Charsets.UTF_8)
+        val kotlinAndAgpCompileSdkVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(
+                kotlinAndAgpVersionReplaced,
+                "\$COMPILE_SDK",
+                "$compileSdkVersion"
+            )
+
+        val kotlinAndAgpCompileSdkMinimumSdkVersionReplaced =
+            replaceGradlePlaceholdersWithInlineValue(
+                kotlinAndAgpCompileSdkVersionReplaced,
+                "\$MINIMUM_SDK",
+                "$minimumSdkVersion"
+            )
+
+        target.writeLines(kotlinAndAgpCompileSdkMinimumSdkVersionReplaced, Charsets.UTF_8)
     }
 
     override fun convertSettingsGradle(source: Path, target: Path) {

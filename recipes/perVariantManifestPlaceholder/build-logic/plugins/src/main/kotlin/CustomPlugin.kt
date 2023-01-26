@@ -27,6 +27,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.register
 
 /**
  * This custom plugin will register a callback that is applied to all variants.
@@ -56,14 +57,14 @@ class CustomPlugin : Plugin<Project> {
                 // Setups a verification task to validate the content of the manifest.
                 // This is not part of the placeholder API. The goal is to demonstrate
                 // that the placeholder API works
-                project.tasks.register("${variant.name}ManifestVerifier", ManifestVerifierTask::class.java) {
 
+                project.tasks.register<ManifestVerifierTask>("${variant.name}ManifestVerifier") {
                     // Gives the merged manifest file to the task. This API, using [RegularFileProperty]
                     // will automatically link the two tasks together to ensure that the merge task
                     // is executed before the verification task
-                    it.manifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
-                    it.activityPrefix.set(variant.name)
-                    it.output.set(
+                    manifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
+                    activityPrefix.set(variant.name)
+                    output.set(
                         project.layout.buildDirectory.dir("intermediates/perVariantManifestPlaceholder/$it.name")
                     )
                 }
@@ -95,9 +96,9 @@ abstract class ManifestVerifierTask : DefaultTask() {
     fun taskAction() {
         val manifestText = manifest.asFile.get().readText()
 
-        if (!manifestText.contains(
-                "activity android:name=\"com.example.android.recipes.per_variant_manifest_placeholder.${activityPrefix.get()}Activity\""
-            )
+        val expectedActivityName =
+            "android:name=\"com.example.android.recipes.per_variant_manifest_placeholder.${activityPrefix.get()}Activity\""
+        if (!manifestText.contains(expectedActivityName)
         ) {
             throw RuntimeException("Manifest Placeholder not replaced successfully")
         }

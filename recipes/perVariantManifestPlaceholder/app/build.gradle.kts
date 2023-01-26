@@ -16,14 +16,15 @@
 
 plugins {
     alias(libs.plugins.android.application)
-    kotlin("android")
+    alias(libs.plugins.kotlin.android)
     id("android.recipes.per_variant_manifest_placeholder")
 }
 
 android {
     namespace = "com.example.android.recipes.per_variant_manifest_placeholder"
-    compileSdk = 29
+    compileSdk = $COMPILE_SDK
     defaultConfig {
-        minSdk = 21
+       minSdk = $MINIMUM_SDK
+       targetSdk = $COMPILE_SDK
     }
 }

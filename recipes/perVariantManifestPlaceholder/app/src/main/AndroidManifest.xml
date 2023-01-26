@@ -14,7 +14,9 @@
     -->
     <application android:label="Minimal">
         <!-- The actual activity name will be injected during the manifest processing -->
-        <activity android:name="${MyName}">
+        <activity
+                android:name="${MyName}"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

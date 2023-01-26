@@ -35,7 +35,7 @@ val agpToGradleVersions = mapOf(
     "7.2" to "7.3.3",
     "7.3" to "7.4",
     "7.4" to "7.5",
-    "8.0" to "7.5"
+    "8.1" to "8.0-rc-1",
 )
 
 /**
@@ -43,6 +43,16 @@ val agpToGradleVersions = mapOf(
  * CLI argument to support more versions
  */
 const val kotlinPluginVersion = "1.7.20"
+
+/**
+ * The compile SDK version for recipes
+ */
+const val compileSdkVersion = "33"
+
+/**
+ * The minimum SDK version for recipes
+ */
+const val minimumSdkVersion = "21"
 
 fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
     return if (modeFromString != null) {
@@ -53,7 +63,6 @@ fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
 }
 
 data class ConversionResult(val recipe: Recipe, var isConversionSuccessful: Boolean)
-
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
