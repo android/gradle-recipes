@@ -8,7 +8,7 @@ In this example, we only add classes the [ListProperty] of [Directory].
 
 The [onVariants] block will wire the [AddClassesTask] [output] folder using
 `wiredWith(AddClassesTask::output)`
-to add classes to [MultipleArtifact.ALL_CLASSES_DIRS]
+to add classes to [ScopedArtifact.CLASSES]
 
 ## To Run
 ./gradlew :app:assembleDebug

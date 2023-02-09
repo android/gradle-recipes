@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.example.customSource"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)

@@ -14,7 +14,7 @@ is using javassist to show how this can be done using a different bytecode enhan
 The [onVariants] block will wire the [ModifyClassesTask] input properties (allClasses]
 to the [output] folder
 `wiredWith(ModifyClassesTask::allClasses, ModifyClassesTask::output)`
-to transform [MultipleArtifact.ALL_CLASSES_DIRS]
+to transform [ScopedArtifact.CLASSES]
 
 ## To Run
 ./gradlew :app:assembleDebug

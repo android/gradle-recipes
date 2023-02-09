@@ -48,6 +48,9 @@ android {
     defaultConfig {
         minSdkVersion(21)
     }
+    buildFeatures {
+      buildConfig = true
+    }
 }
 androidComponents {
     onVariants {
