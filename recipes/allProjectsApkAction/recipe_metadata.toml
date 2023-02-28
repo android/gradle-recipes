@@ -1,0 +1,23 @@
+title = "allProjectsApkAction"
+
+description ="""
+  allProjectsAction recipe show how to iterate over all projects and recover produced APKs for each of them.
+  """
+
+[agpVersion]
+min = "8.0.0-rc01"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+  "allProjectsAction",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+  "settings plugin",
+  "onVariant",
+  "All projects",
+  "APK",
+]

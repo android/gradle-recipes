@@ -1,0 +1,7 @@
+[versions]
+androidGradlePlugin = $AGP_VERSION
+kotlin = $KOTLIN_VERSION
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
