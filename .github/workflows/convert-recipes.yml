@@ -1,0 +1,47 @@
+name: Convert recipes flow
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-gradle-project:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project sources
+      uses: actions/checkout@v3
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+    - name: Initialize mandatory git config and checkout
+      run: |
+       git checkout -b test-agp-8.0
+       git config user.name "GitHub Actions"
+       git config user.email noreply@github.com
+    - name: Run build with Gradle Wrapper
+      working-directory: ./convert-tool 
+      run: | 
+         ./gradlew standaloneJar
+         tree
+    - name: Run converter
+      run: | 
+         java -jar convert-tool/app/build/libs/recipes-converter-all.jar \
+         --action convert --sourceAll recipes \
+          --destination Recipes \
+          --agpVersion 8.0.0-alpha10 --gradleVersion 7.5.1 --overwrite
+          tree
+    - name: Cleaning folders and commit
+      run: |
+       mv Recipes/* .
+       git add .
+       rm -rf ./convert-tool/*
+       rm ./convert-tool/.gitattributes
+       rm ./convert-tool/.gitignore
+       rm -rf ./gradle-resources/*
+       rm -rf ./.github/*
+       rm -rf ./recipes/*
+       git rm -r --cached ./convert-tool/*
+       git rm -r --cached ./gradle-resources/*
+       git rm -r --cached ./.github/*
+       git rm -r --cached ./recipes/*
+       git commit --message "Prepare release"
+       git push -f --set-upstream origin test-agp-8.0
