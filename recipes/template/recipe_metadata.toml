@@ -1,0 +1,23 @@
+title = "template"
+
+description ="""
+  INSERT DESCRIPTION
+  """
+
+[agpVersion]
+min = "8.1.0-alpha11"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+  "unknown",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+  "settings plugin",
+  "onVariant",
+  "All projects",
+  "APK",
+]
