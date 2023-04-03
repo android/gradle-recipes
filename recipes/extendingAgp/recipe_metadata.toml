@@ -1,0 +1,23 @@
+title = "template"
+
+description ="""
+  Demonstrates how to extend and use third party DSL extensions to the android block.
+  """
+
+[agpVersion]
+min = "8.1.0-beta05"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+  ":app_groovy:demoDebugDumpAllExtensions",
+  ":app_kts:demoDebugDumpAllExtensions",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+  "settings plugin",
+  "onVariant",
+  "extending AGP DSL",
+]
