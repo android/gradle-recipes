@@ -28,6 +28,10 @@ kotlin_library(
 )
 
 recipe_test(
+    name = "addBuildTypeUsingDslFinalize",
+)
+
+recipe_test(
     name = "addCustomAsset",
 )
 
