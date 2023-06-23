@@ -1,0 +1,22 @@
+title = "Template recipe"
+
+description ="""
+  Recipe to add some custom asset from a Task.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "debugVerifyAsset",
+    "releaseVerifyAsset"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "addGeneratedSourceDirectory",
+    "asset"
+]
