@@ -1,0 +1,22 @@
+title = "Add Custom Build Config Field"
+
+description ="""
+  Recipe that adds a BuildConfig field fom the output of a Task
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "assembleDebug",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "BuildConfig",
+    "from Task"
+]

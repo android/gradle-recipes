@@ -32,6 +32,10 @@ recipe_test(
 )
 
 recipe_test(
+    name = "addCustomBuildConfigFields",
+)
+
+recipe_test(
     name = "allProjectsApkAction",
 )
 
