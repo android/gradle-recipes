@@ -48,5 +48,9 @@ recipe_test(
 )
 
 recipe_test(
+    name = "getSingleArtifact",
+)
+
+recipe_test(
     name = "perVariantManifestPlaceholder",
 )
