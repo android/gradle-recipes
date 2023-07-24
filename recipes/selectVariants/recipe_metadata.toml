@@ -1,0 +1,26 @@
+title = "selectVariants"
+
+description ="""
+   This sample shows how to select multiple variants by using selector() in Variant API.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:checkFullMinApi24ReleaseConfiguration",
+    ":app:checkDemoMinApi21DebugConfiguration",
+    ":app:checkDemoMinApi24DebugConfiguration",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "AndroidComponentsExtension.beforeVariants",
+    "AndroidComponentsExtension.selector",
+    "VariantSelector.withFlavor",
+    "VariantSelector.withBuildType",
+    "VariantSelector.withName"
+]

@@ -54,3 +54,7 @@ recipe_test(
 recipe_test(
     name = "variantDependencySubstitutionTest",
 )
+
+recipe_test(
+    name = "selectVariants",
+)
