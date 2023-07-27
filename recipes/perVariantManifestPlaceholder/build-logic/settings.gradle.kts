@@ -16,6 +16,13 @@
 
 rootProject.name = "build-logic"
 
+pluginManagement {
+    repositories {
+        $AGP_REPOSITORY
+        $PLUGIN_REPOSITORIES
+    }
+}
+
 dependencyResolutionManagement {
     repositories {
 $AGP_REPOSITORY

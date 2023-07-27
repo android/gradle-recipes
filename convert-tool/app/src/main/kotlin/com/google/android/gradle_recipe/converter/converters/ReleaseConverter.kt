@@ -142,10 +142,11 @@ class ReleaseConverter(
             }
         )
 
-        convertGradleWrapper(
-            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"),
+        val gradleWrapperPropertiesPath =
             dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
-        )
+        if (Files.exists(gradleWrapperPropertiesPath)) {
+            convertGradleWrapper(gradleWrapperPropertiesPath, gradleWrapperPropertiesPath)
+        }
     }
 
     private fun convertGradleWrapper(source: Path, target: Path) {
