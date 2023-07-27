@@ -1,7 +1,7 @@
 Studio-main branch contains the source recipes.
 
 A converter tool is used to convert source recipes into buildable projects that are
-store in a AGP Version related branch. So for examples, buildable recipes that uses
+stored in a AGP Version related branch. So for examples, buildable recipes that use
 AGP 8.1 will be found in the agp-8.1 branch.
 
 The `agp-` branches are readonly branches, if you want to make changes to a recipe,
