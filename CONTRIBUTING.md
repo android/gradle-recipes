@@ -1,4 +1,4 @@
-Studio-main branch contains the source recipes.
+`studio-main` branch contains the source recipes.
 
 A converter tool is used to convert source recipes into buildable projects that are
 stored in a AGP Version related branch. So for examples, buildable recipes that use
@@ -24,6 +24,4 @@ the line format is `AGP_VERSION;GRADLE_VERSION` and each line will create a bran
 | Branch  | AGP and Gradle Versions |
 | agp-8-1 | AGP 8.1.0-rc1 and Gradle 8.0 |
 | agp-8-2 | AGP 8.2.0-alpha13 and Gradle 8.1 |
-
-test
 
