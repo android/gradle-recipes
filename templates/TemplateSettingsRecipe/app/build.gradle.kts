@@ -27,3 +27,9 @@ android {
        targetSdk = $COMPILE_SDK
     }
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
