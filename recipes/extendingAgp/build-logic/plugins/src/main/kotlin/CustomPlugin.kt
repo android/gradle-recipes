@@ -31,7 +31,11 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.register
 
 /**
- * This custom plugin will register a callback that is applied to all variants.
+ * This custom plugin creates extension objects that can extend the project
+ * definition, the build type and product flavors definitions.
+ *
+ * A variant extension is also added when the Variants have been initialized.
+ *
  */
 class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
