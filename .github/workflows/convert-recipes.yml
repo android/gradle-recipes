@@ -56,7 +56,7 @@ jobs:
             git add -A
             echo "Ready for commit"
             git commit --message "Prepare release" || echo "Nothing to commit"
-            git push --set-upstream origin $BRANCH
+            git push -f --set-upstream origin $BRANCH
             echo "Done for $BRANCH"
             cd ../main
           done
