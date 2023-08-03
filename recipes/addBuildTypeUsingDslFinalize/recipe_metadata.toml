@@ -1,0 +1,21 @@
+title = "Add a BuildType using dsl finalization block"
+
+description ="""
+  This recipe will use the `finalizeDsl` block to add a build type programmatically.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "extraVerifyRecipe",
+    "assembleExtra"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "finalizeDsl"
+]
