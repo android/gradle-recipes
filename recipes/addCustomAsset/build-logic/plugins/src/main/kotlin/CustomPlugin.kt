@@ -34,7 +34,11 @@ import org.gradle.kotlin.dsl.register
 import java.lang.IllegalStateException
 
 /**
- * This custom plugin will register a callback that is applied to all variants.
+ * This custom plugin will register a task output as a generated source folder for
+ * android Assets.
+ *
+ * It will also create a Task to verify that the generated sources are properly
+ * accounted for during building.
  */
 class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
