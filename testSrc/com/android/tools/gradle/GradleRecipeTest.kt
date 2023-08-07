@@ -17,6 +17,7 @@
 package com.android.tools.gradle
 
 import com.android.tools.gradle.Gradle
+import com.android.utils.FileUtils
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
@@ -34,35 +35,27 @@ class GradleRecipeTest {
         val destination = Paths.get(System.getenv("TEST_TMPDIR"), name)
         val agpVersion = System.getProperty("agp_version")
         val gradlePath = System.getProperty("gradle_path")
-        val repos = System.getProperty("repos").split(",").map { File(it) }
-        val recipeConverter =
-            RecipeConverter(
-                agpVersion,
-                // Add multiple repo locations because build files are at different levels in the
-                // project
-                repoLocation = """
-                    maven { url = uri("./out/_repo") }
-                    maven { url = uri("../out/_repo") }
-                """.trimIndent(),
-                gradleVersion = null,
-                gradlePath,
-                mode = RELEASE,
-                overwrite = true
-            )
-        recipeConverter.convert(source, destination)
-
-        val tasks = RecipeMetadataParser(destination).tasks
-        assertThat(tasks).isNotEmpty()
-
         val outputDir = destination.resolve("out")
-        val home = destination.resolve("tmp_home")
-        Gradle(destination.toFile(), outputDir.toFile(), File(gradlePath), null).use { gradle ->
-            // Remove unnecessary init script contents (b/294392417)
-            val initScript = outputDir.resolve("init.script")
-            Files.write(initScript, listOf(""))
+        Gradle(destination.toFile(), outputDir.toFile(), File(gradlePath), null, false).use { gradle ->
+            val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
+            val recipeConverter =
+                RecipeConverter(
+                    agpVersion,
+                    repoLocation = "maven { url = uri(\"$repoPath\") }",
+                    gradleVersion = null,
+                    gradlePath,
+                    mode = RELEASE,
+                    overwrite = true
+                )
+            recipeConverter.convert(source, destination)
+
+            val tasks = RecipeMetadataParser(destination).tasks
+            assertThat(tasks).isNotEmpty()
+
+            val repos = System.getProperty("repos").split(",").map { File(it) }
             repos.forEach { gradle.addRepo(it) }
             gradle.addArgument("-Dcom.android.gradle.version=$agpVersion")
-            gradle.addArgument("-Duser.home=${home.toString()}")
+            gradle.addArgument("-Duser.home=${destination.resolve("tmp_home").toString()}")
             gradle.run(tasks)
         }
     }
