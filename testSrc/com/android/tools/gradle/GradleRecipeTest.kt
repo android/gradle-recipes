@@ -22,6 +22,7 @@ import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mod
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
 import com.google.common.truth.Truth.assertThat
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 import org.junit.Test
 
@@ -56,6 +57,9 @@ class GradleRecipeTest {
         val outputDir = destination.resolve("out")
         val home = destination.resolve("tmp_home")
         Gradle(destination.toFile(), outputDir.toFile(), File(gradlePath), null).use { gradle ->
+            // Remove unnecessary init script contents (b/294392417)
+            val initScript = outputDir.resolve("init.script")
+            Files.write(initScript, listOf(""))
             repos.forEach { gradle.addRepo(it) }
             gradle.addArgument("-Dcom.android.gradle.version=$agpVersion")
             gradle.addArgument("-Duser.home=${home.toString()}")
