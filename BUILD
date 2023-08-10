@@ -62,3 +62,7 @@ recipe_test(
 recipe_test(
     name = "selectVariants",
 )
+
+recipe_test(
+    name = "createSingleArtifact",
+)
