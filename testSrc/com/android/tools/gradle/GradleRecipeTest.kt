@@ -32,9 +32,19 @@ class GradleRecipeTest {
     fun run() {
         val name = System.getProperty("name")
         val source = Paths.get("tools/gradle-recipes/recipes/$name")
-        val destination = Paths.get(System.getenv("TEST_TMPDIR"), name)
+        val testedAgpVersions = System.getProperty("tested_agp_versions")?.split(",")
+        val testedGradlePaths = System.getProperty("tested_gradle_paths")?.split(",")
+        if (testedAgpVersions != null && testedGradlePaths != null) {
+            assertThat(testedAgpVersions.size).isEqualTo(testedGradlePaths.size)
+            checkVersionMappings(
+                Paths.get("tools/gradle-recipes/version_mappings.txt").toFile(),
+                testedAgpVersions,
+                testedGradlePaths
+            )
+        }
         val agpVersion = System.getProperty("agp_version")
         val gradlePath = System.getProperty("gradle_path")
+        val destination = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
         val outputDir = destination.resolve("out")
         Gradle(destination.toFile(), outputDir.toFile(), File(gradlePath), null, false).use { gradle ->
             val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
@@ -57,6 +67,38 @@ class GradleRecipeTest {
             gradle.addArgument("-Dcom.android.gradle.version=$agpVersion")
             gradle.addArgument("-Duser.home=${destination.resolve("tmp_home").toString()}")
             gradle.run(tasks)
+        }
+    }
+
+    /**
+     * Check that the tested_agp_versions and tested_gradle_paths properties fed to this test are
+     * in sync with the versions specified in version_mappings.txt.
+     */
+    private fun checkVersionMappings(
+        versionMappingsFile: File,
+        agpVersions: List<String>,
+        gradlePaths: List<String>
+    ) {
+        val expectedAgpVersions = mutableListOf<String>()
+        val expectedGradleVersions = mutableListOf<String>()
+        versionMappingsFile.forEachLine { line ->
+            if (!line.startsWith("#")) {
+                val versionList = line.split(";")
+                expectedAgpVersions.add(versionList[0])
+                expectedGradleVersions.add(versionList[1])
+            }
+        }
+        assertThat(agpVersions.size).isEqualTo(expectedAgpVersions.size)
+        // Don't check the last AGP version because the ToT AGP version might be different than the
+        // version in the version_mappings.txt file.
+        agpVersions.dropLast(1).forEachIndexed { i, agpVersion ->
+            assertThat(agpVersion.take(4)).isEqualTo(expectedAgpVersions[i].take(4))
+        }
+        assertThat(gradlePaths.size).isEqualTo(expectedGradleVersions.size)
+        // Don't check the last Gradle path because the ToT Gradle version might be different than
+        // the version in the version_mappings.txt file.
+        gradlePaths.dropLast(1).forEachIndexed { i, gradlePath ->
+            assertThat(gradlePath).contains(expectedGradleVersions[i])
         }
     }
 }

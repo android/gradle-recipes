@@ -1,3 +1,3 @@
 # mapping of AGP versions to Gradle Versions, separated by ';'
-8.1.0-rc1;8.0
+8.1.0;8.0
 8.2.0-alpha13;8.1
