@@ -1,0 +1,22 @@
+title = "onVariants"
+
+description ="""
+   This sample shows how to use onVariants in Variant API.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:checkDebugApplicationId",
+    ":app:checkReleaseApplicationId"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "AndroidComponentsExtension.onVariants",
+    "variant.applicationId"
+]

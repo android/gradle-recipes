@@ -98,3 +98,7 @@ recipe_test(
 recipe_test(
     name = "transformAllClasses",
 )
+
+recipe_test(
+    name = "onVariants",
+)
