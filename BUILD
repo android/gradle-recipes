@@ -48,6 +48,10 @@ recipe_test(
 )
 
 recipe_test(
+    name = "getMultipleArtifact",
+)
+
+recipe_test(
     name = "getSingleArtifact",
 )
 

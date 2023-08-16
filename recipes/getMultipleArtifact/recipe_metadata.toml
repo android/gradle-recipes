@@ -1,0 +1,23 @@
+title = "Get Multiple Artifact"
+
+description ="""
+  Recipe that adds a task per variant to consume an instance of MultipleArtifact.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "checkDebugMultiDexKeepProguardFiles"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "variant.artifacts.getAll",
+    "MultipleArtifact",
+    "MultipleArtifact.MULTIDEX_KEEP_PROGUARD",
+]
