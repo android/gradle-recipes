@@ -16,7 +16,7 @@
 
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.DslExtension
 import com.android.build.api.variant.VariantExtensionConfig
@@ -48,7 +48,7 @@ class CustomPlugin : Plugin<Project> {
             // Look up the generic android component, we don't need anything specific
             // to a module type like application or library.
             val androidComponents =
-                project.extensions.getByType(AndroidComponentsExtension::class.java)
+                project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
             // Register the DSL extensions.
             // In this recipe, we provide all possible types of extensions : to the

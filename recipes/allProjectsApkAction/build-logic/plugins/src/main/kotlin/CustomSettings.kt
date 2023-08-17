@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.tasks.TaskProvider
@@ -53,7 +53,7 @@ class CustomSettings: Plugin<Settings> {
                 // so we now know that the application plugin has been applied so
                 // let's look up its extension so we can invoke the AGP Variant API.
                 val androidComponents =
-                    project.extensions.getByType(AndroidComponentsExtension::class.java)
+                    project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
                 // Registers a callback to be called, when a RELEASE variant is configured
                 androidComponents.onVariants(

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.artifact.MultipleArtifact
 import com.android.build.api.artifact.SingleArtifact
@@ -51,7 +51,7 @@ class CustomPlugin : Plugin<Project> {
             // Queries for the extension set by the Android Application plugin.
             // This is the second of two entry points into the Android Gradle plugin
             val androidComponents =
-                project.extensions.getByType(AndroidComponentsExtension::class.java)
+                project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
             // Registers a callback to be called, when a new variant is configured
             androidComponents.onVariants { variant ->
                 variant.sources.assets
