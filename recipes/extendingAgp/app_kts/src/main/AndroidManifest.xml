@@ -13,14 +13,5 @@
          limitations under the License.
     -->
     <application android:label="Minimal">
-        <!-- The actual activity name will be injected during the manifest processing -->
-        <activity
-                android:name="com.app.test"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 </manifest>
