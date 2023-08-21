@@ -1,0 +1,27 @@
+title = "Variant Dependency Substitution Test"
+
+description ="""
+  Customizing test dependencies with dependencySubstitution of variant API.
+  """
+
+[agpVersion]
+min = "8.1.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:assemble",
+    ":app:testDebugUnitTest",
+    ":app:testReleaseUnitTest",
+    ":app:assembleAndroidTest"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "Variant.nestedComponents",
+    "Component.compileConfiguration",
+    "Component.runtimeConfiguration",
+    "Configuration.resolutionStrategy",
+    "ResolutionStrategy.dependencySubstitution",
+]
