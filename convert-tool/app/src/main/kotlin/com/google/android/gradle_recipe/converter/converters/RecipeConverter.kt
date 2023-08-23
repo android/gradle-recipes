@@ -42,7 +42,7 @@ val agpToGradleVersions = mapOf(
  * Current supported Kotlin plugin, later we add a
  * CLI argument to support more versions
  */
-const val kotlinPluginVersion = "1.9.0-Beta"
+const val kotlinPluginVersion = "1.9.0"
 
 /**
  * The compile SDK version for recipes
