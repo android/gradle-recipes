@@ -24,8 +24,8 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-$AGP_REPOSITORY
-$DEPENDENCY_REPOSITORIES
+        $AGP_REPOSITORY
+        $DEPENDENCY_REPOSITORIES
     }
 }
 

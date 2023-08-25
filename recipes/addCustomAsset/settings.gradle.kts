@@ -19,16 +19,16 @@ rootProject.name = "addCustomAsset"
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-$AGP_REPOSITORY
-$PLUGIN_REPOSITORIES
+        $AGP_REPOSITORY
+        $PLUGIN_REPOSITORIES
     }
 }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-$AGP_REPOSITORY
-$DEPENDENCY_REPOSITORIES
+        $AGP_REPOSITORY
+        $DEPENDENCY_REPOSITORIES
     }
 }
 

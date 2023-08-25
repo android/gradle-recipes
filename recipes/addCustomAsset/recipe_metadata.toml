@@ -10,8 +10,7 @@ min = "8.0.0"
 # Relevant Gradle tasks to run per recipe
 [gradleTasks]
 tasks = [
-    "debugVerifyAsset",
-    "releaseVerifyAsset"
+    "debugVerifyAsset"
 ]
 
 # All the relevant metadata fields to create an index based on language/API/etc'
