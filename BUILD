@@ -50,3 +50,7 @@ recipe_test(
 recipe_test(
     name = "perVariantManifestPlaceholder",
 )
+
+recipe_test(
+    name = "variantDependencySubstitutionTest",
+)
