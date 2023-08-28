@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.DslExtension
 import com.android.build.api.variant.VariantExtensionConfig
 import com.android.build.gradle.AppPlugin
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.register
 
 /**
@@ -121,22 +116,5 @@ class CustomPlugin : Plugin<Project> {
                 }
             }
         }
-    }
-}
-
-/**
- * This task here to verify that the API does what is says.
- */
-abstract class TemplateTask : DefaultTask() {
-
-    // In order of the task to be up-to-date when the manifest has not changed,
-    // the task must declare an output, even if it's not used. Tasks with no
-    // output are always run regardless of whether the inputs changed or not
-    @get:OutputDirectory
-    abstract val output: DirectoryProperty
-
-    @TaskAction
-    fun taskAction() {
-
     }
 }
