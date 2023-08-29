@@ -20,4 +20,5 @@ index = [
   "onVariant",
   "All projects",
   "APK",
+  "variant.artifacts.get",
 ]

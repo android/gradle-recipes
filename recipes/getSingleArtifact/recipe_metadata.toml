@@ -1,0 +1,22 @@
+title = "Get Single Artifact"
+
+description ="""
+  Recipe that gets a single artifact (the app bundle) and verifies it in a task.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "checkDebugBundle"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "variant.artifacts.get",
+    "BUNDLE",
+]
