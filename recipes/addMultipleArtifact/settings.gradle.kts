@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("android.recipes.custom_plugin")
-}
+rootProject.name = "get-single-artifact"
 
-android {
-    namespace = "com.example.android.recipes.getmultipleartifact"
-    compileSdk = $COMPILE_SDK
-    defaultConfig {
-       minSdk = $MINIMUM_SDK
-       targetSdk = $COMPILE_SDK
-       multiDexEnabled = true
-       multiDexKeepProguard = file("main_dex_rules.txt")
+pluginManagement {
+    includeBuild("build-logic")
+    repositories {
+        $AGP_REPOSITORY
+        $PLUGIN_REPOSITORIES
     }
 }
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        $AGP_REPOSITORY
+        $DEPENDENCY_REPOSITORIES
+    }
+}
+
+include(":app")

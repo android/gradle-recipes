@@ -1,0 +1,26 @@
+title = "Add Multiple Artifact"
+
+description ="""
+  Recipe that adds a directory to an instance of MultipleArtifact.
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "checkDebugBundle"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "variant.artifacts.add",
+    "variant.artifacts.get",
+    "MultipleArtifact",
+    "MultipleArtifact.NATIVE_DEBUG_METADATA",
+    "SingleArtifact.BUNDLE",
+]
+

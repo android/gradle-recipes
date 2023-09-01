@@ -40,6 +40,10 @@ recipe_test(
 )
 
 recipe_test(
+    name = "addMultipleArtifact",
+)
+
+recipe_test(
     name = "allProjectsApkAction",
 )
 
