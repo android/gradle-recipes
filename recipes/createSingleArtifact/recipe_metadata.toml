@@ -1,0 +1,23 @@
+title = "Create a Single Artifact"
+
+description ="""
+  Recipe that creates a single artifact (android manifest file).
+  """
+
+[agpVersion]
+min = "8.0.0"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:verifyDebugManifest",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "Manifest API",
+    "MERGED_MANIFEST",
+    "OutOperationRequest.toCreate"
+]
