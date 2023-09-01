@@ -21,12 +21,18 @@ plugins {
 }
 
 android {
-    namespace = "com.example.android.recipes.getmultipleartifact"
+    namespace = "com.example.android.recipes.addmultipleartifact"
     compileSdk = $COMPILE_SDK
     defaultConfig {
        minSdk = $MINIMUM_SDK
        targetSdk = $COMPILE_SDK
-       multiDexEnabled = true
-       multiDexKeepProguard = file("main_dex_rules.txt")
+       versionCode = 1
+    }
+    buildTypes {
+        debug {
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
+        }
     }
 }

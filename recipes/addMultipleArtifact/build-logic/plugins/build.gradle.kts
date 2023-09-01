@@ -15,18 +15,26 @@
  */
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("android.recipes.custom_plugin")
+    `java-gradle-plugin`
+    alias(libs.plugins.kotlin.jvm)
 }
 
-android {
-    namespace = "com.example.android.recipes.getmultipleartifact"
-    compileSdk = $COMPILE_SDK
-    defaultConfig {
-       minSdk = $MINIMUM_SDK
-       targetSdk = $COMPILE_SDK
-       multiDexEnabled = true
-       multiDexKeepProguard = file("main_dex_rules.txt")
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+dependencies {
+    compileOnly(libs.android.gradlePlugin.api)
+    implementation(gradleKotlinDsl())
+}
+
+gradlePlugin {
+    plugins {
+        create("customPlugin") {
+            id = "android.recipes.custom_plugin"
+            implementationClass = "CustomPlugin"
+        }
     }
 }

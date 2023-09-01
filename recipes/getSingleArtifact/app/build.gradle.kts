@@ -26,5 +26,6 @@ android {
     defaultConfig {
        minSdk = $MINIMUM_SDK
        targetSdk = $COMPILE_SDK
+       versionCode = 1
     }
 }
