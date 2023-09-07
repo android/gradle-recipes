@@ -20,31 +20,24 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 import java.lang.RuntimeException
 import java.util.zip.ZipFile
 
 /**
- * This task checks that a variant's app bundle (.aab) output file contains the expected native
- * debug metadata.
+ * This task generates (fake) native debug metadata.
  */
-abstract class CheckBundleTask : DefaultTask() {
+abstract class GenerateNativeDebugMetadataTask : DefaultTask() {
 
-    // In order for the task to be up-to-date when the inputs have not changed,
-    // the task must declare an output, even if it's not used. Tasks with no
-    // output are always run regardless of whether the inputs changed
     @get:OutputDirectory
     abstract val output: DirectoryProperty
 
-    @get:InputFile
-    abstract val bundle: RegularFileProperty
-
     @TaskAction
     fun taskAction() {
-        ZipFile(bundle.get().asFile).use {
-            val entries = it.entries().asSequence().toList()
-            if (entries.count { it.name.endsWith("extra.so.dbg") } != 4) {
-                throw RuntimeException("Expected bundle file to have exactly 4 extra.so.dbg entries.")
-            }
+        val outputDir = output.get().asFile
+        for (abi in listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")) {
+            val abiDir = File(outputDir, abi).also { it.mkdirs() }
+            File(abiDir, "extra.so.dbg").writeText("fake native debug metadata")
         }
     }
 }
