@@ -1,9 +1,12 @@
-# Adding to an instance of `MultipleArtifact`
+# Adding a static directory to an instance of `MultipleArtifact`
 
-This recipe shows how to add a directory to an instance of
+This recipe shows how to add a static directory to an instance of
 [MultipleArtifact](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/artifact/MultipleArtifact).
 This recipe uses `MultipleArtifact.NATIVE_DEBUG_METADATA` as an example, but the code is similar
 for other `MultipleArtifact` types.
+
+Note: for an example of adding a *generated* directory to an instance of `MultipleArtifact`, see
+the [appendToMultipleArtifact](../appendToMultipleArtifact) recipe.
 
 This recipe contains the following directories :
 

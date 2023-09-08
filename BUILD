@@ -48,6 +48,10 @@ recipe_test(
 )
 
 recipe_test(
+    name = "appendToMultipleArtifact",
+)
+
+recipe_test(
     name = "extendingAgp",
 )
 

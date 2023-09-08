@@ -1,7 +1,7 @@
-title = "Add Multiple Artifact"
+title = "Append to Multiple Artifact"
 
 description ="""
-  Recipe that adds a static directory to an instance of MultipleArtifact.
+  Recipe that appends a generated directory to an instance of MultipleArtifact.
   """
 
 [agpVersion]
@@ -17,10 +17,11 @@ tasks = [
 [indexMetadata]
 index = [
     "onVariant",
-    "variant.artifacts.add",
+    "variant.artifacts.use",
     "variant.artifacts.get",
     "MultipleArtifact",
     "MultipleArtifact.NATIVE_DEBUG_METADATA",
+    "OutOperationRequest.toAppendTo()",
     "SingleArtifact.BUNDLE",
 ]
 
