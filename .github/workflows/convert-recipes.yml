@@ -37,7 +37,7 @@ jobs:
             AGP=${versions[0]}
             GRADLE=${versions[1]}
             echo "Converting for AGP $AGP with Gradle $GRADLE"
-            BRANCH="test-agp-"
+            BRANCH="agp-"
             BRANCH+=${AGP:0:3}
             BRANCH_DIR="../$BRANCH"
             echo "Working on branch $BRANCH in $BRANCH_DIR"
