@@ -60,6 +60,10 @@ recipe_test(
 )
 
 recipe_test(
+    name = "getScopedArtifacts",
+)
+
+recipe_test(
     name = "getSingleArtifact",
 )
 
