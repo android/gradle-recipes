@@ -82,3 +82,7 @@ recipe_test(
 recipe_test(
     name = "createSingleArtifact",
 )
+
+recipe_test(
+    name = "addCustomSourceFolders",
+)

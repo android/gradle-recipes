@@ -1,0 +1,26 @@
+title = "Add custom source folders"
+
+description ="""
+  This recipe shows how to add a new custom source folders to the Variant
+  """
+
+[agpVersion]
+min = "8.1.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    "sourceSets",
+    "debugDisplayAllSources",
+    "debugAddCustomSources"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "onVariant",
+    "registerSourceType",
+    "addStaticSourceDirectory",
+    "addGeneratedSourceDirectory",
+    "SourceDirectories.add",
+]
