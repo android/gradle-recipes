@@ -86,3 +86,7 @@ recipe_test(
 recipe_test(
     name = "addCustomSourceFolders",
 )
+
+recipe_test(
+    name = "transformManifest",
+)

@@ -1,0 +1,25 @@
+title = "Transform android manifest"
+
+description ="""
+  This sample shows how to update Android manifest in a meaningful way.
+  """
+
+[agpVersion]
+min = "8.1.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:debugManifestUpdater",
+    ":app:gitVersionProvider",
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "wiredWithFiles",
+    "toTransform",
+    "outputs.upToDateWhen",
+    "artifacts.getBuiltArtifactsLoader",
+    "variant.artifacts.get"
+]
