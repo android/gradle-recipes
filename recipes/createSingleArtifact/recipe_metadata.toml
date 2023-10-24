@@ -19,5 +19,6 @@ index = [
     "onVariant",
     "Manifest API",
     "MERGED_MANIFEST",
-    "OutOperationRequest.toCreate"
+    "OutOperationRequest.toCreate",
+    "TaskBasedOperation.wiredWith(taskOutput)"
 ]
