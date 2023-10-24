@@ -90,3 +90,7 @@ recipe_test(
 recipe_test(
     name = "transformManifest",
 )
+
+recipe_test(
+    name = "workerEnabledTransformation",
+)

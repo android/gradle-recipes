@@ -1,0 +1,23 @@
+title = "Worker Enabled Transformation"
+
+description ="""
+  This sample shows how to transform the artifact in async way
+  """
+
+[agpVersion]
+min = "8.1.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:copyDebugApks"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "wiredWithDirectories",
+    "toTransformMany",
+    "WorkAction",
+    "transformationRequest"
+]
