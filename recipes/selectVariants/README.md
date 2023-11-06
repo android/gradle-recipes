@@ -37,6 +37,13 @@ androidComponents.beforeVariants(releaseSelector) { variantBuilder ->
 }
 ```
 
+`beforeVariants` allows users to register a function that will be passed a Variant Builder.
+The [VariantBuilder] has multiple writable properties that will impact the project configuration
+and build flows. Once all `beforeVariants` callbacks have executed, AGP will create Variant instances
+for each variant. The [Variant] instances, only impacts tasks' execution but cannot change the build flow 
+any longer (for instance, you cannot change if minification is turned on with [Variant] instances, you must 
+use the [VariantBuilder] instances).
+
 More examples are in [CustomPlugin.kt](build-logic/plugins/src/main/kotlin/CustomPlugin.kt).
 
 ## To Run
