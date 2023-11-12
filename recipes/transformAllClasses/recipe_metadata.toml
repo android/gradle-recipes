@@ -1,0 +1,23 @@
+title = "Transform classes with ScopedArtifactsOperation.toTransform()"
+
+description ="""
+  This sample shows how to transform classes that will be used to create the dex files.
+  """
+
+[agpVersion]
+min = "8.1.0-alpha10"
+
+# Relevant Gradle tasks to run per recipe
+[gradleTasks]
+tasks = [
+    ":app:assembleDebug"
+]
+
+# All the relevant metadata fields to create an index based on language/API/etc'
+[indexMetadata]
+index = [
+    "ScopedArtifactsOperation.toTransform()",
+    "forScope",
+    "use",
+    "ScopedArtifact"
+]

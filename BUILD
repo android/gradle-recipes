@@ -94,3 +94,7 @@ recipe_test(
 recipe_test(
     name = "workerEnabledTransformation",
 )
+
+recipe_test(
+    name = "transformAllClasses",
+)
