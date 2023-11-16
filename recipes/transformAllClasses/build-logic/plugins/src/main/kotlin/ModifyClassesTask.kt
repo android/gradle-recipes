@@ -21,16 +21,19 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import javassist.ClassPool
 import javassist.CtClass
 import java.io.FileInputStream
+import java.io.InputStream
 import java.io.FileOutputStream
 import java.io.BufferedOutputStream
 import java.io.File
 import java.util.jar.JarFile
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
+import java.util.zip.ZipException
 import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.file.RegularFileProperty
@@ -48,6 +51,9 @@ abstract class ModifyClassesTask: DefaultTask() {
     @get:OutputFile
     abstract val output: RegularFileProperty
 
+    @Internal
+    val jarPaths = mutableSetOf<String>()
+
     @TaskAction
     fun taskAction() {
 
@@ -62,12 +68,7 @@ abstract class ModifyClassesTask: DefaultTask() {
             val jarFile = JarFile(file.asFile)
             jarFile.entries().iterator().forEach { jarEntry ->
                 println("Adding from jar ${jarEntry.name}")
-                jarOutput.putNextEntry(JarEntry(jarEntry.name))
-                jarFile.getInputStream(jarEntry).use {
-                    // just copying to output jar without changes
-                    it.copyTo(jarOutput)
-                }
-                jarOutput.closeEntry()
+                jarOutput.writeEntity(jarEntry.name, jarFile.getInputStream(jarEntry))
             }
             jarFile.close()
         }
@@ -82,9 +83,7 @@ abstract class ModifyClassesTask: DefaultTask() {
                         println("Found $file.name")
                         val interfaceClass = pool.makeInterface("com.example.android.recipes.sample.SomeInterface");
                         println("Adding $interfaceClass")
-                        jarOutput.putNextEntry(JarEntry("com/example/android/recipes/sample/SomeInterface.class"))
-                        jarOutput.write(interfaceClass.toBytecode())
-                        jarOutput.closeEntry()
+                        jarOutput.writeEntity("com/example/android/recipes/sample/SomeInterface.class", interfaceClass.toBytecode())
                         val ctClass = file.inputStream().use {
                             pool.makeClass(it);
                         }
@@ -97,23 +96,45 @@ abstract class ModifyClassesTask: DefaultTask() {
 
                             val relativePath = directory.asFile.toURI().relativize(file.toURI()).getPath()
                             // Writing changed class to output jar
-                            jarOutput.putNextEntry(JarEntry(relativePath.replace(File.separatorChar, '/')))
-                            jarOutput.write(ctClass.toBytecode())
-                            jarOutput.closeEntry()
+                            jarOutput.writeEntity(relativePath.replace(File.separatorChar, '/'), ctClass.toBytecode())
                         }
                     } else {
-                            // if class is not SomeSource.class - just copy it to output without modification
-                            val relativePath = directory.asFile.toURI().relativize(file.toURI()).getPath()
-                            println("Adding from directory ${relativePath.replace(File.separatorChar, '/')}")
-                            jarOutput.putNextEntry(JarEntry(relativePath.replace(File.separatorChar, '/')))
-                            file.inputStream().use { inputStream ->
-                                inputStream.copyTo(jarOutput)
-                            }
-                            jarOutput.closeEntry()
-                        }
+                        // if class is not SomeSource.class - just copy it to output without modification
+                        val relativePath = directory.asFile.toURI().relativize(file.toURI()).getPath()
+                        println("Adding from directory ${relativePath.replace(File.separatorChar, '/')}")
+                        jarOutput.writeEntity(relativePath.replace(File.separatorChar, '/'), file.inputStream())
                     }
                 }
             }
-            jarOutput.close()
+        }
+        jarOutput.close()
     }
+
+    // writeEntity methods check if the file has name that already exists in output jar
+    private fun JarOutputStream.writeEntity(name: String, inputStream: InputStream) {
+        // check for duplication name first
+        if (jarPaths.contains(name)) {
+            printDuplicatedMessage(name)
+        } else {
+            putNextEntry(JarEntry(name))
+            inputStream.copyTo(this)
+            closeEntry()
+            jarPaths.add(name)
+        }
+    }
+
+    private fun JarOutputStream.writeEntity(relativePath: String, byteArray: ByteArray) {
+        // check for duplication name first
+        if (jarPaths.contains(path)) {
+            printDuplicatedMessage(relativePath)
+        } else {
+            putNextEntry(JarEntry(relativePath))
+            write(byteArray)
+            closeEntry()
+            jarPaths.add(relativePath)
+        }
+    }
+
+    private fun printDuplicatedMessage(name: String) =
+        println("Cannot add ${name}, because output Jar already has file with the same name.")
 }
