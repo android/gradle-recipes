@@ -18,13 +18,13 @@ def recipe_test(
     test_scenarios = {
         "8.1.0": {
             "name": name + "_8_1_0",
-            "gradle_path": "$(location //tools/base/build-system:gradle-distrib-8.0)",
+            "gradle_path": "$(location //tools/base/build-system:gradle-distrib-8.1)",
             "manifest_repos": ["//tools/base/build-system/previous-versions:8.1.0"],
             "zip_repos": [],
             "data": [
                 "//prebuilts/studio/sdk:build-tools/33.0.1",
                 "//tools/base/build-system:android_platform_for_tests",
-                "//tools/base/build-system:gradle-distrib-8.0",
+                "//tools/base/build-system:gradle-distrib-8.1",
             ],
         },
         "ToT": {
@@ -37,7 +37,7 @@ def recipe_test(
                 "//prebuilts/studio/sdk:build-tools/latest",
                 "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib",
-                "//tools/base/build-system:gradle-distrib-8.0",
+                "//tools/base/build-system:gradle-distrib-8.1",
                 "version_mappings.txt",
             ],
         },

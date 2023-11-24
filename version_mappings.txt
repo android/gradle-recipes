@@ -1,3 +1,6 @@
 # mapping of AGP versions to Gradle Versions, separated by ';'
-8.1.0;8.0
+# Note: For AGP 8.1, minimum required Gradle version is 8.0, but because of
+# https://github.com/gradle/gradle/issues/21436, we need to use Gradle 8.1 to be able to run against
+# KGP 2.0+.
+8.1.0;8.1
 8.2.0-alpha13;8.1
