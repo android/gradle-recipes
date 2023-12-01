@@ -6,6 +6,7 @@ kotlin_library(
     srcs = glob([
         "convert-tool/app/src/main/kotlin/com/google/android/gradle_recipe/converter/**/*.kt",
     ]),
+    lint_baseline = "lint_baseline.xml",
     deps = [
         "@maven//:com.github.rising3.semver",
         "@maven//:com.google.guava.guava",
