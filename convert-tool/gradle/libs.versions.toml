@@ -1,10 +1,10 @@
 [versions]
-kotlin = "1.7.10"
+kotlin = "1.9.21"
 guava = "30.1.1-jre"
 kotlinx-cli = "0.3.4"
 tomlj = "1.0.0"
 semver = "0.3.1"
-gradle-api = "7.3-20210825160000+0000"
+gradle-api = "8.4"
 slf4j = "1.7.10"
 truth = "1.1.3"
 

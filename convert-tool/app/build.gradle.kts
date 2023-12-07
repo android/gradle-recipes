@@ -42,6 +42,7 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClass.set("com.google.android.gradle_recipe.converter.ConvertToolKt")
+    applicationName = "convert-tool"
 }
 
 base {

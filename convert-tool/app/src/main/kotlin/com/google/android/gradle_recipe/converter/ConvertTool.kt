@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalCli::class)
+
 package com.google.android.gradle_recipe.converter
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
@@ -22,21 +24,23 @@ import com.google.android.gradle_recipe.converter.converters.convertStringToMode
 import com.google.android.gradle_recipe.converter.validators.GithubPresubmitValidator
 import com.google.android.gradle_recipe.converter.validators.InternalCIValidator
 import com.google.android.gradle_recipe.converter.validators.WorkingCopyValidator
+import java.nio.file.Path
+import kotlin.system.exitProcess
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
+import kotlinx.cli.ExperimentalCli
+import kotlinx.cli.Subcommand
 import kotlinx.cli.default
-import java.nio.file.Path
+
 
 /**
  * The main entry to the Converter, parser the command line arguments, and calls
  * the relevant classes to perform the work
  */
 fun main(args: Array<String>) {
-    val parser = ArgParser("Gradle Recipe Converter")
+    val toolName = "convert-tool"
 
-    val action by parser.option(
-        ArgType.Choice(listOf("convert", "validate"), { it }), shortName = "al", description = "Recipe action"
-    ).default("convert")
+    val parser = ArgParser(programName = toolName, useDefaultHelpShortName = true)
 
     val overwrite by parser.option(ArgType.Boolean, shortName = "o", description = "Overwrite").default(false)
     val source by parser.option(ArgType.String, shortName = "s", description = "Recipe source")
@@ -49,61 +53,78 @@ fun main(args: Array<String>) {
     val gradlePath by parser.option(ArgType.String, shortName = "gp", description = "Gradle path")
     val mode by parser.option(ArgType.String, shortName = "m", description = "Mode")
 
-    parser.parse(args)
-
-    if (action == "convert") {
-        if (source != null) {
-            RecipeConverter(
-                agpVersion = agpVersion,
-                repoLocation = repoLocation,
-                gradleVersion = gradleVersion,
-                gradlePath = gradlePath,
-                mode = convertStringToMode(mode),
-                overwrite = overwrite
-            ).convert(
-                source = Path.of(source ?: error("source must be specified")),
-                destination = Path.of(destination ?: error("destination must be specified"))
-            )
-        } else {
-            RecursiveConverter(
-                agpVersion = agpVersion,
-                repoLocation = repoLocation,
-                gradleVersion = gradleVersion,
-                gradlePath = gradlePath,
-                overwrite = overwrite
-            ).convertAllRecipes(
-                sourceAll = Path.of(sourceAll ?: error("sourceAll must be specified")),
-                destination = Path.of(destination ?: error("destination must be specified"))
-            )
-        }
-    } else if (action == "validate") {
-        if (agpVersion == null) {
-            if (mode != null) {
-                val cliMode = convertStringToMode(mode)
-                if (cliMode != RecipeConverter.Mode.WORKINGCOPY) {
-                    error("The mode value should be either \"workingcopy\" or nothing")
+    parser.subcommands(
+        object : Subcommand("convert", "Convert a recipe from one state to the other") {
+            override fun execute() {
+                if (source != null) {
+                    RecipeConverter(
+                        agpVersion = agpVersion,
+                        repoLocation = repoLocation,
+                        gradleVersion = gradleVersion,
+                        gradlePath = gradlePath,
+                        mode = convertStringToMode(mode),
+                        overwrite = overwrite
+                    ).convert(
+                        source = Path.of(source ?: printErrorAndTerminate("source must be specified")),
+                        destination = Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
+                    )
+                } else {
+                    RecursiveConverter(
+                        agpVersion = agpVersion,
+                        repoLocation = repoLocation,
+                        gradleVersion = gradleVersion,
+                        gradlePath = gradlePath,
+                        overwrite = overwrite
+                    ).convertAllRecipes(
+                        sourceAll = Path.of(sourceAll ?: printErrorAndTerminate("sourceAll must be specified")),
+                        destination = Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
+                    )
                 }
-
-                val validator = WorkingCopyValidator()
-                validator.validate(
-                    Path.of(source ?: error("Source can't be null"))
-                )
-            } else {
-                val validator = GithubPresubmitValidator()
-                validator.validateAll(
-                    Path.of(sourceAll ?: error("SourceAll can't be null"))
-                )
             }
-        } else {
-            val validator = InternalCIValidator(
-                agpVersion = agpVersion ?: error("agpVersion can't be null"),
-                repoLocation = repoLocation ?: error("repoLocation can't be null"),
-                gradlePath = gradlePath ?: error("gradlePath can't be null")
-            )
-            validator.validate(
-                sourceAll = Path.of(sourceAll ?: error("sourceAll can't be null")),
-                tmpFolder = if (tmpFolder != null) Path.of(tmpFolder) else null
-            )
-        }
+        },
+        object : Subcommand("validate", "Validate a recipe") {
+            override fun execute() {
+                if (agpVersion == null) {
+                    if (mode != null) {
+                        val cliMode = convertStringToMode(mode)
+                        if (cliMode != RecipeConverter.Mode.WORKINGCOPY) {
+                            error("The mode value should be either \"workingcopy\" or nothing")
+                        }
+
+                        val validator = WorkingCopyValidator()
+                        validator.validate(
+                            Path.of(source ?: error("Source must not be null"))
+                        )
+                    } else {
+                        val validator = GithubPresubmitValidator()
+                        validator.validateAll(
+                            Path.of(sourceAll ?: error("SourceAll must not be null"))
+                        )
+                    }
+                } else {
+                    val validator = InternalCIValidator(
+                        agpVersion = agpVersion ?: error("agpVersion must not be null"),
+                        repoLocation = repoLocation ?: error("repoLocation must not be null"),
+                        gradlePath = gradlePath ?: error("gradlePath must not be null")
+                    )
+                    validator.validate(
+                        sourceAll = Path.of(sourceAll ?: error("sourceAll must not be null")),
+                        tmpFolder = if (tmpFolder != null) Path.of(tmpFolder) else null
+                    )
+                }
+            }
+        },
+    )
+
+    val result = parser.parse(args)
+
+    if (result.commandName == toolName) {
+        println("Missing subcommand. Use $toolName -h to see usage")
+        exitProcess(1)
     }
+}
+
+fun printErrorAndTerminate(msg: String): Nothing {
+    System.err.println(msg)
+    exitProcess(1)
 }
