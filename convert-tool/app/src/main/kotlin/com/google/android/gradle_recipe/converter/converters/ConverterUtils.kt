@@ -16,12 +16,26 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import java.nio.file.Path
+
 /**
  * The actual conversion logic
  */
 
 private const val START_WORKING_COPY_BLOCK = ">>> WORKING_COPY >>>"
 private const val END_WORKING_COPY_BLOCK = "<<< WORKING_COPY <<<"
+
+
+fun Path.mkdirs(): Boolean {
+    val file = toFile()
+    val ret = file.mkdirs()
+    if (!ret) {
+        if (!file.isDirectory) {
+            throw RuntimeException("Unable to create folder: $this")
+        }
+    }
+    return ret
+}
 
 /** The below functions perform the conversion by adding and removing
  * the placeholder data.

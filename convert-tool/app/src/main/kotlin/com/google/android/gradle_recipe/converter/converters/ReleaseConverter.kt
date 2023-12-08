@@ -21,6 +21,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.writeLines
 
 /** This mode is for a recipe that has no placeholders.
@@ -31,6 +32,7 @@ class ReleaseConverter(
     gradleVersion: String?,
     repoLocation: String?,
     gradlePath: String?,
+    private val branchRoot: Path,
 ) : Converter {
 
     private var pathToGradle: String = ""
@@ -132,15 +134,14 @@ class ReleaseConverter(
     }
 
     override fun copyGradleFolder(dest: Path) {
-        val source = Path.of(System.getProperty("user.dir")).resolve(GRADLE_RESOURCES_FOLDER)
-        source.toFile().copyRecursively(
-            target = dest.toFile(),
-            overwrite = true,
-            onError = { _: File, _: IOException ->
-                println("Could not create the gradle folder, please create it manually")
-                OnErrorAction.SKIP
-            }
-        )
+        val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
+        if (!source.isDirectory()) {
+            throw RuntimeException("Unable to find gradle resources at $source")
+        }
+
+        dest.mkdirs()
+
+        source.toFile().copyRecursively(target = dest.toFile())
 
         val gradleWrapperPropertiesPath =
             dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")

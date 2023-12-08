@@ -17,6 +17,7 @@ package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
+import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.io.File
 import java.io.IOException
 import java.lang.System.err
@@ -24,19 +25,50 @@ import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.readLines
 
-val agpToGradleVersions = mapOf(
-    "3.6" to "5.6",
-    "4.0" to "6.1.1",
-    "4.1" to "6.5",
-    "4.2" to "6.7.1",
-    "7.0" to "7.0",
-    "7.1" to "7.2",
-    "7.2" to "7.3.3",
-    "7.3" to "7.4",
-    "7.4" to "7.5",
-    "8.1" to "8.0-rc-1",
-)
+private const val VERSION_MAPPING = "version_mappings.txt"
+
+private lateinit var agpToGradleMap: Map<String, String>
+private lateinit var maxAgp: String
+fun getGradleFromAgp(branchRoot: Path, agp: String): String? {
+    initAgpToGradleMap(branchRoot)
+    return agpToGradleMap[agp].also {
+        if (it == null) {
+            println(agpToGradleMap.entries)
+        }
+    }
+}
+
+fun getMaxAgp(branchRoot: Path): String {
+    initAgpToGradleMap(branchRoot)
+    return maxAgp
+}
+
+@Synchronized
+private fun initAgpToGradleMap(branchRoot: Path) {
+    if (!::agpToGradleMap.isInitialized) {
+        val file = branchRoot.resolve(VERSION_MAPPING)
+        if (!file.isRegularFile()) {
+            throw RuntimeException("Missing AGP version mapping file at $file")
+        }
+
+        val lines = file
+            .readLines()
+            .asSequence()
+            .filter { !it.startsWith("#") }
+
+        agpToGradleMap = lines
+            .map {
+                val pair = it.split(";")
+                pair[0].toMajorMinor() to pair[1]
+            }.toMap()
+
+        maxAgp = lines.map { it.split(";")[0] }.max()
+    }
+}
+
 
 /**
  * Current supported Kotlin plugin, later we add a
@@ -54,7 +86,7 @@ const val compileSdkVersion = "34"
  */
 const val minimumSdkVersion = "21"
 
-data class ConversionResult(val recipe: Recipe, var isConversionSuccessful: Boolean)
+data class ConversionResult(val recipe: Recipe, val isConversionSuccessful: Boolean)
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
@@ -66,6 +98,8 @@ class RecipeConverter(
     gradlePath: String?,
     mode: Mode,
     private val overwrite: Boolean,
+    branchRoot: Path,
+    private val generateWrapper: Boolean = true,
 ) {
     private val converter: Converter
 
@@ -96,7 +130,7 @@ class RecipeConverter(
     init {
         converter = when (mode) {
             Mode.WORKINGCOPY -> {
-                WorkingCopyConverter()
+                WorkingCopyConverter(branchRoot)
             }
 
             Mode.SOURCE -> {
@@ -108,7 +142,8 @@ class RecipeConverter(
                     agpVersion = agpVersion ?: error("Must specify the AGP version for release"),
                     gradleVersion = gradleVersion,
                     repoLocation = repoLocation,
-                    gradlePath = gradlePath
+                    gradlePath = gradlePath,
+                    branchRoot = branchRoot,
                 )
             }
         }
@@ -136,11 +171,8 @@ class RecipeConverter(
             keywords = metadataParser.indexKeywords
         )
 
-        val result = ConversionResult(recipe, false)
-
-        if (converter.isConversionCompliant(recipe)) {
+        val success = if (converter.isConversionCompliant(recipe)) {
             converter.setRecipe(recipe)
-            result.isConversionSuccessful = true
 
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
                 @Throws(IOException::class)
@@ -169,12 +201,10 @@ class RecipeConverter(
 
                         "settings.gradle" -> {
                             converter.convertSettingsGradle(sourceFile, destinationFile)
-                            converter.copyGradleFolder(destinationFile.parent)
                         }
 
                         "settings.gradle.kts" -> {
                             converter.convertSettingsGradleKts(sourceFile, destinationFile)
-                            converter.copyGradleFolder(destinationFile.parent)
                         }
 
                         "libs.versions.toml" -> {
@@ -195,11 +225,18 @@ class RecipeConverter(
                     return FileVisitResult.CONTINUE
                 }
             })
+
+            if (generateWrapper) {
+                converter.copyGradleFolder(destination)
+            }
+
+            true
         } else {
             err.println("Couldn't convert $source due to AGP version compliance ")
+            false
         }
 
-        return result
+        return ConversionResult(recipe, success)
     }
 
     @Throws(IOException::class)

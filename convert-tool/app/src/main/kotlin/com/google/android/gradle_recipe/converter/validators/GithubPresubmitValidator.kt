@@ -22,11 +22,13 @@ import java.nio.file.Path
 /** This will test all recipes found against both they min and
  *  current/max version of AGP
  */
-class GithubPresubmitValidator {
+class GithubPresubmitValidator(
+    private val branchRoot: Path,
+) {
 
-    fun validateAll(sourceAll: Path) {
-        val recipeValidator = MinMaxCurrentAgpValidator(sourceAll)
-        visitRecipes(sourceAll) { recipeFolder: Path ->
+    fun validateAll(rootFolder: Path) {
+        val recipeValidator = MinMaxCurrentAgpValidator(branchRoot)
+        visitRecipes(rootFolder) { recipeFolder: Path ->
             recipeValidator.validate(recipeFolder)
         }
     }

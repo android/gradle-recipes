@@ -20,8 +20,8 @@ import com.github.rising3.semver.SemVer
 import java.io.File
 import java.nio.file.Path
 
-/** A recipe metadata model
- *
+/**
+ * A recipe metadata model
  */
 class Recipe(
     val minAgpVersion: String,
@@ -29,7 +29,6 @@ class Recipe(
     val tasks: List<String>,
     val keywords: List<String>,
 ) {
-
     fun isCompliantWithAgp(agpVersion: String): Boolean {
         val min = minAgpVersion
         val max = maxAgpVersion
@@ -43,8 +42,6 @@ class Recipe(
     }
 }
 
-fun getAgpVersionMajorMinorFrom(agpVersion: String): String {
-    return SemVer.parse(agpVersion).major.toString() + "." + SemVer.parse(agpVersion).minor.toString()
-}
+fun String.toMajorMinor(): String = SemVer.parse(this).run { "${this.major}.${this.minor}" }
 
 fun isRecipeFolder(folder: Path) = File(folder.toFile(), RECIPE_METADATA_FILE).exists()

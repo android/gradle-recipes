@@ -37,7 +37,6 @@ interface Converter {
     /** Sets the recipe to convert, before the conversion
      */
     fun setRecipe(recipe: Recipe) {
-
     }
 
     /**

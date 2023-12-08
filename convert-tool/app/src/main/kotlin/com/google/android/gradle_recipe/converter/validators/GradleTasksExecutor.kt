@@ -16,10 +16,14 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import org.gradle.tooling.BuildException
+import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
+import org.gradle.tooling.ResultHandler
 import java.lang.System.err
 import java.nio.file.Path
+import java.util.concurrent.CountDownLatch
 
 /** Executes Gradle tasks via GradleConnector API
  */
@@ -31,21 +35,14 @@ class GradleTasksExecutor(projectDir: Path) {
     }
 
     fun executeTasks(tasks: List<String>) {
-        tasks.forEach { task ->
-            println("$task ")
-            executeTask(task)
-        }
-    }
-
-    private fun executeTask(vararg tasks: String?) {
         try {
-            val connection: ProjectConnection = connector.connect()
-            val build: org.gradle.tooling.BuildLauncher = connection.newBuild()
-            build.forTasks(*tasks)
-            build.run()
-            connection.close()
-        } catch (e: RuntimeException) {
-            err.println("Task: ${tasks[0]} failed with, ${e.message}")
+            println("Executing tasks: $tasks")
+            connector.connect().use { connection ->
+                val build: org.gradle.tooling.BuildLauncher = connection.newBuild()
+                build.forTasks(*tasks.toTypedArray()).run()
+            }
+        } catch (e: BuildException) {
+            throw e
         }
     }
 }

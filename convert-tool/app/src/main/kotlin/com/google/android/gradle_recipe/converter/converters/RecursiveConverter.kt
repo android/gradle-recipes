@@ -34,7 +34,8 @@ class RecursiveConverter(
     private var repoLocation: String?,
     var gradleVersion: String?,
     var gradlePath: String?,
-    private var overwrite: Boolean,
+    private val overwrite: Boolean,
+    private val branchRoot: Path,
 ) {
 
     private val keywordsToRecipePaths = mutableMapOf<String, MutableList<Path>>()
@@ -51,7 +52,8 @@ class RecursiveConverter(
             gradleVersion = gradleVersion,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            overwrite = overwrite
+            overwrite = overwrite,
+            branchRoot = branchRoot,
         )
 
         visitRecipes(sourceAll) { recipeFolder: Path ->

@@ -3,4 +3,4 @@
 # https://github.com/gradle/gradle/issues/21436, we need to use Gradle 8.1 to be able to run against
 # KGP 2.0+.
 8.1.0;8.1
-8.2.0-alpha13;8.1
+8.2.0;8.2

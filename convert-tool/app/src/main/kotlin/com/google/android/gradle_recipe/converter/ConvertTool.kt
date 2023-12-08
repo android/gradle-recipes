@@ -46,7 +46,6 @@ const val COMMAND_VALIDATE_CI = "validateCI"
  * the relevant classes to perform the work
  */
 fun main(args: Array<String>) {
-
     val parser = ArgParser(programName = TOOL_NAME, useDefaultHelpShortName = true)
 
     val overwrite by parser.option(ArgType.Boolean, shortName = "o", description = "Overwrite").default(false)
@@ -70,6 +69,8 @@ fun main(args: Array<String>) {
             "Convert one or more recipes from one state to the other (default mode is $RELEASE)"
         ) {
             override fun execute() {
+                val branchRoot = computeGitHubRootFolder()
+
                 if (source != null) {
                     RecipeConverter(
                         agpVersion = agpVersion,
@@ -77,7 +78,8 @@ fun main(args: Array<String>) {
                         gradleVersion = gradleVersion,
                         gradlePath = gradlePath,
                         mode = mode ?: RELEASE,
-                        overwrite = overwrite
+                        overwrite = overwrite,
+                        branchRoot = branchRoot,
                     ).convert(
                         source = Path.of(source ?: printErrorAndTerminate("source must be specified")),
                         destination = Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
@@ -88,7 +90,8 @@ fun main(args: Array<String>) {
                         repoLocation = repoLocation,
                         gradleVersion = gradleVersion,
                         gradlePath = gradlePath,
-                        overwrite = overwrite
+                        overwrite = overwrite,
+                        branchRoot = branchRoot,
                     ).convertAllRecipes(
                         sourceAll = Path.of(sourceAll ?: printErrorAndTerminate("sourceAll must be specified")),
                         destination = Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
@@ -96,7 +99,7 @@ fun main(args: Array<String>) {
                 }
             }
         },
-        object : Subcommand(COMMAND_VALIDATE, "Validate one or more recipe") {
+        object : Subcommand(COMMAND_VALIDATE, "Validate one or more recipes") {
             override fun execute() {
                 // ensure no extra/unused values
                 validateNullArg(destination, "'destination' must not be provided for subcommand '$COMMAND_VALIDATE'")
@@ -106,12 +109,19 @@ fun main(args: Array<String>) {
                 validateNullArg(gradleVersion, "'gradleVersion' must not be provided for subcommand '$COMMAND_VALIDATE'")
                 validateNullArg(gradlePath, "'gradlePath' must not be provided for subcommand '$COMMAND_VALIDATE'")
 
+                val branchRoot = computeGitHubRootFolder()
+
+                // check the env var for the SDK exist
+                if (System.getenv("ANDROID_HOME") == null) {
+                    throw RuntimeException("To run $COMMAND_VALIDATE command, the environment variable ANDROID_HOME must be set and must point to your Android SDK.")
+                }
+
                 if (mode != null) {
                     val cliMode = mode
                     if (cliMode != WORKINGCOPY) {
                         printErrorAndTerminate("""
                             '$COMMAND_VALIDATE' command with a mode, requires value '$WORKINGCOPY'.
-                            To convert all recipes from '$SOURCE' mode, omit the argument.
+                            To convert all recipes from '$SOURCE' mode, omit the argument
                         """.trimIndent())
                     }
 
@@ -121,7 +131,7 @@ fun main(args: Array<String>) {
                         "'sourceAll' must not be provided for subcommand '$COMMAND_VALIDATE' and 'mode=$WORKINGCOPY'"
                     )
 
-                    val validator = WorkingCopyValidator()
+                    val validator = WorkingCopyValidator(branchRoot)
                     validator.validate(
                         Path.of(
                             source
@@ -135,7 +145,7 @@ fun main(args: Array<String>) {
                         "'source' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
                     )
 
-                    val validator = GithubPresubmitValidator()
+                    val validator = GithubPresubmitValidator(branchRoot)
                     validator.validateAll(
                         Path.of(
                             sourceAll
@@ -163,7 +173,8 @@ fun main(args: Array<String>) {
                     repoLocation = repoLocation
                         ?: printErrorAndTerminate("'repoLocation' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
                     gradlePath = gradlePath
-                        ?: printErrorAndTerminate("'gradlePath' must not be null with subcommand '$COMMAND_VALIDATE_CI'")
+                        ?: printErrorAndTerminate("'gradlePath' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
+                    branchRoot = computeGitHubRootFolder(),
                 )
                 validator.validate(
                     sourceAll = Path.of(
@@ -182,6 +193,15 @@ fun main(args: Array<String>) {
         println("Missing subcommand. Use $TOOL_NAME -h to see usage")
         exitProcess(1)
     }
+}
+
+private fun computeGitHubRootFolder(): Path {
+    val url = RecipeConverter::class.java.protectionDomain.codeSource.location
+    val path = Path.of(url.toURI())
+
+    // The path is going to be $ROOT/convert-tool/app/build/install/convert-tool/lib/recipes-converter.jar
+    // we want to return $ROOT
+    return path.resolve("../../../../../../../").normalize()
 }
 
 private fun validateNullArg(arg: Any?, msg: String) {

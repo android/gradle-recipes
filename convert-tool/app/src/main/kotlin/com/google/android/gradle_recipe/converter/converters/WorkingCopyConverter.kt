@@ -17,18 +17,19 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
-import com.google.android.gradle_recipe.converter.recipe.getAgpVersionMajorMinorFrom
-import java.io.File
-import java.io.IOException
+import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.writeLines
 
 /**
  * This is the working copy where the recipe has static values for $AGP_VERSION, etc...
  * but markers to revert them back to placeholders.
  */
-class WorkingCopyConverter : Converter {
+class WorkingCopyConverter(
+    private val branchRoot: Path,
+) : Converter {
     private var recipe: Recipe? = null
     override fun isConversionCompliant(recipe: Recipe): Boolean {
         return true
@@ -122,16 +123,14 @@ class WorkingCopyConverter : Converter {
     }
 
     override fun copyGradleFolder(dest: Path) {
-        val source = Path.of(System.getProperty("user.dir"))
-            .resolve(GRADLE_RESOURCES_FOLDER)
-        source.toFile().copyRecursively(
-            target = dest.toFile(),
-            overwrite = true,
-            onError = { _: File, _: IOException ->
-                println("Could not create the gradle folder, please create it manually")
-                OnErrorAction.SKIP
-            }
-        )
+        val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
+        if (!source.isDirectory()) {
+            throw RuntimeException("Unable to find gradle resources at $source")
+        }
+
+        dest.mkdirs()
+
+        source.toFile().copyRecursively(target = dest.toFile())
 
         convertGradleWrapper(
             dest.resolve("gradle").resolve("wrapper")
@@ -147,8 +146,8 @@ class WorkingCopyConverter : Converter {
         val agpVersion = recipe?.minAgpVersion
             ?: error("min Agp version is badly specified in the metadata")
 
-        val agpVersionMajorMinor = getAgpVersionMajorMinorFrom(agpVersion)
-        val gradleVersion = agpToGradleVersions[agpVersionMajorMinor]
+        val agpVersionMajorMinor = agpVersion.toMajorMinor()
+        val gradleVersion = getGradleFromAgp(branchRoot, agpVersionMajorMinor)
             ?: error("Can't deduce the gradle version from the recipe metadata")
 
         val originalLines = Files.readAllLines(source)

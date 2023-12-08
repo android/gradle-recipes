@@ -24,6 +24,7 @@ import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import org.junit.Test
 
@@ -55,7 +56,9 @@ class GradleRecipeTest {
                     gradleVersion = null,
                     gradlePath,
                     mode = RELEASE,
-                    overwrite = true
+                    overwrite = true,
+                    branchRoot = Paths.get("tools/gradle-recipes"),
+                    generateWrapper = false,
                 )
             recipeConverter.convert(source, destination)
 

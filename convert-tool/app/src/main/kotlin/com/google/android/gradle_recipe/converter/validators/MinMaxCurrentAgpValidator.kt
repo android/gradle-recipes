@@ -18,53 +18,38 @@ package com.google.android.gradle_recipe.converter.validators
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
-import com.google.android.gradle_recipe.converter.converters.agpToGradleVersions
+import com.google.android.gradle_recipe.converter.converters.getGradleFromAgp
+import com.google.android.gradle_recipe.converter.converters.getMaxAgp
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
-import com.google.android.gradle_recipe.converter.recipe.getAgpVersionMajorMinorFrom
+import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
+import kotlin.io.path.name
 
 /** Validates recipe from source mode and with currentAgpFileLocation, by calling validation
  *  with min and current/max AGP versions
  */
-class MinMaxCurrentAgpValidator(private val currentAGPFileLocation: Path) {
+class MinMaxCurrentAgpValidator(
+    private val branchRoot: Path,
+) {
 
-    private val currentAGPVersionFile = "currentAgpVersion.txt"
+    private val maxAgp: String = getMaxAgp(branchRoot)
 
-    fun validate(source: Path) {
-        val recipeMetadataParser = RecipeMetadataParser(source)
-        val minAgpVersion = recipeMetadataParser.minAgpVersion
-        val maxAgpVersion = recipeMetadataParser.maxAgpVersion
+    fun validate(recipeFolder: Path, name: String? = null) {
+        val finalName = name ?: recipeFolder.name
+        val recipeMetadataParser = RecipeMetadataParser(recipeFolder)
 
-        validateRecipeFromSource(source, minAgpVersion)
-
-        if (maxAgpVersion != null) {
-            validateRecipeFromSource(source, maxAgpVersion)
-        } else {
-            var currentAgpVersion: String? = null
-            val currentAgpFile = currentAGPFileLocation.resolve(currentAGPVersionFile).toFile()
-
-            if (currentAgpFile.exists()) {
-                currentAgpVersion = currentAgpFile.readText()
-            }
-
-            if (currentAgpVersion != null) {
-                validateRecipeFromSource(source, currentAgpVersion)
-            } else {
-                error(
-                    "Neither maxAgp version was defined in the metadata, " +
-                            "nor currentAgp defined in $currentAGPVersionFile " +
-                            "defined in $source ==> thus validated only with minAgp"
-                )
-            }
-        }
+        validateRecipeFromSource(finalName, recipeFolder, recipeMetadataParser.minAgpVersion)
+        validateRecipeFromSource(finalName, recipeFolder, recipeMetadataParser.maxAgpVersion ?: maxAgp)
     }
 
     private fun validateRecipeFromSource(
+        name: String,
         from: Path,
         agpVersion: String,
     ) {
-        val gradleVersion = agpToGradleVersions[getAgpVersionMajorMinorFrom(agpVersion)]
+        val gradleVersion = getGradleFromAgp(branchRoot, agpVersion.toMajorMinor())
+            ?: throw RuntimeException("Unable to find Gradle version for AGP version $agpVersion - Make sure it's present in version_mappings.txt")
 
         val recipeConverter = RecipeConverter(
             agpVersion = agpVersion,
@@ -72,7 +57,8 @@ class MinMaxCurrentAgpValidator(private val currentAGPFileLocation: Path) {
             repoLocation = null,
             gradlePath = null,
             mode = Mode.RELEASE,
-            overwrite = true
+            overwrite = true,
+            branchRoot = branchRoot,
         )
 
         val destinationFolder = createTempDirectory()
@@ -83,7 +69,7 @@ class MinMaxCurrentAgpValidator(private val currentAGPFileLocation: Path) {
         )
 
         if (conversionResult.isConversionSuccessful) {
-            println("Validating: $destinationFolder with AGP: $agpVersion and Gradle: $gradleVersion")
+            println("Validating: Recipe $name ($destinationFolder) with AGP: $agpVersion and Gradle: $gradleVersion")
             val tasksExecutor = GradleTasksExecutor(destinationFolder)
             tasksExecutor.executeTasks(conversionResult.recipe.tasks)
         }

@@ -25,6 +25,7 @@ def recipe_test(
                 "//prebuilts/studio/sdk:build-tools/33.0.1",
                 "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib-8.1",
+                "version_mappings.txt",
             ],
         },
         "ToT": {

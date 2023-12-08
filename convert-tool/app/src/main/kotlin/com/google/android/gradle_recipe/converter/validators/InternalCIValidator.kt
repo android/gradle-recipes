@@ -30,6 +30,7 @@ class InternalCIValidator(
     private val agpVersion: String,
     private val repoLocation: String,
     private val gradlePath: String,
+    private val branchRoot: Path,
 ) {
     @Throws(IOException::class)
     fun validate(sourceAll: Path, tmpFolder: Path?) {
@@ -40,7 +41,8 @@ class InternalCIValidator(
             gradleVersion = null,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            overwrite = true
+            overwrite = true,
+            branchRoot = branchRoot,
         )
 
         visitRecipes(sourceAll) { recipeFolder: Path ->
