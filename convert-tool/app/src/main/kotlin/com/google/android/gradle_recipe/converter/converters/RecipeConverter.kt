@@ -54,14 +54,6 @@ const val compileSdkVersion = "34"
  */
 const val minimumSdkVersion = "21"
 
-fun convertStringToMode(modeFromString: String?): RecipeConverter.Mode {
-    return if (modeFromString != null) {
-        RecipeConverter.Mode.valueOf(modeFromString.toString().uppercase())
-    } else {
-        RecipeConverter.Mode.RELEASE
-    }
-}
-
 data class ConversionResult(val recipe: Recipe, var isConversionSuccessful: Boolean)
 
 /**
