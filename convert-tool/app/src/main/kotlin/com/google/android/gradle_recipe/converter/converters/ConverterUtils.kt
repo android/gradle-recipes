@@ -52,8 +52,8 @@ fun Path.mkdirs(): Boolean {
  *  id 'com.android.application' version $AGP_VERSION apply false
  *  and replaces the $AGP_VERSION
  */
-fun wrapGradlePlaceholdersWithInlineValue(originalLines: List<String>, from: String, to: String): List<String> {
-    return wrapPlaceholdersWithInlineValue(originalLines, from, to, "//  ")
+fun List<String>.wrapGradlePlaceholdersWithInlineValue(from: String, to: String): List<String> {
+    return wrapPlaceholdersWithInlineValue(from, to, "//  ")
 }
 
 /**
@@ -63,56 +63,55 @@ fun wrapGradlePlaceholdersWithInlineValue(originalLines: List<String>, from: Str
  *
  *  with lists of relevant repositories
  */
-fun wrapGradlePlaceholdersWithList(originalLines: List<String>, from: String, to: List<String>): List<String> {
-    return wrapPlaceholdersWithList(originalLines, from, to, "//  ")
+fun List<String>.wrapGradlePlaceholdersWithList(from: String, to: List<String>): List<String> {
+    return wrapPlaceholdersWithList(from, to, "//  ")
 }
 
 /**
  *  for build.gradle[.kts] , settings.gradle[.kts] ==> removes all working copy blocks
  *  and generated lines
  */
-fun unwrapGradlePlaceholders(originalLines: List<String>): List<String> {
-    return unwrapPlaceholders(originalLines, "//  ")
+fun List<String>.unwrapGradlePlaceholders(): List<String> {
+    return unwrapPlaceholders("//  ")
 }
 
 /**
  *  for gradle.wrapper.properties ==> wraps $GRADLE_LOCATION
  */
-fun wrapGradleWrapperPlaceholders(originalLines: List<String>, from: String, to: String): List<String> {
-    return wrapPlaceholdersWithInlineValue(originalLines, from, to, "#  ")
+fun List<String>.wrapGradleWrapperPlaceholders(from: String, to: String): List<String> {
+    return wrapPlaceholdersWithInlineValue(from, to, "#  ")
 }
 
 /**
  *  for libs.versions.toml ==> unwraps all converter placeholders
  */
-fun unwrapVersionCatalogPlaceholders(originalLines: List<String>): List<String> {
-    return unwrapPlaceholders(originalLines, "#  ")
+fun List<String>.unwrapVersionCatalogPlaceholders(): List<String> {
+    return unwrapPlaceholders( "#  ")
 }
 
 /**
  *  for libs.versions.toml ==> wraps all converter placeholders
  */
-fun wrapVersionCatalogPlaceholders(originalLines: List<String>, from: String, to: String): List<String> {
-    return wrapPlaceholdersWithInlineValue(originalLines, from, to, "#  ")
+fun List<String>.wrapVersionCatalogPlaceholders(from: String, to: String): List<String> {
+    return wrapPlaceholdersWithInlineValue(from, to, "#  ")
 }
 
 /**
  *  for libs.versions.toml ==> replace all converter placeholders
  */
-fun replaceVersionCatalogPlaceholders(originalLines: List<String>, from: String, to: String): List<String> {
-    return replaceGradlePlaceholdersWithInlineValue(originalLines, from, to)
+fun List<String>.replaceVersionCatalogPlaceholders(from: String, to: String): List<String> {
+    return replaceGradlePlaceholdersWithInlineValue(from, to)
 }
 
 /**
  *  replaces placeholders inside line
  */
-fun replaceGradlePlaceholdersWithInlineValue(
-    originalLines: List<String>,
+fun List<String>.replaceGradlePlaceholdersWithInlineValue(
     from: String,
     to: String,
 ): List<String> {
     val result = buildList {
-        for (line in originalLines) {
+        for (line: String in this@replaceGradlePlaceholdersWithInlineValue) {
             if (line.contains(from)) {
                 if (to.isNotEmpty()) {
                     val newLine: String = line.replace(from, to)
@@ -130,17 +129,16 @@ fun replaceGradlePlaceholdersWithInlineValue(
 /**
  *  replaces placeholders with a code line
  */
-fun replacePlaceHolderWithLine(originalLines: List<String>, placeHolder: String, value: String): List<String> {
-    return replacePlaceHolderWithList(originalLines, placeHolder, if (value.isEmpty()) listOf() else listOf(value))
+fun List<String>.replacePlaceHolderWithLine(placeHolder: String, value: String): List<String> {
+    return replacePlaceHolderWithList(placeHolder, if (value.isEmpty()) listOf() else listOf(value))
 }
 
-fun replacePlaceHolderWithList(
-    originalLines: List<String>,
+fun List<String>.replacePlaceHolderWithList(
     placeHolder: String,
     values: List<String>,
 ): List<String> {
     val result = buildList {
-        for (line in originalLines) {
+        for (line in this@replacePlaceHolderWithList) {
             if (line.contains(placeHolder)) {
                 for (toLine in values) {
                     add(toLine)
@@ -157,14 +155,13 @@ fun replacePlaceHolderWithList(
 /** wraps placeholders, and replaces the placeholder inline
  *
  */
-private fun wrapPlaceholdersWithInlineValue(
-    originalLines: List<String>,
+private fun List<String>.wrapPlaceholdersWithInlineValue(
     from: String,
     to: String,
     commentOut: String,
 ): List<String> {
     val result = buildList {
-        for (line in originalLines) {
+        for (line in this@wrapPlaceholdersWithInlineValue) {
             if (line.contains(from)) {
                 add("$commentOut$START_WORKING_COPY_BLOCK")
                 add("$commentOut$line")
@@ -187,14 +184,13 @@ private fun wrapPlaceholdersWithInlineValue(
 /** wraps placeholders, and replaces the placeholder with
  *  a list
  */
-private fun wrapPlaceholdersWithList(
-    originalLines: List<String>,
+private fun List<String>.wrapPlaceholdersWithList(
     from: String,
     to: List<String>,
     commentOut: String,
 ): List<String> {
     val result = buildList {
-        for (line in originalLines) {
+        for (line in this@wrapPlaceholdersWithList) {
             if (line.contains(from)) {
                 add("$commentOut$START_WORKING_COPY_BLOCK")
                 add("$commentOut$line")
@@ -214,15 +210,15 @@ private fun wrapPlaceholdersWithList(
 /**
  * unwraps both gradle and properties with commentOut
  */
-private fun unwrapPlaceholders(originalLines: List<String>, commentOut: String): List<String> {
+private fun List<String>.unwrapPlaceholders(commentOut: String): List<String> {
     var insideWorkBlock = false
     val result = buildList {
-        for (line in originalLines) {
+        for (line in this@unwrapPlaceholders) {
             if (line == "$commentOut$START_WORKING_COPY_BLOCK") {
                 insideWorkBlock = true
             } else if (insideWorkBlock) {
                 if (line != "$commentOut$END_WORKING_COPY_BLOCK") {
-                    if (line.startsWith("$commentOut")) {
+                    if (line.startsWith(commentOut)) {
                         add(line.substring(commentOut.length))
                     }
 

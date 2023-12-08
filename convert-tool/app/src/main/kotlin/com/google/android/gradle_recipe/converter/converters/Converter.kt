@@ -17,7 +17,9 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
+import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 
 /** The position of the gradle-resources folder
  *  to take the Gradle wrapper
@@ -28,21 +30,21 @@ const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
  *  The objects are created and called from the RecipeConverter class,
  *  using a Template Method pattern.
  */
-interface Converter {
+abstract class Converter(
+    protected val branchRoot: Path
+) {
+
+    var recipe: Recipe? = null
+
 
     /** Can converter convert this recipe
      */
-    fun isConversionCompliant(recipe: Recipe): Boolean
-
-    /** Sets the recipe to convert, before the conversion
-     */
-    fun setRecipe(recipe: Recipe) {
-    }
+    abstract fun isConversionCompliant(recipe: Recipe): Boolean
 
     /**
      * Converts build.gradle
      */
-    fun convertBuildGradle(source: Path, target: Path)
+    abstract fun convertBuildGradle(source: Path, target: Path)
 
     /**
      * Converts build.gradle.kts ==> same as build.gradle
@@ -54,7 +56,7 @@ interface Converter {
     /**
      * Converts settings.gradle
      */
-    fun convertSettingsGradle(source: Path, target: Path)
+    abstract fun convertSettingsGradle(source: Path, target: Path)
 
     /**
      * Converts settings.gradle.kts ==> same as settings.gradle
@@ -66,11 +68,36 @@ interface Converter {
     /**
      *  Converts the version catalog file
      */
-    fun convertVersionCatalog(source: Path, target: Path)
+    abstract fun convertVersionCatalog(source: Path, target: Path)
 
     /**
      * Copies the gradle folder from the GRADLE_RESOURCES_FOLDER
      * to dest.
      */
-    fun copyGradleFolder(dest: Path)
+    fun copyGradleFolder(dest: Path) {
+        val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
+        if (!source.isDirectory()) {
+            throw RuntimeException("Unable to find gradle resources at $source")
+        }
+
+        dest.mkdirs()
+
+        source.toFile().copyRecursively(target = dest.toFile())
+
+        processGradleWrapperProperties(
+            dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
+        )
+
+    }
+
+    open fun processGradleWrapperProperties(file: Path) { }
+
+    protected fun getMinAgp(): String = recipe?.minAgpVersion
+        ?: error("min Agp version is badly specified in the metadata")
+
+    protected fun getVersionInfoFromAgp(agpVersion: String): VersionInfo {
+        val agp = agpVersion.toMajorMinor()
+        return getVersionsFromAgp(branchRoot, agp)
+            ?: throw RuntimeException("Unable to fetch VersionInfo for AGP $agp")
+    }
 }

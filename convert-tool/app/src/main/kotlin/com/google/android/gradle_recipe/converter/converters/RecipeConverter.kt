@@ -30,13 +30,19 @@ import kotlin.io.path.readLines
 
 private const val VERSION_MAPPING = "version_mappings.txt"
 
-private lateinit var agpToGradleMap: Map<String, String>
+data class VersionInfo(
+    val agp: String,
+    val gradle: String,
+    val kotlin: String
+)
+
+private lateinit var agpToVersionsMap: Map<String, VersionInfo>
 private lateinit var maxAgp: String
-fun getGradleFromAgp(branchRoot: Path, agp: String): String? {
+fun getVersionsFromAgp(branchRoot: Path, agp: String): VersionInfo? {
     initAgpToGradleMap(branchRoot)
-    return agpToGradleMap[agp].also {
+    return agpToVersionsMap[agp].also {
         if (it == null) {
-            println(agpToGradleMap.entries)
+            println(agpToVersionsMap.entries)
         }
     }
 }
@@ -48,7 +54,7 @@ fun getMaxAgp(branchRoot: Path): String {
 
 @Synchronized
 private fun initAgpToGradleMap(branchRoot: Path) {
-    if (!::agpToGradleMap.isInitialized) {
+    if (!::agpToVersionsMap.isInitialized) {
         val file = branchRoot.resolve(VERSION_MAPPING)
         if (!file.isRegularFile()) {
             throw RuntimeException("Missing AGP version mapping file at $file")
@@ -59,22 +65,19 @@ private fun initAgpToGradleMap(branchRoot: Path) {
             .asSequence()
             .filter { !it.startsWith("#") }
 
-        agpToGradleMap = lines
+        agpToVersionsMap = lines
             .map {
-                val pair = it.split(";")
-                pair[0].toMajorMinor() to pair[1]
+                val values = it.split(";")
+                values[0].toMajorMinor() to VersionInfo(
+                    agp = values[0],
+                    gradle = values[1],
+                    kotlin = values[2]
+                )
             }.toMap()
 
         maxAgp = lines.map { it.split(";")[0] }.max()
     }
 }
-
-
-/**
- * Current supported Kotlin plugin, later we add a
- * CLI argument to support more versions
- */
-const val kotlinPluginVersion = "2.0.0-Beta1"
 
 /**
  * The compile SDK version for recipes
@@ -96,7 +99,7 @@ class RecipeConverter(
     repoLocation: String?,
     gradleVersion: String?,
     gradlePath: String?,
-    mode: Mode,
+    private val mode: Mode,
     private val overwrite: Boolean,
     branchRoot: Path,
     private val generateWrapper: Boolean = true,
@@ -134,7 +137,7 @@ class RecipeConverter(
             }
 
             Mode.SOURCE -> {
-                SourceConverter()
+                SourceConverter(branchRoot)
             }
 
             Mode.RELEASE -> {
@@ -172,7 +175,7 @@ class RecipeConverter(
         )
 
         val success = if (converter.isConversionCompliant(recipe)) {
-            converter.setRecipe(recipe)
+            converter.recipe = recipe
 
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
                 @Throws(IOException::class)
@@ -226,7 +229,7 @@ class RecipeConverter(
                 }
             })
 
-            if (generateWrapper) {
+            if (generateWrapper && mode != Mode.SOURCE) {
                 converter.copyGradleFolder(destination)
             }
 

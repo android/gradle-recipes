@@ -18,8 +18,8 @@ package com.google.android.gradle_recipe.converter.validators
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
-import com.google.android.gradle_recipe.converter.converters.getGradleFromAgp
 import com.google.android.gradle_recipe.converter.converters.getMaxAgp
+import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Path
@@ -48,7 +48,7 @@ class MinMaxCurrentAgpValidator(
         from: Path,
         agpVersion: String,
     ) {
-        val gradleVersion = getGradleFromAgp(branchRoot, agpVersion.toMajorMinor())
+        val gradleVersion = getVersionsFromAgp(branchRoot, agpVersion.toMajorMinor())?.gradle
             ?: throw RuntimeException("Unable to find Gradle version for AGP version $agpVersion - Make sure it's present in version_mappings.txt")
 
         val recipeConverter = RecipeConverter(

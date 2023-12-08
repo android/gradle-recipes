@@ -17,145 +17,87 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
-import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.isDirectory
 import kotlin.io.path.writeLines
 
 /**
  * This is the working copy where the recipe has static values for $AGP_VERSION, etc...
  * but markers to revert them back to placeholders.
  */
-class WorkingCopyConverter(
-    private val branchRoot: Path,
-) : Converter {
-    private var recipe: Recipe? = null
+class WorkingCopyConverter(branchRoot: Path) : Converter(branchRoot) {
+
     override fun isConversionCompliant(recipe: Recipe): Boolean {
         return true
-    }
-
-    override fun setRecipe(recipe: Recipe) {
-        this.recipe = recipe
     }
 
     override fun convertBuildGradle(source: Path, target: Path) {
         val agpVersion = recipe?.minAgpVersion
             ?: error("min Agp version is badly specified in the metadata")
 
-        val originalLines = Files.readAllLines(source)
-
-        val agpVersionWrapped = wrapGradlePlaceholdersWithInlineValue(
-            originalLines, "\$AGP_VERSION", "\"$agpVersion\""
-        )
-        val kotlinAndAgpVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                agpVersionWrapped,
+        val convertedText = Files.readAllLines(source)
+            .wrapGradlePlaceholdersWithInlineValue(
+                "\$AGP_VERSION",
+                "\"$agpVersion\""
+            ).wrapGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
-                "\"$kotlinPluginVersion\""
-            )
-
-        val kotlinAndAgpCompileSdkVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                kotlinAndAgpVersionWrapped,
+                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
+            ).wrapGradlePlaceholdersWithInlineValue(
                 "\$COMPILE_SDK",
-                "$compileSdkVersion"
-            )
-
-        val kotlinAndAgpCompileSdkMinimumSdkVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                kotlinAndAgpCompileSdkVersionWrapped,
+                compileSdkVersion
+            ).wrapGradlePlaceholdersWithInlineValue(
                 "\$MINIMUM_SDK",
-                "$minimumSdkVersion"
+                minimumSdkVersion
             )
 
-        target.writeLines(
-            kotlinAndAgpCompileSdkMinimumSdkVersionWrapped,
-            Charsets.UTF_8
-        )
+        target.writeLines(convertedText, Charsets.UTF_8)
     }
 
     override fun convertSettingsGradle(source: Path, target: Path) {
-        val originalLines = Files.readAllLines(source)
-
-        val agpConverted = wrapGradlePlaceholdersWithInlineValue(
-            originalLines,
-            "\$AGP_REPOSITORY",
-            ""
-        )
-        val agpAndPluginRepoConverted = wrapGradlePlaceholdersWithList(
-            agpConverted, "\$PLUGIN_REPOSITORIES",
-            listOf(
-                "        gradlePluginPortal()",
-                "        google()",
-                "        mavenCentral()"
-            )
-        )
-
-        val agpAndPluginRepoAndDepsRepoConverted =
-            wrapGradlePlaceholdersWithList(
-                agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES",
+        val convertedText = Files.readAllLines(source)
+            .wrapGradlePlaceholdersWithInlineValue(
+                "\$AGP_REPOSITORY",
+                ""
+            ).wrapGradlePlaceholdersWithList(
+                "\$PLUGIN_REPOSITORIES",
+                listOf(
+                    "        gradlePluginPortal()",
+                    "        google()",
+                    "        mavenCentral()"
+                )
+            ).wrapGradlePlaceholdersWithList(
+                "\$DEPENDENCY_REPOSITORIES",
                 listOf("        google()", "        mavenCentral()")
             )
 
-        target.writeLines(agpAndPluginRepoAndDepsRepoConverted, Charsets.UTF_8)
+        target.writeLines(convertedText, Charsets.UTF_8)
     }
 
     override fun convertVersionCatalog(source: Path, target: Path) {
-        val agpVersion = recipe?.minAgpVersion
-            ?: error("min Agp version is badly specified in the metadata")
-        val originalLines = Files.readAllLines(source)
+        val agpVersion = getMinAgp()
 
-        val agpVersionWrapped = wrapVersionCatalogPlaceholders(
-            originalLines,
-            "\$AGP_VERSION",
-            "\"$agpVersion\""
-        )
-
-        val kotlinAndAgpVersionWrapped =
-            wrapVersionCatalogPlaceholders(
-                agpVersionWrapped,
+        val convertedText = Files.readAllLines(source)
+            .wrapVersionCatalogPlaceholders(
+                "\$AGP_VERSION",
+                "\"$agpVersion\""
+            ).wrapVersionCatalogPlaceholders(
                 "\$KOTLIN_VERSION",
-                "\"$kotlinPluginVersion\""
+                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
             )
 
-        target.writeLines(kotlinAndAgpVersionWrapped, Charsets.UTF_8)
+        target.writeLines(convertedText, Charsets.UTF_8)
     }
 
-    override fun copyGradleFolder(dest: Path) {
-        val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
-        if (!source.isDirectory()) {
-            throw RuntimeException("Unable to find gradle resources at $source")
-        }
-
-        dest.mkdirs()
-
-        source.toFile().copyRecursively(target = dest.toFile())
-
-        convertGradleWrapper(
-            dest.resolve("gradle").resolve("wrapper")
-                .resolve("gradle-wrapper.properties"),
-            dest.resolve("gradle").resolve("wrapper")
-                .resolve("gradle-wrapper.properties")
-        )
-    }
-
-    private fun convertGradleWrapper(source: Path, target: Path) {
+    override fun processGradleWrapperProperties(file: Path) {
         // building the line
         // distributionUrl=https\://services.gradle.org/distributions/gradle-7.2-bin.zip
-        val agpVersion = recipe?.minAgpVersion
-            ?: error("min Agp version is badly specified in the metadata")
-
-        val agpVersionMajorMinor = agpVersion.toMajorMinor()
-        val gradleVersion = getGradleFromAgp(branchRoot, agpVersionMajorMinor)
-            ?: error("Can't deduce the gradle version from the recipe metadata")
-
-        val originalLines = Files.readAllLines(source)
-        val resultLines = wrapGradleWrapperPlaceholders(
-            originalLines,
-            "\$GRADLE_LOCATION",
-            "https\\://services.gradle.org/distributions/gradle-$gradleVersion-bin.zip"
+        file.writeLines(
+            Files.readAllLines(file)
+                .wrapGradleWrapperPlaceholders(
+                    "\$GRADLE_LOCATION",
+                    "https\\://services.gradle.org/distributions/gradle-${getVersionInfoFromAgp(getMinAgp()).gradle}-bin.zip"
+                ),
+            Charsets.UTF_8
         )
-        target.writeLines(resultLines, Charsets.UTF_8)
     }
 }
