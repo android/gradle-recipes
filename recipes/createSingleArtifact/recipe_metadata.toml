@@ -18,7 +18,7 @@ tasks = [
 index = [
     "onVariant",
     "Manifest API",
-    "MERGED_MANIFEST",
+    "SingleArtifact.MERGED_MANIFEST",
     "OutOperationRequest.toCreate",
     "TaskBasedOperation.wiredWith(taskOutput)"
 ]

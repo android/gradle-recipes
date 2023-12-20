@@ -17,7 +17,7 @@ tasks = [
 [indexMetadata]
 index = [
     "ScopedArtifactsOperation.toTransform()",
-    "forScope",
-    "use",
-    "ScopedArtifact"
+    "variant.artifacts.forScope",
+    "ScopedArtifact.CLASSES",
+    "ScopedArtifacts.Scope.PROJECT"
 ]

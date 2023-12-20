@@ -18,5 +18,5 @@ tasks = [
 index = [
     "onVariant",
     "variant.artifacts.get",
-    "BUNDLE",
+    "SingleArtifact.BUNDLE",
 ]

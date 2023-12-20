@@ -20,5 +20,5 @@ index = [
   "onVariant",
   "Manifest API",
   "Placeholders",
-  "MERGED_MANIFEST"
+  "SingleArtifact.MERGED_MANIFEST"
 ]

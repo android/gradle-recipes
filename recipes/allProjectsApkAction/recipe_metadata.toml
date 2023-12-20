@@ -19,6 +19,6 @@ index = [
   "settings plugin",
   "onVariant",
   "All projects",
-  "APK",
+  "SingleArtifact.APK",
   "variant.artifacts.get",
 ]
