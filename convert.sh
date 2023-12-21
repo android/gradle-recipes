@@ -1,0 +1,1 @@
+convert-tool/app/build/install/convert-tool/bin/convert-tool $*

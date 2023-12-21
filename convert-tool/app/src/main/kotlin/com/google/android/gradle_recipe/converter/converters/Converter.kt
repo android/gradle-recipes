@@ -18,7 +18,9 @@ package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.recipe.Recipe
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.isDirectory
 
 /** The position of the gradle-resources folder
@@ -88,6 +90,13 @@ abstract class Converter(
             dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
         )
 
+        // we need to reset the file permissions on `gradlew` to make it executable
+        val gradlew = dest.resolve("gradlew")
+        val currentPermission = Files.getPosixFilePermissions(gradlew)
+        Files.setPosixFilePermissions(
+            gradlew,
+            currentPermission + PosixFilePermission.OWNER_EXECUTE,
+        )
     }
 
     open fun processGradleWrapperProperties(file: Path) { }

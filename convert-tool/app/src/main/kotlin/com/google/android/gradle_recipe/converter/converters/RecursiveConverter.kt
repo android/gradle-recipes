@@ -72,15 +72,25 @@ class RecursiveConverter(
             }
         }
 
-        writeRecipesIndexFile(keywordsToRecipePaths.toSortedMap(), destination)
+        // agpVersion is always true in release mode
+        writeRecipesIndexFile(keywordsToRecipePaths.toSortedMap(), destination, agpVersion!!)
     }
 
     private fun writeRecipesIndexFile(
         keywordsToRecipePaths: MutableMap<String, MutableList<Path>>,
         destination: Path,
+        agpVersion: String,
     ) {
         val builder = StringBuilder()
         val commaDelimiter = ", "
+        builder.appendLine("""
+            # Recipes for AGP version `$agpVersion`
+            This branch contains recipes compatible with AGP $agpVersion. If you want to find recipes
+            for other AGP versions, switch to the corresponding `agp-*` branch.
+
+            This branch is read only. Contributions are only accepted on the `studio-main` branch. See `CONTRIBUTION.md`
+            there.
+        """.trimIndent())
         builder.appendLine("# Recipes Index")
 
         keywordsToRecipePaths.keys.forEach { indexKeyword ->
@@ -95,6 +105,25 @@ class RecursiveConverter(
 
             builder.appendLine(joiner.toString())
         }
+
+        builder.appendLine("""
+            # License
+            ```
+            Copyright 2022 The Android Open Source Project
+
+            Licensed under the Apache License, Version 2.0 (the "License");
+            you may not use this file except in compliance with the License.
+            You may obtain a copy of the License at
+
+                https://www.apache.org/licenses/LICENSE-2.0
+
+            Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            See the License for the specific language governing permissions and
+            limitations under the License.
+            ```
+        """.trimIndent())
 
         File(
             destination.resolve(INDEX_METADATA_FILE).toUri()
