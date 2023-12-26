@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.Recipe
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -27,13 +27,12 @@ import kotlin.io.path.writeLines
  */
 class WorkingCopyConverter(branchRoot: Path) : Converter(branchRoot) {
 
-    override fun isConversionCompliant(recipe: Recipe): Boolean {
+    override fun isConversionCompliant(recipeData: RecipeData): Boolean {
         return true
     }
 
     override fun convertBuildGradle(source: Path, target: Path) {
-        val agpVersion = recipe?.minAgpVersion
-            ?: error("min Agp version is badly specified in the metadata")
+        val agpVersion = getMinAgp()
 
         val convertedText = Files.readAllLines(source)
             .wrapGradlePlaceholdersWithInlineValue(

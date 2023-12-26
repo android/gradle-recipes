@@ -20,7 +20,7 @@ import com.android.tools.gradle.Gradle
 import com.android.utils.FileUtils
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
-import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Files
@@ -62,7 +62,7 @@ class GradleRecipeTest {
                 )
             recipeConverter.convert(source, destination)
 
-            val tasks = RecipeMetadataParser(destination).tasks
+            val tasks = RecipeData.loadFrom(destination).tasks
             assertThat(tasks).isNotEmpty()
 
             val repos = System.getProperty("repos").split(",").map { File(it) }

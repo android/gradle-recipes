@@ -17,13 +17,18 @@
 package com.google.android.gradle_recipe.converter.recipe
 
 import com.github.rising3.semver.SemVer
+import org.tomlj.Toml
+import org.tomlj.TomlParseResult
 import java.io.File
 import java.nio.file.Path
 
+private const val RECIPE_METADATA_FILE = "recipe_metadata.toml"
+
 /**
- * A recipe metadata model
+ * Recipe Data representing the content of `recipe_metadata.toml`
  */
-class Recipe(
+class RecipeData private constructor(
+    val title: String,
     val minAgpVersion: String,
     val maxAgpVersion: String?,
     val tasks: List<String>,
@@ -38,6 +43,28 @@ class Recipe(
         } else {
             // when maxAgpVersion is not specified
             SemVer.parse(agpVersion) >= SemVer.parse(min)
+        }
+    }
+
+    companion object {
+        fun loadFrom(recipeFolder: Path): RecipeData {
+            val toml = recipeFolder.resolve(RECIPE_METADATA_FILE)
+            val parseResult: TomlParseResult = Toml.parse(toml)
+
+            if (parseResult.hasErrors()) {
+                System.err.println("TOML Parsing error(s) for $toml:")
+                parseResult.errors().forEach { error -> System.err.println(error.toString()) }
+                throw IllegalArgumentException("Unable to read $toml")
+            }
+
+            return RecipeData(
+                title = parseResult.getString("title") ?: error("Did not find mandatory 'title` entry in $toml"),
+                minAgpVersion = parseResult.getString("agpVersion.min")
+                    ?: error("Did not find mandatory 'agpVersion.min' in $toml"),
+                maxAgpVersion = parseResult.getString("agpVersion.max"),
+                tasks = parseResult.getArray("gradleTasks.tasks")?.toList()?.map { it as String } ?: emptyList(),
+                keywords = parseResult.getArray("indexMetadata.index")?.toList()?.map { it as String } ?: emptyList()
+            )
         }
     }
 }

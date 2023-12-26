@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.Recipe
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Files
 import java.nio.file.Path
@@ -36,12 +36,12 @@ abstract class Converter(
     protected val branchRoot: Path
 ) {
 
-    var recipe: Recipe? = null
+    var recipeData: RecipeData? = null
 
 
     /** Can converter convert this recipe
      */
-    abstract fun isConversionCompliant(recipe: Recipe): Boolean
+    abstract fun isConversionCompliant(recipeData: RecipeData): Boolean
 
     /**
      * Converts build.gradle
@@ -101,8 +101,10 @@ abstract class Converter(
 
     open fun processGradleWrapperProperties(file: Path) { }
 
-    protected fun getMinAgp(): String = recipe?.minAgpVersion
-        ?: error("min Agp version is badly specified in the metadata")
+    protected fun getMinAgp(): String = recipeData?.minAgpVersion
+        // this really should not happen
+        // TODO(b/317888166) improve this
+        ?: error("recipeData not loaded in Converter")
 
     protected fun getVersionInfoFromAgp(agpVersion: String): VersionInfo {
         val agp = agpVersion.toMajorMinor()

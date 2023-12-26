@@ -62,7 +62,7 @@ class InternalCIValidator(
             if (conversionResult.isConversionSuccessful) {
                 println("Validating: $destinationFolder with AGP: $agpVersion and Gradle: $gradlePath")
                 val tasksExecutor = GradleTasksExecutor(destinationFolder)
-                tasksExecutor.executeTasks(conversionResult.recipe.tasks)
+                tasksExecutor.executeTasks(conversionResult.recipeData.tasks)
             }
         }
     }

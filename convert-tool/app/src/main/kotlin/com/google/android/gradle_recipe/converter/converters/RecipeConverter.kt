@@ -15,8 +15,7 @@
  */
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.Recipe
-import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.io.File
 import java.io.IOException
@@ -89,7 +88,7 @@ const val compileSdkVersion = "34"
  */
 const val minimumSdkVersion = "21"
 
-data class ConversionResult(val recipe: Recipe, val isConversionSuccessful: Boolean)
+data class ConversionResult(val recipeData: RecipeData, val isConversionSuccessful: Boolean)
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
@@ -166,16 +165,10 @@ class RecipeConverter(
             }
         }
 
-        val metadataParser = RecipeMetadataParser(source)
-        val recipe = Recipe(
-            minAgpVersion = metadataParser.minAgpVersion,
-            maxAgpVersion = metadataParser.maxAgpVersion,
-            tasks = metadataParser.tasks,
-            keywords = metadataParser.indexKeywords
-        )
+        val recipeData = RecipeData.loadFrom(source)
 
-        val success = if (converter.isConversionCompliant(recipe)) {
-            converter.recipe = recipe
+        val success = if (converter.isConversionCompliant(recipeData)) {
+            converter.recipeData = recipeData
 
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
                 @Throws(IOException::class)
@@ -239,7 +232,7 @@ class RecipeConverter(
             false
         }
 
-        return ConversionResult(recipe, success)
+        return ConversionResult(recipeData, success)
     }
 
     @Throws(IOException::class)

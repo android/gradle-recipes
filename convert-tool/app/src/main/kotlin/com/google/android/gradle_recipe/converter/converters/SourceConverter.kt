@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.Recipe
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -25,7 +25,7 @@ import kotlin.io.path.writeLines
  *   this is how we store the recipes in the dev branch
  */
 class SourceConverter(branchRoot: Path) : Converter(branchRoot) {
-    override fun isConversionCompliant(recipe: Recipe): Boolean {
+    override fun isConversionCompliant(recipeData: RecipeData): Boolean {
         return true
     }
 

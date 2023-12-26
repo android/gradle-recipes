@@ -20,13 +20,14 @@ import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.converters.getMaxAgp
 import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
-import com.google.android.gradle_recipe.converter.recipe.RecipeMetadataParser
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.name
 
-/** Validates recipe from source mode and with currentAgpFileLocation, by calling validation
+/**
+ * Validates recipe from source mode and with currentAgpFileLocation, by calling validation
  *  with min and current/max AGP versions
  */
 class MinMaxCurrentAgpValidator(
@@ -37,10 +38,10 @@ class MinMaxCurrentAgpValidator(
 
     fun validate(recipeFolder: Path, name: String? = null) {
         val finalName = name ?: recipeFolder.name
-        val recipeMetadataParser = RecipeMetadataParser(recipeFolder)
+        val recipeDataMetadataParser = RecipeData.loadFrom(recipeFolder)
 
-        validateRecipeFromSource(finalName, recipeFolder, recipeMetadataParser.minAgpVersion)
-        validateRecipeFromSource(finalName, recipeFolder, recipeMetadataParser.maxAgpVersion ?: maxAgp)
+        validateRecipeFromSource(finalName, recipeFolder, recipeDataMetadataParser.minAgpVersion)
+        validateRecipeFromSource(finalName, recipeFolder, recipeDataMetadataParser.maxAgpVersion ?: maxAgp)
     }
 
     private fun validateRecipeFromSource(
@@ -71,7 +72,7 @@ class MinMaxCurrentAgpValidator(
         if (conversionResult.isConversionSuccessful) {
             println("Validating: Recipe $name ($destinationFolder) with AGP: $agpVersion and Gradle: $gradleVersion")
             val tasksExecutor = GradleTasksExecutor(destinationFolder)
-            tasksExecutor.executeTasks(conversionResult.recipe.tasks)
+            tasksExecutor.executeTasks(conversionResult.recipeData.tasks)
         }
     }
 }

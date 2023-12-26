@@ -26,8 +26,9 @@ import kotlin.io.path.exists
 
 const val INDEX_METADATA_FILE = "README.md"
 
-/* Recursive converter converts recipes from source of truth mode
-   to release mode
+/**
+ * Recursive converter converts recipes from source of truth mode
+ * to release mode
  */
 class RecursiveConverter(
     private val agpVersion: String?,
@@ -65,7 +66,7 @@ class RecursiveConverter(
             )
 
             if (conversionResult.isConversionSuccessful) {
-                for (keyword in conversionResult.recipe.keywords) {
+                for (keyword in conversionResult.recipeData.keywords) {
                     val list = keywordsToRecipePaths.computeIfAbsent(keyword) { mutableListOf() }
                     list.add(recipeRelativeName)
                 }

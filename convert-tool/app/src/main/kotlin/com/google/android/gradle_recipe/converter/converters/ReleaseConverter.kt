@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.Recipe
+import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -53,8 +53,8 @@ class ReleaseConverter(
         }
     }
 
-    override fun isConversionCompliant(recipe: Recipe): Boolean {
-        return recipe.isCompliantWithAgp(agpVersion)
+    override fun isConversionCompliant(recipeData: RecipeData): Boolean {
+        return recipeData.isCompliantWithAgp(agpVersion)
     }
 
     override fun convertBuildGradle(source: Path, target: Path) {
