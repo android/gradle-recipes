@@ -25,6 +25,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.name
 import kotlin.io.path.readLines
 
 private const val VERSION_MAPPING = "version_mappings.txt"
@@ -99,7 +100,6 @@ class RecipeConverter(
     gradleVersion: String?,
     gradlePath: String?,
     private val mode: Mode,
-    private val overwrite: Boolean,
     branchRoot: Path,
     private val generateWrapper: Boolean = true,
 ) {
@@ -151,40 +151,38 @@ class RecipeConverter(
         }
     }
 
-    @Throws(IOException::class)
+    /**
+     * Converts a recipe from [source] into [destination]
+     *
+     * @param source the source folder containing the recipe.
+     * @param destination the destination folder. A new folder will be created inside to contain the recipe
+     *
+     */
     fun convert(source: Path, destination: Path): ConversionResult {
         if (!source.isDirectory()) {
             error("the source $source folder is not a directory")
         }
 
-        if (destination.exists() && !isEmpty(destination)) {
-            if (!overwrite) {
-                error("the destination $destination folder is not empty, call converter with --overwrite to overwrite it")
-            } else {
-                destination.toFile().deleteRecursively()
-            }
-        }
+        val recipeData = RecipeData.loadFrom(source, mode)
 
-        val recipeData = RecipeData.loadFrom(source)
+        val recipeDestination = destination.resolve(recipeData.destinationFolder)
 
         val success = if (converter.isConversionCompliant(recipeData)) {
             converter.recipeData = recipeData
 
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
-                @Throws(IOException::class)
                 override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
                     if (accept(dir.toFile())) {
-                        Files.createDirectories(destination.resolve(source.relativize(dir)))
+                        Files.createDirectories(recipeDestination.resolve(source.relativize(dir)))
                         return FileVisitResult.CONTINUE
                     }
 
                     return FileVisitResult.SKIP_SUBTREE
                 }
 
-                @Throws(IOException::class)
                 override fun visitFile(sourceFile: Path, attrs: BasicFileAttributes): FileVisitResult {
                     val fileName = sourceFile.fileName.toString()
-                    val destinationFile = destination.resolve(source.relativize(sourceFile))
+                    val destinationFile = recipeDestination.resolve(source.relativize(sourceFile))
 
                     when (fileName) {
                         "build.gradle" -> {
@@ -223,7 +221,7 @@ class RecipeConverter(
             })
 
             if (generateWrapper && mode != Mode.SOURCE) {
-                converter.copyGradleFolder(destination)
+                converter.copyGradleFolder(recipeDestination)
             }
 
             true
@@ -233,13 +231,5 @@ class RecipeConverter(
         }
 
         return ConversionResult(recipeData, success)
-    }
-
-    @Throws(IOException::class)
-    fun isEmpty(path: Path): Boolean {
-        if (Files.isDirectory(path)) {
-            Files.list(path).use { entries -> return !entries.findFirst().isPresent }
-        }
-        return false
     }
 }

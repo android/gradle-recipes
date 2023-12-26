@@ -1,4 +1,7 @@
-title = "Add a BuildType using dsl finalization block"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   This recipe will use the `finalizeDsl` block to add a build type programmatically.

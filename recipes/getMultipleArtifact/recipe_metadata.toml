@@ -1,4 +1,7 @@
-title = "Get Multiple Artifact"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   Recipe that adds a task per variant to consume an instance of MultipleArtifact.

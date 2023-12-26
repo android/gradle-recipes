@@ -41,19 +41,14 @@ class InternalCIValidator(
             gradleVersion = null,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            overwrite = true,
             branchRoot = branchRoot,
         )
 
-        visitRecipes(sourceAll) { recipeFolder: Path ->
-            val destinationFolder: Path
+        val destinationFolder = tmpFolder ?: createTempDirectory().also {
+            it.toFile().deleteOnExit()
+        }
 
-            if (tmpFolder != null) {
-                destinationFolder = tmpFolder
-            } else {
-                destinationFolder = createTempDirectory()
-                destinationFolder.toFile().deleteOnExit()
-            }
+        visitRecipes(sourceAll) { recipeFolder: Path ->
 
             val conversionResult = converter.convert(
                 source = recipeFolder, destination = destinationFolder

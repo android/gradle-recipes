@@ -17,18 +17,23 @@
 package com.google.android.gradle_recipe.converter.recipe
 
 import com.github.rising3.semver.SemVer
+import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import org.tomlj.Toml
 import org.tomlj.TomlParseResult
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.name
 
-private const val RECIPE_METADATA_FILE = "recipe_metadata.toml"
+const val RECIPE_METADATA_FILE = "recipe_metadata.toml"
 
 /**
  * Recipe Data representing the content of `recipe_metadata.toml`
  */
 class RecipeData private constructor(
-    val title: String,
+    /** The name of the recipe to show in the index */
+    val indexName: String,
+    /** the name of the folder that should contain the recipe */
+    val destinationFolder: String,
     val minAgpVersion: String,
     val maxAgpVersion: String?,
     val tasks: List<String>,
@@ -47,7 +52,7 @@ class RecipeData private constructor(
     }
 
     companion object {
-        fun loadFrom(recipeFolder: Path): RecipeData {
+        fun loadFrom(recipeFolder: Path, mode: RecipeConverter.Mode): RecipeData {
             val toml = recipeFolder.resolve(RECIPE_METADATA_FILE)
             val parseResult: TomlParseResult = Toml.parse(toml)
 
@@ -57,8 +62,35 @@ class RecipeData private constructor(
                 throw IllegalArgumentException("Unable to read $toml")
             }
 
+            val indexName = if (mode == RecipeConverter.Mode.RELEASE) {
+                val entry = parseResult.getString("indexName")
+                if (entry.isNullOrBlank()) {
+                    recipeFolder.name
+                } else {
+                    entry
+                }
+            } else {
+                recipeFolder.name
+            }
+
+            val destinationFolder = if (mode == RecipeConverter.Mode.RELEASE) {
+                val entry = parseResult.getString("destinationFolder")
+                if (entry.isNullOrBlank()) {
+                    recipeFolder.name
+                } else {
+                    // check there's no path separator in there
+                    if (entry.contains('/')) {
+                        error("destinationFolder value ('$entry') cannot contain / character ($recipeFolder)")
+                    }
+                    entry
+                }
+            } else {
+                recipeFolder.name
+            }
+
             return RecipeData(
-                title = parseResult.getString("title") ?: error("Did not find mandatory 'title` entry in $toml"),
+                indexName = indexName,
+                destinationFolder = destinationFolder,
                 minAgpVersion = parseResult.getString("agpVersion.min")
                     ?: error("Did not find mandatory 'agpVersion.min' in $toml"),
                 maxAgpVersion = parseResult.getString("agpVersion.max"),

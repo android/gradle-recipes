@@ -1,4 +1,7 @@
-title = "Add custom source folders"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   This recipe shows how to add a new custom source folders to the Variant

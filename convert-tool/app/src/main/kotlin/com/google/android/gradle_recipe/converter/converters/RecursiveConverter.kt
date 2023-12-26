@@ -35,11 +35,15 @@ class RecursiveConverter(
     private var repoLocation: String?,
     var gradleVersion: String?,
     var gradlePath: String?,
-    private val overwrite: Boolean,
     private val branchRoot: Path,
 ) {
 
-    private val keywordsToRecipePaths = mutableMapOf<String, MutableList<Path>>()
+    private val keywordsToRecipePaths = mutableMapOf<String, MutableList<IndexData>>()
+
+    private data class IndexData(
+        val title: String,
+        val link: String
+    )
 
     @Throws(IOException::class)
     fun convertAllRecipes(sourceAll: Path, destination: Path) {
@@ -53,22 +57,21 @@ class RecursiveConverter(
             gradleVersion = gradleVersion,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            overwrite = overwrite,
             branchRoot = branchRoot,
         )
 
         visitRecipes(sourceAll) { recipeFolder: Path ->
-            val recipeRelativeName = sourceAll.relativize(recipeFolder)
-            val currentRecipeDestination = destination.resolve(recipeRelativeName)
-            val conversionResult = recipeConverter.convert(
-                recipeFolder,
-                currentRecipeDestination
-            )
+            val conversionResult = recipeConverter.convert(recipeFolder, destination)
 
             if (conversionResult.isConversionSuccessful) {
                 for (keyword in conversionResult.recipeData.keywords) {
                     val list = keywordsToRecipePaths.computeIfAbsent(keyword) { mutableListOf() }
-                    list.add(recipeRelativeName)
+                    list.add(
+                        IndexData(
+                            conversionResult.recipeData.indexName,
+                            conversionResult.recipeData.destinationFolder
+                        )
+                    )
                 }
             }
         }
@@ -78,7 +81,7 @@ class RecursiveConverter(
     }
 
     private fun writeRecipesIndexFile(
-        keywordsToRecipePaths: MutableMap<String, MutableList<Path>>,
+        keywordsToRecipePaths: MutableMap<String, MutableList<IndexData>>,
         destination: Path,
         agpVersion: String,
     ) {
@@ -98,10 +101,8 @@ class RecursiveConverter(
             builder.appendLine("* $indexKeyword - ")
             val joiner = StringJoiner(commaDelimiter)
 
-            keywordsToRecipePaths[indexKeyword]?.forEach { recipeRelativePath ->
-                val line =
-                    "[$recipeRelativePath]($recipeRelativePath)"
-                joiner.add(line)
+            keywordsToRecipePaths[indexKeyword]?.forEach { data ->
+                joiner.add("[${data.title}](${data.link})")
             }
 
             builder.appendLine(joiner.toString())

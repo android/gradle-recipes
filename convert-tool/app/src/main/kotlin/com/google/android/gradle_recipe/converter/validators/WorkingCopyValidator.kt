@@ -36,8 +36,7 @@ class WorkingCopyValidator(
     }
 
     private fun convertToSourceOfTruth(from: Path): Path {
-        val sourceOfTruthTempDirectory: Path = createTempDirectory()
-        sourceOfTruthTempDirectory.toFile().deleteOnExit()
+        val destination: Path = createTempDirectory().also { it.toFile().deleteOnExit() }
 
         val convertToSourceTruth = RecipeConverter(
             agpVersion = null,
@@ -45,13 +44,10 @@ class WorkingCopyValidator(
             repoLocation = null,
             gradlePath = null,
             mode = Mode.SOURCE,
-            overwrite = true,
             branchRoot = branchRoot,
         )
-        convertToSourceTruth.convert(
-            source = from, destination = sourceOfTruthTempDirectory
-        )
+        convertToSourceTruth.convert(source = from, destination = destination)
 
-        return sourceOfTruthTempDirectory
+        return destination
     }
 }

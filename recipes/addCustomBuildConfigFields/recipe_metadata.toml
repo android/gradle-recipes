@@ -1,4 +1,7 @@
-title = "Add Custom Build Config Field"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   Recipe that adds a BuildConfig field fom the output of a Task

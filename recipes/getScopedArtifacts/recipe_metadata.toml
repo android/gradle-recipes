@@ -1,4 +1,7 @@
-title = "Get Scoped Artifacts"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   Recipe that gets scoped artifacts (classes) and verifies them in a task.

@@ -47,7 +47,19 @@ class GradleRecipeTest {
         val gradlePath = System.getProperty("gradle_path")
         val destination = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
         val outputDir = destination.resolve("out")
-        Gradle(destination.toFile(), outputDir.toFile(), File(gradlePath), null, false).use { gradle ->
+
+        // destination is not where the project will be created, so we need to compute this.
+        // This is normally computed from the conversion itself, but the conversion need the
+        // repo location which is provided by the Gradle instance which requires the project
+        // location to be created.
+        // So we need to manually load the RecipeData, even though the converter will do
+        // this again later, in order to get the name of the destination folder (because
+        // we are in RELEASE mode, this can be overridden, so it's not safe to hardcode the
+        // logic.)
+        val data = RecipeData.loadFrom(source, RELEASE)
+        val destinationFolder = destination.resolve(data.destinationFolder)
+
+        Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), null, false).use { gradle ->
             val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
             val recipeConverter =
                 RecipeConverter(
@@ -56,13 +68,12 @@ class GradleRecipeTest {
                     gradleVersion = null,
                     gradlePath,
                     mode = RELEASE,
-                    overwrite = true,
                     branchRoot = Paths.get("tools/gradle-recipes"),
                     generateWrapper = false,
                 )
-            recipeConverter.convert(source, destination)
+            val result = recipeConverter.convert(source, destination)
 
-            val tasks = RecipeData.loadFrom(destination).tasks
+            val tasks = result.recipeData.tasks
             assertThat(tasks).isNotEmpty()
 
             val repos = System.getProperty("repos").split(",").map { File(it) }

@@ -1,4 +1,7 @@
-title = "template"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   Demonstrates how to extend and use third party DSL extensions to the android block.

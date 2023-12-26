@@ -38,7 +38,7 @@ class MinMaxCurrentAgpValidator(
 
     fun validate(recipeFolder: Path, name: String? = null) {
         val finalName = name ?: recipeFolder.name
-        val recipeDataMetadataParser = RecipeData.loadFrom(recipeFolder)
+        val recipeDataMetadataParser = RecipeData.loadFrom(recipeFolder, Mode.RELEASE)
 
         validateRecipeFromSource(finalName, recipeFolder, recipeDataMetadataParser.minAgpVersion)
         validateRecipeFromSource(finalName, recipeFolder, recipeDataMetadataParser.maxAgpVersion ?: maxAgp)
@@ -58,12 +58,10 @@ class MinMaxCurrentAgpValidator(
             repoLocation = null,
             gradlePath = null,
             mode = Mode.RELEASE,
-            overwrite = true,
             branchRoot = branchRoot,
         )
 
-        val destinationFolder = createTempDirectory()
-        destinationFolder.toFile().deleteOnExit()
+        val destinationFolder = createTempDirectory().also { it.toFile().deleteOnExit() }
 
         val conversionResult = recipeConverter.convert(
             source = from, destination = destinationFolder

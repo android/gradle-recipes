@@ -1,4 +1,7 @@
-title = "Add Multiple Artifact"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   Recipe that adds a static directory to an instance of MultipleArtifact.

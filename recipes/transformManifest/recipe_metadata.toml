@@ -1,4 +1,7 @@
-title = "Transform android manifest"
+# optional (if present and non-blank) name to use in the index
+indexName = ""
+# optional (if present and non-blank) folder name to use when converting recipe in RELEASE mode
+destinationFolder = ""
 
 description ="""
   This sample shows how to update Android manifest in a meaningful way.

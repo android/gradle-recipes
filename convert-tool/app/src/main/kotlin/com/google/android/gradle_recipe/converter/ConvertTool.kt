@@ -27,7 +27,11 @@ import com.google.android.gradle_recipe.converter.converters.RecursiveConverter
 import com.google.android.gradle_recipe.converter.validators.GithubPresubmitValidator
 import com.google.android.gradle_recipe.converter.validators.InternalCIValidator
 import com.google.android.gradle_recipe.converter.validators.WorkingCopyValidator
+import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.deleteRecursively
+import kotlin.io.path.isDirectory
 import kotlin.io.path.name
 import kotlin.system.exitProcess
 import kotlinx.cli.ArgParser
@@ -75,24 +79,32 @@ fun main(args: Array<String>) {
                 val finalSource = source
                 val finalSourceAll = sourceAll
 
-                if (finalSource != null) {
-                    // compute a better destination. This is based on the last segment of the source folder.
-                    val sourcePath = Path.of(finalSource)
-                    val destPath = Path.of(
-                        destination ?: printErrorAndTerminate("destination must be specified"))
-                        .resolve(sourcePath.name)
+                val destinationPath: Path =
+                    Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
 
+                if (!destinationPath.isDirectory()) {
+                    printErrorAndTerminate("Folder does not exist: ${destinationPath.toAbsolutePath()}")
+                }
+
+                if (!destinationPath.isEmptyExceptForHidden()) {
+                    if (!overwrite) {
+                        error("the destination $destinationPath folder is not empty, call converter with --overwrite to overwrite it")
+                    } else {
+                        destinationPath.deleteNonHiddenRecursively()
+                    }
+                }
+
+                if (finalSource != null) {
                     RecipeConverter(
                         agpVersion = agpVersion,
                         repoLocation = repoLocation,
                         gradleVersion = gradleVersion,
                         gradlePath = gradlePath,
                         mode = mode ?: RELEASE,
-                        overwrite = overwrite,
                         branchRoot = branchRoot,
                     ).convert(
-                        source = sourcePath,
-                        destination = destPath
+                        source = Path.of(finalSource),
+                        destination = destinationPath
                     )
                 } else if (finalSourceAll != null) {
                     RecursiveConverter(
@@ -100,11 +112,10 @@ fun main(args: Array<String>) {
                         repoLocation = repoLocation,
                         gradleVersion = gradleVersion,
                         gradlePath = gradlePath,
-                        overwrite = overwrite,
                         branchRoot = branchRoot,
                     ).convertAllRecipes(
                         sourceAll = Path.of(finalSourceAll),
-                        destination = Path.of(destination ?: printErrorAndTerminate("destination must be specified"))
+                        destination = destinationPath
                     )
                 } else {
                     printErrorAndTerminate("one of source or sourceAll must be specified")
@@ -225,4 +236,15 @@ private fun validateNullArg(arg: Any?, msg: String) {
 private fun printErrorAndTerminate(msg: String): Nothing {
     System.err.println(msg)
     exitProcess(1)
+}
+
+private fun Path.isEmptyExceptForHidden(): Boolean = !Files.list(this).anyMatch { !it.name.startsWith('.') }
+
+@OptIn(ExperimentalPathApi::class)
+private fun Path.deleteNonHiddenRecursively() {
+    Files.list(this).filter {
+        !it.name.startsWith('.')
+    }.forEach {
+        it.deleteRecursively()
+    }
 }
