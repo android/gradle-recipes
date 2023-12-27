@@ -18,6 +18,7 @@ package com.google.android.gradle_recipe.converter.validators
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
+import com.google.android.gradle_recipe.converter.converters.ResultMode
 import com.google.android.gradle_recipe.converter.converters.getMaxAgp
 import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
@@ -68,7 +69,7 @@ class MinMaxCurrentAgpValidator(
             source = from, destination = destinationFolder
         )
 
-        if (conversionResult.isConversionSuccessful) {
+        if (conversionResult.result == ResultMode.SUCCESS) {
             println("Validating: Recipe $name ($destinationFolder) with AGP: $agpVersion and Gradle: $gradleVersion")
             val tasksExecutor = GradleTasksExecutor(destinationFolder)
             tasksExecutor.executeTasks(conversionResult.recipeData.tasks)

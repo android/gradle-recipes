@@ -63,7 +63,7 @@ class RecursiveConverter(
         visitRecipes(sourceAll) { recipeFolder: Path ->
             val conversionResult = recipeConverter.convert(recipeFolder, destination)
 
-            if (conversionResult.isConversionSuccessful) {
+            if (conversionResult.result == ResultMode.SUCCESS) {
                 for (keyword in conversionResult.recipeData.keywords) {
                     val list = keywordsToRecipePaths.computeIfAbsent(keyword) { mutableListOf() }
                     list.add(

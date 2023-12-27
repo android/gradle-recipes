@@ -16,7 +16,6 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -25,10 +24,6 @@ import kotlin.io.path.writeLines
  *   this is how we store the recipes in the dev branch
  */
 class SourceConverter(branchRoot: Path) : Converter(branchRoot) {
-    override fun isConversionCompliant(recipeData: RecipeData): Boolean {
-        return true
-    }
-
     override fun convertBuildGradle(source: Path, target: Path) {
         target.writeLines(Files.readAllLines(source).unwrapGradlePlaceholders(), Charsets.UTF_8)
     }

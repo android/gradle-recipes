@@ -19,8 +19,6 @@ import com.google.android.gradle_recipe.converter.deleteNonHiddenRecursively
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
-import java.io.File
-import java.lang.System.err
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -92,7 +90,11 @@ const val compileSdkVersion = "34"
  */
 const val minimumSdkVersion = "21"
 
-data class ConversionResult(val recipeData: RecipeData, val isConversionSuccessful: Boolean)
+enum class ResultMode {
+    SUCCESS, FAILURE, SKIPPED
+}
+
+data class ConversionResult(val recipeData: RecipeData, val result: ResultMode)
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
@@ -110,26 +112,6 @@ class RecipeConverter(
 
     enum class Mode {
         RELEASE, WORKINGCOPY, SOURCE
-    }
-
-    /** A filter for files and folders during a conversion. Filters out Gradle
-     *  and Android Studio temporary and local files.
-     */
-    companion object {
-        private val skippedFilenames = setOf("gradlew", "gradlew.bat", "local.properties")
-        private val skippedFoldernames = setOf("build", ".idea", ".gradle", "out", "wrapper")
-
-        fun accept(file: File): Boolean {
-            if (file.isFile) {
-                return !skippedFilenames.contains(file.name)
-            }
-
-            if (file.isDirectory) {
-                return !skippedFoldernames.contains(file.name)
-            }
-
-            return true
-        }
     }
 
     init {
@@ -183,11 +165,13 @@ class RecipeConverter(
         }
 
         val success = if (converter.isConversionCompliant(recipeData)) {
-            converter.recipeData = recipeData
+            if (mode == Mode.WORKINGCOPY) {
+                converter.minAgp = recipeData.minAgpVersion
+            }
 
             Files.walkFileTree(source, object : SimpleFileVisitor<Path>() {
                 override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                    if (accept(dir.toFile())) {
+                    if (converter.accept(dir.toFile())) {
                         Files.createDirectories(recipeDestination.resolve(source.relativize(dir)))
                         return FileVisitResult.CONTINUE
                     }
@@ -225,7 +209,7 @@ class RecipeConverter(
                         }
 
                         else -> {
-                            if (accept(sourceFile.toFile())) {
+                            if (converter.accept(sourceFile.toFile())) {
                                 Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING)
                             }
                         }
@@ -239,10 +223,12 @@ class RecipeConverter(
                 converter.copyGradleFolder(recipeDestination)
             }
 
-            true
+            converter.minAgp = null
+
+            ResultMode.SUCCESS
         } else {
-            err.println("Couldn't convert $source due to AGP version compliance ")
-            false
+            println("Couldn't convert $source due to AGP version compliance ")
+            ResultMode.SKIPPED
         }
 
         return ConversionResult(recipeData, success)
