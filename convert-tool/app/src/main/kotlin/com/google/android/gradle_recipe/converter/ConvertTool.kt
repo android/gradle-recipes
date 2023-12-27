@@ -86,14 +86,6 @@ fun main(args: Array<String>) {
                     printErrorAndTerminate("Folder does not exist: ${destinationPath.toAbsolutePath()}")
                 }
 
-                if (!destinationPath.isEmptyExceptForHidden()) {
-                    if (!overwrite) {
-                        error("the destination $destinationPath folder is not empty, call converter with --overwrite to overwrite it")
-                    } else {
-                        destinationPath.deleteNonHiddenRecursively()
-                    }
-                }
-
                 if (finalSource != null) {
                     RecipeConverter(
                         agpVersion = agpVersion,
@@ -104,9 +96,20 @@ fun main(args: Array<String>) {
                         branchRoot = branchRoot,
                     ).convert(
                         source = Path.of(finalSource),
-                        destination = destinationPath
+                        destination = destinationPath,
+                        overwrite = overwrite
                     )
                 } else if (finalSourceAll != null) {
+                    // if we do a convert all then we expect the root folder to be (mostly) empty
+                    // (hidden files, like git files, are kept)
+                    if (!destinationPath.isEmptyExceptForHidden()) {
+                        if (!overwrite) {
+                            printErrorAndTerminate("the destination $destinationPath folder is not empty, call converter with --overwrite to overwrite it")
+                        } else {
+                            destinationPath.deleteNonHiddenRecursively()
+                        }
+                    }
+
                     RecursiveConverter(
                         agpVersion = agpVersion,
                         repoLocation = repoLocation,
@@ -136,7 +139,7 @@ fun main(args: Array<String>) {
 
                 // check the env var for the SDK exist
                 if (System.getenv("ANDROID_HOME") == null) {
-                    throw RuntimeException("To run $COMMAND_VALIDATE command, the environment variable ANDROID_HOME must be set and must point to your Android SDK.")
+                    printErrorAndTerminate("To run $COMMAND_VALIDATE command, the environment variable ANDROID_HOME must be set and must point to your Android SDK.")
                 }
 
                 if (mode != null) {
@@ -233,15 +236,18 @@ private fun validateNullArg(arg: Any?, msg: String) {
     }
  }
 
-private fun printErrorAndTerminate(msg: String): Nothing {
+fun printErrorAndTerminate(msg: String): Nothing {
     System.err.println(msg)
+    if (System.getenv("CONVERT_DEBUG") != null) {
+        throw RuntimeException("error. See console output")
+    }
     exitProcess(1)
 }
 
 private fun Path.isEmptyExceptForHidden(): Boolean = !Files.list(this).anyMatch { !it.name.startsWith('.') }
 
 @OptIn(ExperimentalPathApi::class)
-private fun Path.deleteNonHiddenRecursively() {
+fun Path.deleteNonHiddenRecursively() {
     Files.list(this).filter {
         !it.name.startsWith('.')
     }.forEach {

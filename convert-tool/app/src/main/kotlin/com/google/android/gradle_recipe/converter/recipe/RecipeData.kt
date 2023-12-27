@@ -18,6 +18,7 @@ package com.google.android.gradle_recipe.converter.recipe
 
 import com.github.rising3.semver.SemVer
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import org.tomlj.Toml
 import org.tomlj.TomlParseResult
 import java.io.File
@@ -59,7 +60,7 @@ class RecipeData private constructor(
             if (parseResult.hasErrors()) {
                 System.err.println("TOML Parsing error(s) for $toml:")
                 parseResult.errors().forEach { error -> System.err.println(error.toString()) }
-                throw IllegalArgumentException("Unable to read $toml")
+                printErrorAndTerminate("Unable to read $toml")
             }
 
             val indexName = if (mode == RecipeConverter.Mode.RELEASE) {
@@ -80,7 +81,7 @@ class RecipeData private constructor(
                 } else {
                     // check there's no path separator in there
                     if (entry.contains('/')) {
-                        error("destinationFolder value ('$entry') cannot contain / character ($recipeFolder)")
+                        printErrorAndTerminate("destinationFolder value ('$entry') cannot contain / character ($recipeFolder)")
                     }
                     entry
                 }
@@ -92,7 +93,7 @@ class RecipeData private constructor(
                 indexName = indexName,
                 destinationFolder = destinationFolder,
                 minAgpVersion = parseResult.getString("agpVersion.min")
-                    ?: error("Did not find mandatory 'agpVersion.min' in $toml"),
+                    ?: printErrorAndTerminate("Did not find mandatory 'agpVersion.min' in $toml"),
                 maxAgpVersion = parseResult.getString("agpVersion.max"),
                 tasks = parseResult.getArray("gradleTasks.tasks")?.toList()?.map { it as String } ?: emptyList(),
                 keywords = parseResult.getArray("indexMetadata.index")?.toList()?.map { it as String } ?: emptyList()

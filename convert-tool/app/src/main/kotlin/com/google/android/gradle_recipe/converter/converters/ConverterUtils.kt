@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import java.nio.file.Path
 
 /**
@@ -31,7 +32,7 @@ fun Path.mkdirs(): Boolean {
     val ret = file.mkdirs()
     if (!ret) {
         if (!file.isDirectory) {
-            throw RuntimeException("Unable to create folder: $this")
+            printErrorAndTerminate("Unable to create folder: $this")
         }
     }
     return ret

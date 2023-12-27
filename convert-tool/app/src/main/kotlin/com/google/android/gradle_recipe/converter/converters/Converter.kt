@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.Files
@@ -79,7 +80,7 @@ abstract class Converter(
     fun copyGradleFolder(dest: Path) {
         val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
         if (!source.isDirectory()) {
-            throw RuntimeException("Unable to find gradle resources at $source")
+            printErrorAndTerminate("Unable to find gradle resources at $source")
         }
 
         dest.mkdirs()
@@ -104,11 +105,11 @@ abstract class Converter(
     protected fun getMinAgp(): String = recipeData?.minAgpVersion
         // this really should not happen
         // TODO(b/317888166) improve this
-        ?: error("recipeData not loaded in Converter")
+        ?: printErrorAndTerminate("recipeData not loaded in Converter")
 
     protected fun getVersionInfoFromAgp(agpVersion: String): VersionInfo {
         val agp = agpVersion.toMajorMinor()
         return getVersionsFromAgp(branchRoot, agp)
-            ?: throw RuntimeException("Unable to fetch VersionInfo for AGP $agp")
+            ?: printErrorAndTerminate("Unable to fetch VersionInfo for AGP $agp")
     }
 }

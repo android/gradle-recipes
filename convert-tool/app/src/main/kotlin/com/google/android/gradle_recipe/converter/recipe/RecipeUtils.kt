@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.recipe
 
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -26,7 +27,7 @@ import kotlin.io.path.isHidden
  */
 fun visitRecipes(rootFolder: Path, recipeCallback: (Path) -> Unit) {
     if (!rootFolder.exists()) {
-        error("the source $rootFolder folder doesn't exist")
+        printErrorAndTerminate("the source $rootFolder folder doesn't exist")
     }
 
     Files.walk(rootFolder).filter { currentPath: Path ->

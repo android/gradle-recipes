@@ -15,17 +15,20 @@
  */
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.deleteNonHiddenRecursively
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.io.File
-import java.io.IOException
 import java.lang.System.err
-import java.nio.file.*
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
-import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.name
 import kotlin.io.path.readLines
 
 private const val VERSION_MAPPING = "version_mappings.txt"
@@ -57,7 +60,7 @@ private fun initAgpToGradleMap(branchRoot: Path) {
     if (!::agpToVersionsMap.isInitialized) {
         val file = branchRoot.resolve(VERSION_MAPPING)
         if (!file.isRegularFile()) {
-            throw RuntimeException("Missing AGP version mapping file at $file")
+            printErrorAndTerminate("Missing AGP version mapping file at $file")
         }
 
         val lines = file
@@ -141,7 +144,7 @@ class RecipeConverter(
 
             Mode.RELEASE -> {
                 ReleaseConverter(
-                    agpVersion = agpVersion ?: error("Must specify the AGP version for release"),
+                    agpVersion = agpVersion ?: printErrorAndTerminate("Must specify the AGP version for release"),
                     gradleVersion = gradleVersion,
                     repoLocation = repoLocation,
                     gradlePath = gradlePath,
@@ -158,14 +161,26 @@ class RecipeConverter(
      * @param destination the destination folder. A new folder will be created inside to contain the recipe
      *
      */
-    fun convert(source: Path, destination: Path): ConversionResult {
+    fun convert(source: Path, destination: Path, overwrite: Boolean = false): ConversionResult {
         if (!source.isDirectory()) {
-            error("the source $source folder is not a directory")
+            printErrorAndTerminate("Source $source is not a directory!")
         }
 
         val recipeData = RecipeData.loadFrom(source, mode)
 
         val recipeDestination = destination.resolve(recipeData.destinationFolder)
+
+        if (recipeDestination.isRegularFile()) {
+            printErrorAndTerminate("Destination $recipeDestination exist but is not a folder!")
+        }
+
+        if (recipeDestination.isDirectory() && recipeDestination.isNotEmpty()) {
+            if (!overwrite) {
+                printErrorAndTerminate("Destination $recipeDestination folder is not empty, call converter with --overwrite to overwrite it")
+            } else {
+                recipeDestination.deleteNonHiddenRecursively()
+            }
+        }
 
         val success = if (converter.isConversionCompliant(recipeData)) {
             converter.recipeData = recipeData
@@ -233,3 +248,5 @@ class RecipeConverter(
         return ConversionResult(recipeData, success)
     }
 }
+
+private fun Path.isNotEmpty(): Boolean = Files.list(this).findAny().isPresent

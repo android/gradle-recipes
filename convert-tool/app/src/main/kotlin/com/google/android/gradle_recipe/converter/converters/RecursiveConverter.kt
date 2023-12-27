@@ -17,6 +17,7 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
 import java.io.File
 import java.io.IOException
@@ -45,10 +46,9 @@ class RecursiveConverter(
         val link: String
     )
 
-    @Throws(IOException::class)
     fun convertAllRecipes(sourceAll: Path, destination: Path) {
         if (!sourceAll.exists()) {
-            error("the source $sourceAll folder doesn't exist")
+            printErrorAndTerminate("the source $sourceAll folder doesn't exist")
         }
 
         val recipeConverter = RecipeConverter(

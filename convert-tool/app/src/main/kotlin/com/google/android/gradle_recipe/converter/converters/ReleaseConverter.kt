@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
@@ -48,8 +49,8 @@ class ReleaseConverter(
 
         } else {
             // internal CI release
-            pathToAgpRepo = repoLocation ?: error("must specify path to repo")
-            pathToGradle = gradlePath ?: error("must specify path to Gradle")
+            pathToAgpRepo = repoLocation ?: printErrorAndTerminate("must specify path to repo")
+            pathToGradle = gradlePath ?: printErrorAndTerminate("must specify path to Gradle")
         }
     }
 

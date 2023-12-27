@@ -32,7 +32,6 @@ class InternalCIValidator(
     private val gradlePath: String,
     private val branchRoot: Path,
 ) {
-    @Throws(IOException::class)
     fun validate(sourceAll: Path, tmpFolder: Path?) {
 
         val converter = RecipeConverter(
