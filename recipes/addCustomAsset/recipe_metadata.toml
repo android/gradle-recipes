@@ -19,6 +19,15 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "addGeneratedSourceDirectory",
-    "asset"
+    "Themes/Android Assets",
+    "Themes/Sources",
+    "APIs/SourceDirectories.addGeneratedSourceDirectory()",
+    "APIs/SingleArtifact.ASSETS",
+    "APIs/Artifacts.get()",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "APIs/Component.artifacts",
+    "APIs/Component.sources",
+    "Call chains/variant.sources.*.addGeneratedSourceDirectory()",
+    "Call chains/variant.artifacts.get()",
+    "Call chains/androidComponents.onVariants {}"
 ]

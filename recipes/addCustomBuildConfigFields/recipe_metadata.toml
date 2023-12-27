@@ -19,7 +19,11 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "onVariant",
-    "BuildConfig",
-    "from Task"
+    "Call chains/androidComponents.onVariants {}",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/variant.buildConfigFields.put()",
+    "APIs/TaskProvider.map()",
+    "APIs/BuildConfigField()",
+    "APIs/Variant.buildConfigFields",
+    "APIs/MapProperty.put()"
 ]

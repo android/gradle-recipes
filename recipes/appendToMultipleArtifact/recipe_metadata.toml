@@ -19,12 +19,16 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "onVariant",
-    "variant.artifacts.use",
-    "variant.artifacts.get",
-    "MultipleArtifact",
-    "MultipleArtifact.NATIVE_DEBUG_METADATA",
-    "OutOperationRequest.toAppendTo()",
-    "SingleArtifact.BUNDLE",
+    "Themes/Artifact API",
+    "Call chains/variant.artifacts.get()",
+    "Call chains/variant.artifacts.use().wiredWith().toAppendTo()",
+    "Call chains/androidComponents.onVariants {}",
+    "APIs/MultipleArtifact.NATIVE_DEBUG_METADATA",
+    "APIs/OutOperationRequest.toAppendTo()",
+    "APIs/SingleArtifact.BUNDLE",
+    "APIs/Artifacts.use()",
+    "APIs/Artifacts.get()",
+    "APIs/Component.artifacts",
+    "APIs/AndroidComponentsExtension.onVariants()"
 ]
 

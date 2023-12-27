@@ -19,9 +19,16 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-  "settings plugin",
-  "onVariant",
-  "All projects",
-  "SingleArtifact.APK",
-  "variant.artifacts.get",
+    "Call chains/androidComponents.onVariants {}",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/settings.gradle.beforeProject {}",
+    "APIs/Gradle.beforeProject()",
+    "APIs/Plugin<Settings>",
+    "Call chains/androidComponents.selector().withBuildType()",
+    "APIs/AndroidComponentsExtension.selector()",
+    "APIs/VariantSelector.withBuildType()",
+    "All projects",
+    "APIs/SingleArtifact.APK",
+    "Call chains/variant.artifacts.get()",
+    "APIs/Artifacts.get()"
 ]

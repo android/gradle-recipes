@@ -19,8 +19,13 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "ScopedArtifactsOperation.toTransform()",
-    "variant.artifacts.forScope",
-    "ScopedArtifact.CLASSES",
-    "ScopedArtifacts.Scope.PROJECT"
+    "Themes/Artifact API",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/androidComponents.onVariants {}",
+    "Call chains/variant.artifacts.forScope().use().toTransform()",
+    "APIs/Artifacts.forScope()",
+    "APIs/ScopedArtifacts.use()",
+    "APIs/ScopedArtifactsOperation.toTransform()",
+    "APIs/ScopedArtifact.CLASSES",
+    "APIs/ScopedArtifacts.Scope.PROJECT",
 ]

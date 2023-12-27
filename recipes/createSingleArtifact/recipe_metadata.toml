@@ -19,9 +19,15 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "onVariant",
-    "Manifest API",
-    "SingleArtifact.MERGED_MANIFEST",
-    "OutOperationRequest.toCreate",
-    "TaskBasedOperation.wiredWith(taskOutput)"
+    "Themes/Artifact API",
+    "Themes/Android Manifest",
+    "Call chains/androidComponents.onVariants {}",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "APIs/SingleArtifact.MERGED_MANIFEST",
+    "APIs/Artifacts.use()",
+    "APIs/OutOperationRequest.toCreate()",
+    "APIs/TaskBasedOperation.wiredWith()",
+    "Call chains/variant.artifacts.use().wiredWith().toCreate()",
+    "APIs/Component.artifacts",
+    "APIs/TaskProvider.flatMap()"
 ]

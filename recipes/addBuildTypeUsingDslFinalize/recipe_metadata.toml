@@ -20,5 +20,7 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "finalizeDsl"
+    "Themes/DSL",
+    "APIs/DslLifecycle.finalizeDsl()",
+    "Call chains/androidComponents.finalizeDsl {}"
 ]

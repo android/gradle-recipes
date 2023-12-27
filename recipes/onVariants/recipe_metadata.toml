@@ -20,6 +20,9 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "AndroidComponentsExtension.onVariants",
-    "variant.applicationId"
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/androidComponents.onVariants {}",
+    "Call chains/variant.applicationId",
+    "APIs/ApplicationVariant.applicationId",
+    "APIs/GeneratesApk.applicationId"
 ]

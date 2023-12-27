@@ -20,8 +20,14 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-  "onVariant",
-  "Manifest API",
-  "Placeholders",
-  "SingleArtifact.MERGED_MANIFEST"
+    "Themes/Android Manifest",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/androidComponents.onVariants {}",
+    "Call chains/variant.manifestPlaceholders.put()",
+    "APIs/Variant.manifestPlaceholders",
+    "APIs/MapProperty.put()",
+    "Placeholders",
+    "APIs/SingleArtifact.MERGED_MANIFEST",
+    "APIs/Artifacts.get()",
+    "Call chains/variant.artifacts.get()"
 ]

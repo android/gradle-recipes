@@ -20,7 +20,16 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-  "settings plugin",
-  "onVariant",
-  "extending AGP DSL",
+    "Themes/DSL",
+    "Call chains/androidComponents.onVariants {}",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/androidComponents.registerExtension()",
+    "APIs/AndroidComponentsExtension.registerExtension()",
+    "Call chains/DslExtension.Builder().extendProjectWith().extendBuildTypeWith().extendProductFlavorWith().build()",
+    "APIs/DslExtension.Builder.extendProjectWith()",
+    "APIs/DslExtension.Builder.extendBuildTypeWith()",
+    "APIs/DslExtension.Builder.extendProductFlavorWith()",
+    "APIs/DslExtension.Builder.build()",
+    "APIs/VariantExtensionConfig",
+    "Extending AGP DSL",
 ]

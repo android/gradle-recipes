@@ -20,9 +20,17 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "wiredWithFiles",
-    "toTransform",
-    "outputs.upToDateWhen",
-    "artifacts.getBuiltArtifactsLoader",
-    "variant.artifacts.get"
+    "Themes/Android Manifest",
+    "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/androidComponents.onVariants {}",
+    "Call chains/variant.artifacts.use().wiredWithFiles().toTransform()",
+    "APIs/Component.artifacts",
+    "APIs/Artifacts.use()",
+    "APIs/TaskBasedOperation.wiredWithFiles()",
+    "APIs/InAndOutFileOperationRequest.toTransform()",
+    "Call chains/task.outputs.upToDateWhen {}",
+    "APIs/TaskOutputs.upToDateWhen()",
+    "APIs/task.getOutputs()",
+    "APIs/SingleArtifact.MERGED_MANIFEST",
 ]
+

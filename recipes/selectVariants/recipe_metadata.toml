@@ -21,9 +21,19 @@ tasks = [
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
-    "AndroidComponentsExtension.beforeVariants",
-    "AndroidComponentsExtension.selector",
-    "VariantSelector.withFlavor",
-    "VariantSelector.withBuildType",
-    "VariantSelector.withName"
+    "APIs/AndroidComponentsExtension.beforeVariants()",
+    "Call chains/androidComponents.beforeVariants {}",
+    "APIs/AndroidComponentsExtension.selector()",
+    "APIs/VariantSelector.withFlavor()",
+    "Call chains/androidComponents.selector().withFlavor()",
+    "APIs/VariantSelector.withBuildType()",
+    "Call chains/androidComponents.selector().withBuildType()",
+    "APIs/VariantSelector.withName()",
+    "Call chains/androidComponents.selector().withName()",
+    "APIs/VariantSelector.all()",
+    "Call chains/androidComponents.selector().all()",
+    "APIs/VariantBuilder.minSdk",
+    "APIs/CanMinifyAndroidResourcesBuilder.shrinkResources",
+    "APIs/CanMinifyCodeBuilder.isMinifyEnabled",
+    "APIs/HasUnitTestBuilder.enableUnitTest",
 ]
