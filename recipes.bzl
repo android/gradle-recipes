@@ -47,6 +47,21 @@ def recipe_test(
                 "version_mappings.txt",
             ],
         },
+        "8.3.0-beta01": {
+            "name": name + "_8_3_0",
+            "gradle_path": "$(location //tools/base/build-system:gradle-distrib-8.4)",
+            "manifest_repos": [
+                "//tools/base/build-system/previous-versions:8.3.0",
+                ":kotlin_1_9_20",
+            ],
+            "zip_repos": [],
+            "data": [
+                "//prebuilts/studio/sdk:build-tools/34.0.0",
+                "//tools/base/build-system:android_platform_for_tests",
+                "//tools/base/build-system:gradle-distrib-8.4",
+                "version_mappings.txt",
+            ],
+        },
         "ToT": {
             "name": name,
             "gradle_path": "$(location //tools/base/build-system:gradle-distrib)",
@@ -63,6 +78,7 @@ def recipe_test(
                 "//tools/base/build-system:gradle-distrib-8.0",
                 "//tools/base/build-system:gradle-distrib-8.1",
                 "//tools/base/build-system:gradle-distrib-8.2",
+                "//tools/base/build-system:gradle-distrib-8.4",
                 "version_mappings.txt",
                 ":kotlin_1_8_10",
             ],
