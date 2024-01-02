@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.recipe.RecipeData
+import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -27,12 +27,8 @@ import kotlin.io.path.writeLines
  */
 class WorkingCopyConverter(branchRoot: Path) : Converter(branchRoot) {
 
-    override fun isConversionCompliant(recipeData: RecipeData): Boolean {
-        return true
-    }
-
     override fun convertBuildGradle(source: Path, target: Path) {
-        val agpVersion = getMinAgp()
+        val agpVersion = minAgp ?: error("Calling WorkingCopyConverter without minAgp value")
 
         val convertedText = Files.readAllLines(source)
             .wrapGradlePlaceholdersWithInlineValue(
@@ -73,7 +69,7 @@ class WorkingCopyConverter(branchRoot: Path) : Converter(branchRoot) {
     }
 
     override fun convertVersionCatalog(source: Path, target: Path) {
-        val agpVersion = getMinAgp()
+        val agpVersion = minAgp ?: error("Calling WorkingCopyConverter without minAgp value")
 
         val convertedText = Files.readAllLines(source)
             .wrapVersionCatalogPlaceholders(
@@ -88,13 +84,15 @@ class WorkingCopyConverter(branchRoot: Path) : Converter(branchRoot) {
     }
 
     override fun processGradleWrapperProperties(file: Path) {
+        val agpVersion = minAgp ?: error("Calling WorkingCopyConverter without minAgp value")
+
         // building the line
         // distributionUrl=https\://services.gradle.org/distributions/gradle-7.2-bin.zip
         file.writeLines(
             Files.readAllLines(file)
                 .wrapGradleWrapperPlaceholders(
                     "\$GRADLE_LOCATION",
-                    "https\\://services.gradle.org/distributions/gradle-${getVersionInfoFromAgp(getMinAgp()).gradle}-bin.zip"
+                    "https\\://services.gradle.org/distributions/gradle-${getVersionInfoFromAgp(agpVersion).gradle}-bin.zip"
                 ),
             Charsets.UTF_8
         )

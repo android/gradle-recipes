@@ -19,6 +19,7 @@ package com.google.android.gradle_recipe.converter.converters
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
@@ -36,13 +37,41 @@ const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
 abstract class Converter(
     protected val branchRoot: Path
 ) {
+    protected val DEFAULT_SKIP_FILENAMES = setOf("gradlew", "gradlew.bat", "local.properties")
+    protected val DEFAULT_SKIP_FOLDERNAMES = setOf("build", ".idea", ".gradle", "out", "wrapper")
 
-    var recipeData: RecipeData? = null
+    // some converters may need the minimum AGP version supported by the recipe.
+    var minAgp: String? = null
 
+    protected open val skippedFilenames: Set<String>
+        get() = DEFAULT_SKIP_FILENAMES
 
-    /** Can converter convert this recipe
+    protected open val skippedFoldernames: Set<String>
+        get() = DEFAULT_SKIP_FOLDERNAMES
+
+    /**
+     * A filter for files and folders during a conversion. Filters out Gradle
+     * and Android Studio temporary and local files.
      */
-    abstract fun isConversionCompliant(recipeData: RecipeData): Boolean
+    fun accept(file: File): Boolean {
+        if (file.isFile) {
+            return !skippedFilenames.contains(file.name)
+        }
+
+        if (file.isDirectory) {
+            return !skippedFoldernames.contains(file.name)
+        }
+
+        return true
+    }
+
+
+    /**
+     * Can converter convert this recipe
+     */
+    open fun isConversionCompliant(recipeData: RecipeData): Boolean {
+        return true
+    }
 
     /**
      * Converts build.gradle
@@ -101,11 +130,6 @@ abstract class Converter(
     }
 
     open fun processGradleWrapperProperties(file: Path) { }
-
-    protected fun getMinAgp(): String = recipeData?.minAgpVersion
-        // this really should not happen
-        // TODO(b/317888166) improve this
-        ?: printErrorAndTerminate("recipeData not loaded in Converter")
 
     protected fun getVersionInfoFromAgp(agpVersion: String): VersionInfo {
         val agp = agpVersion.toMajorMinor()

@@ -17,12 +17,14 @@
 package com.google.android.gradle_recipe.converter.converters
 
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
+import com.google.android.gradle_recipe.converter.recipe.RECIPE_METADATA_FILE
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
 
-/** This mode is for a recipe that has no placeholders.
+/**
+ * This mode is for a recipe that has no placeholders.
  *  This is for releases ando/or tests
  */
 class ReleaseConverter(
@@ -39,6 +41,8 @@ class ReleaseConverter(
     private var pluginRepo: List<String> = listOf()
     private var dependencyRepo: List<String> = listOf()
 
+    private val releaseSkipFilenames = DEFAULT_SKIP_FILENAMES + RECIPE_METADATA_FILE
+
     init {
         if (gradleVersion != null) {
             // github release
@@ -53,6 +57,9 @@ class ReleaseConverter(
             pathToGradle = gradlePath ?: printErrorAndTerminate("must specify path to Gradle")
         }
     }
+
+    override val skippedFilenames: Set<String>
+        get() = releaseSkipFilenames
 
     override fun isConversionCompliant(recipeData: RecipeData): Boolean {
         return recipeData.isCompliantWithAgp(agpVersion)

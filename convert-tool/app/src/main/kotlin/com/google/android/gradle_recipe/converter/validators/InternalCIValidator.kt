@@ -18,6 +18,7 @@ package com.google.android.gradle_recipe.converter.validators
 
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
+import com.google.android.gradle_recipe.converter.converters.ResultMode
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
 import java.io.IOException
 import java.nio.file.Path
@@ -53,7 +54,7 @@ class InternalCIValidator(
                 source = recipeFolder, destination = destinationFolder
             )
 
-            if (conversionResult.isConversionSuccessful) {
+            if (conversionResult.result == ResultMode.SUCCESS) {
                 println("Validating: $destinationFolder with AGP: $agpVersion and Gradle: $gradlePath")
                 val tasksExecutor = GradleTasksExecutor(destinationFolder)
                 tasksExecutor.executeTasks(conversionResult.recipeData.tasks)
