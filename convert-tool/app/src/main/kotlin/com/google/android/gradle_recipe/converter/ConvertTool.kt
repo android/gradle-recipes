@@ -74,7 +74,7 @@ fun main(args: Array<String>) {
             "Convert one or more recipes from one state to the other (default mode is $RELEASE)"
         ) {
             override fun execute() {
-                val branchRoot = computeGitHubRootFolder()
+                val branchRoot = computeGitRootFolder()
 
                 val finalSource = source
                 val finalSourceAll = sourceAll
@@ -135,7 +135,7 @@ fun main(args: Array<String>) {
                 validateNullArg(gradleVersion, "'gradleVersion' must not be provided for subcommand '$COMMAND_VALIDATE'")
                 validateNullArg(gradlePath, "'gradlePath' must not be provided for subcommand '$COMMAND_VALIDATE'")
 
-                val branchRoot = computeGitHubRootFolder()
+                val branchRoot = computeGitRootFolder()
 
                 // check the env var for the SDK exist
                 if (System.getenv("ANDROID_HOME") == null) {
@@ -200,7 +200,7 @@ fun main(args: Array<String>) {
                         ?: printErrorAndTerminate("'repoLocation' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
                     gradlePath = gradlePath
                         ?: printErrorAndTerminate("'gradlePath' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
-                    branchRoot = computeGitHubRootFolder(),
+                    branchRoot = computeGitRootFolder(),
                 )
                 validator.validate(
                     sourceAll = Path.of(
@@ -221,13 +221,27 @@ fun main(args: Array<String>) {
     }
 }
 
-private fun computeGitHubRootFolder(): Path {
+/**
+ * Compute the root of the git project, in order to find files needed by the conversion logic.
+ *
+ * The logic will vary based on where the tool's jar is located. On the github workflow, this run from
+ * a different path.
+ */
+private fun computeGitRootFolder(): Path {
     val url = RecipeConverter::class.java.protectionDomain.codeSource.location
     val path = Path.of(url.toURI())
 
-    // The path is going to be $ROOT/convert-tool/app/build/install/convert-tool/lib/recipes-converter.jar
-    // we want to return $ROOT
-    return path.resolve("../../../../../../../").normalize()
+    val standaloneJar = System.getenv("STANDALONE_JAR") != null
+
+    if (standaloneJar) {
+        // The path is going to be $ROOT/convert-tool/app/build/libs/recipes-converter.jar
+        // we want to return $ROOT
+        return path.resolve("../../../../../").normalize()
+    } else {
+        // The path is going to be $ROOT/convert-tool/app/build/install/convert-tool/lib/recipes-converter.jar
+        // we want to return $ROOT
+        return path.resolve("../../../../../../../").normalize()
+    }
 }
 
 private fun validateNullArg(arg: Any?, msg: String) {

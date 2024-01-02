@@ -43,7 +43,7 @@ jobs:
             echo "Working on branch $BRANCH in $BRANCH_DIR"
             mkdir $BRANCH_DIR
             cp -r .git "$BRANCH_DIR/.git"
-            java -jar convert-tool/app/build/libs/recipes-converter-all.jar \
+            STANDALONE_JAR=true java -jar convert-tool/app/build/libs/recipes-converter-all.jar \
                       convert --sourceAll recipes \
                       --destination "$BRANCH_DIR" \
                       --agpVersion "$AGP" --gradleVersion "$GRADLE" --overwrite
