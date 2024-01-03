@@ -27,9 +27,7 @@ def recipe_test(
             "zip_repos": [],
             "data": [
                 "//prebuilts/studio/sdk:build-tools/33.0.1",
-                "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib-8.0",
-                "version_mappings.txt",
             ],
         },
         "8.2.0": {
@@ -42,9 +40,7 @@ def recipe_test(
             "zip_repos": [],
             "data": [
                 "//prebuilts/studio/sdk:build-tools/34.0.0",
-                "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib-8.2",
-                "version_mappings.txt",
             ],
         },
         "8.3.0-beta01": {
@@ -57,9 +53,7 @@ def recipe_test(
             "zip_repos": [],
             "data": [
                 "//prebuilts/studio/sdk:build-tools/34.0.0",
-                "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib-8.4",
-                "version_mappings.txt",
             ],
         },
         "ToT": {
@@ -71,16 +65,8 @@ def recipe_test(
             ],
             "zip_repos": ["//tools/base/build-system:android_gradle_plugin"],
             "data": [
-                "//prebuilts/studio/sdk:build-tools/33.0.1",
                 "//prebuilts/studio/sdk:build-tools/latest",
-                "//tools/base/build-system:android_platform_for_tests",
                 "//tools/base/build-system:gradle-distrib",
-                "//tools/base/build-system:gradle-distrib-8.0",
-                "//tools/base/build-system:gradle-distrib-8.1",
-                "//tools/base/build-system:gradle-distrib-8.2",
-                "//tools/base/build-system:gradle-distrib-8.4",
-                "version_mappings.txt",
-                ":kotlin_1_8_10",
             ],
         },
     }
@@ -100,17 +86,18 @@ def recipe_test(
                 "-Dgradle_path=" + test_scenarios[agp_version]["gradle_path"],
                 "-Drepos=" + ",".join(["$(location " + repo_file + ")" for repo_file in repo_files]),
                 "-Dname=" + name,
+                "-Dversion_mappings_file=$(location :version_mappings.txt)",
+                "-Dall_tested_agp_versions=" + ",".join(test_scenarios),
             ] + (select({
                 "//tools/base/bazel:release": ["-Dagp_version=" + RELEASE_BUILD_VERSION],
                 "//conditions:default": ["-Dagp_version=" + DEV_BUILD_VERSION],
-            }) if agp_version == "ToT" else ["-Dagp_version=" + agp_version]) + ([
-                "-Dversion_mappings_file=$(location :version_mappings.txt)",
-                "-Dtested_agp_versions=" + ",".join(test_scenarios),
-                "-Dtested_gradle_paths=" + ",".join([test_scenarios[key]["gradle_path"] for key in test_scenarios]),
-            ] if agp_version == "ToT" else []),
+            }) if agp_version == "ToT" else ["-Dagp_version=" + agp_version]),
             data = native.glob(
                 ["recipes/" + name + "/**"],
-            ) + manifest_repos + zip_repos + repo_files + test_scenarios[agp_version]["data"],
+            ) + [
+                "//tools/base/build-system:android_platform_for_tests",
+                "version_mappings.txt",
+            ] + manifest_repos + zip_repos + repo_files + test_scenarios[agp_version]["data"],
             test_class = "com.android.tools.gradle.GradleRecipeTest",
             runtime_deps = [":gradle_recipe_test"],
         )

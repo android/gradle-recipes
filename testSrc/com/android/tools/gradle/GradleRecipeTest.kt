@@ -26,6 +26,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import org.junit.Assert.fail
 import org.junit.Test
 
 class GradleRecipeTest {
@@ -33,18 +34,21 @@ class GradleRecipeTest {
     fun run() {
         val name = System.getProperty("name")
         val source = Paths.get("tools/gradle-recipes/recipes/$name")
-        val testedAgpVersions = System.getProperty("tested_agp_versions")?.split(",")
-        val testedGradlePaths = System.getProperty("tested_gradle_paths")?.split(",")
-        if (testedAgpVersions != null && testedGradlePaths != null) {
-            assertThat(testedAgpVersions.size).isEqualTo(testedGradlePaths.size)
-            checkVersionMappings(
-                Paths.get("tools/gradle-recipes/version_mappings.txt").toFile(),
-                testedAgpVersions,
-                testedGradlePaths
-            )
-        }
-        val agpVersion = System.getProperty("agp_version")
-        val gradlePath = System.getProperty("gradle_path")
+        val allTestedAgpVersions =
+            System.getProperty("all_tested_agp_versions")?.split(",")
+                ?: error("Missing required system property \"all_tested_agp_versions\".")
+        val agpVersion =
+            System.getProperty("agp_version")
+                ?: error("Missing required system property \"agp_version\".")
+        val gradlePath =
+            System.getProperty("gradle_path")
+                ?: error("Missing required system property \"gradle_path\".")
+        checkVersionMappings(
+            Paths.get("tools/gradle-recipes/version_mappings.txt").toFile(),
+            allTestedAgpVersions,
+            agpVersion,
+            gradlePath
+        )
         val destination = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
         val outputDir = destination.resolve("out")
 
@@ -85,14 +89,22 @@ class GradleRecipeTest {
     }
 
     /**
-     * Check that the tested_agp_versions and tested_gradle_paths properties fed to this test are
-     * in sync with the versions specified in version_mappings.txt.
+     * Check that the list of all_tested_agp_versions fed to this test match the versions specified
+     * in version_mappings.txt.
+     *
+     * Also check that the agp_version and gradle_version fed to this test match the corresponding
+     * line in version_mappings.txt.
+     *
+     * These checks are important because the version_mappings.txt file dictates which versions are
+     * used on github.
      */
     private fun checkVersionMappings(
         versionMappingsFile: File,
-        agpVersions: List<String>,
-        gradlePaths: List<String>
+        allTestedAgpVersions: List<String>,
+        agpVersion: String,
+        gradlePath: String
     ) {
+        // Read the version_mappings.txt file and create lists of expected AGP and Gradle versions
         val expectedAgpVersions = mutableListOf<String>()
         val expectedGradleVersions = mutableListOf<String>()
         versionMappingsFile.forEachLine { line ->
@@ -102,17 +114,27 @@ class GradleRecipeTest {
                 expectedGradleVersions.add(versionList[1])
             }
         }
-        assertThat(agpVersions.size).isEqualTo(expectedAgpVersions.size)
-        // Don't check the last AGP version because the ToT AGP version might be different than the
-        // version in the version_mappings.txt file.
-        agpVersions.dropLast(1).forEachIndexed { i, agpVersion ->
-            assertThat(agpVersion.take(4)).isEqualTo(expectedAgpVersions[i].take(4))
+
+        // Check that all versions from allTestedAgpVersions (except "ToT") are represented in the
+        // version_mappings.txt file (i.e., the file has an AGP version with matching major and
+        // minor versions).
+        allTestedAgpVersions.forEachIndexed { i, testedAgpVersion ->
+            if (testedAgpVersion != "ToT") {
+                assertThat(testedAgpVersion.take(4)).isEqualTo(expectedAgpVersions[i].take(4))
+            }
         }
-        assertThat(gradlePaths.size).isEqualTo(expectedGradleVersions.size)
-        // Don't check the last Gradle path because the ToT Gradle version might be different than
-        // the version in the version_mappings.txt file.
-        gradlePaths.dropLast(1).forEachIndexed { i, gradlePath ->
-            assertThat(gradlePath).contains(expectedGradleVersions[i])
+
+        // Check that agpVersion is represented in the version_mappings.txt file with a Gradle
+        // version matching gradlePath.
+        var found = false
+        expectedAgpVersions.forEachIndexed { i, expectedAgpVersion ->
+            if (agpVersion.take(4) == expectedAgpVersion.take(4)) {
+                found = true
+                assertThat(gradlePath).contains(expectedGradleVersions[i])
+            }
+        }
+        if (!found) {
+            fail("AGP Version $agpVersion not found in version_mappings.txt.")
         }
     }
 }
