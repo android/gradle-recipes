@@ -69,7 +69,7 @@ private fun initAgpToGradleMap(branchRoot: Path) {
         agpToVersionsMap = lines
             .map {
                 val values = it.split(";")
-                values[0].toMajorMinor() to VersionInfo(
+                values[0] to VersionInfo(
                     agp = values[0],
                     gradle = values[1],
                     kotlin = values[2]

@@ -52,14 +52,12 @@ internal class ConverterUtilsKtTest {
     @Test
     fun testBuildGradlePluginsBlockWorkingCopy() {
         val agpVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                buildGradlePluginsBlockSource,
+            buildGradlePluginsBlockSource.wrapGradlePlaceholdersWithInlineValue(
                 "\$AGP_VERSION",
                 "\"7.4.4\""
             )
         val kotlinAndAgpVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                agpVersionWrapped,
+            agpVersionWrapped.wrapGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
                 "\"1.5.20\""
             )
@@ -70,22 +68,19 @@ internal class ConverterUtilsKtTest {
 
     @Test
     fun testBuildGradlePluginsBlockSource() {
-        val result =
-            unwrapGradlePlaceholders(buildGradlePluginsBlockWorkingCopy)
+        val result = buildGradlePluginsBlockWorkingCopy.unwrapGradlePlaceholders()
         assertThat(result).isEqualTo(buildGradlePluginsBlockSource)
     }
 
     @Test
     fun testBuildGradlePlauginsBlockRelease() {
         val agpVersionReplaced =
-            replaceGradlePlaceholdersWithInlineValue(
-                buildGradlePluginsBlockSource,
+            buildGradlePluginsBlockSource.replaceGradlePlaceholdersWithInlineValue(
                 "\$AGP_VERSION",
                 "\"7.4.4\""
             )
         val kotlinAndAgpVersionReplaced =
-            replaceGradlePlaceholdersWithInlineValue(
-                agpVersionReplaced,
+            agpVersionReplaced.replaceGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
                 "\"1.5.20\""
             )
@@ -139,13 +134,13 @@ android {
     @Test
     fun testBuildGradleAndroidBlockRelease() {
         val compileSdkVersionReplaced =
-            replaceGradlePlaceholdersWithInlineValue(
-                buildGradleAndroidBlockSource.lines(), "\$COMPILE_SDK", "33"
-            )
+            buildGradleAndroidBlockSource.lines()
+                .replaceGradlePlaceholdersWithInlineValue("\$COMPILE_SDK", "33")
 
         val compileSdkMinimumSdkVersionReplaced =
-            replaceGradlePlaceholdersWithInlineValue(
-                compileSdkVersionReplaced, "\$MINIMUM_SDK", "21"
+            compileSdkVersionReplaced.replaceGradlePlaceholdersWithInlineValue(
+                "\$MINIMUM_SDK",
+                "21"
             )
         assertThat(compileSdkMinimumSdkVersionReplaced).isEqualTo(
             buildGradleAndroidBlockRelease.lines()
@@ -154,14 +149,12 @@ android {
 
     @Test
     fun testBuildGradleAndroidBlockWorkingCopy() {
-        val compileSdkVersionWrapped = wrapGradlePlaceholdersWithInlineValue(
-            buildGradleAndroidBlockSource.lines(), "\$COMPILE_SDK", "33"
-        )
+        val compileSdkVersionWrapped =
+            buildGradleAndroidBlockSource.lines()
+                .wrapGradlePlaceholdersWithInlineValue("\$COMPILE_SDK", "33")
 
         val compileSdkMinimumSdkVersionWrapped =
-            wrapGradlePlaceholdersWithInlineValue(
-                compileSdkVersionWrapped, "\$MINIMUM_SDK", "21"
-            )
+            compileSdkVersionWrapped.wrapGradlePlaceholdersWithInlineValue("\$MINIMUM_SDK", "21")
         assertThat(compileSdkMinimumSdkVersionWrapped).isEqualTo(
             buildGradleAndroidBlockWorkingCopy.lines()
         )
@@ -169,7 +162,7 @@ android {
 
     @Test
     fun testBuildGradleAndroidBlockSource() {
-        assertThat(unwrapGradlePlaceholders(buildGradleAndroidBlockWorkingCopy.lines())).isEqualTo(
+        assertThat(buildGradleAndroidBlockWorkingCopy.lines().unwrapGradlePlaceholders()).isEqualTo(
             buildGradleAndroidBlockSource.lines()
         )
     }
@@ -249,23 +242,22 @@ dependencyResolutionManagement {
 
     @Test
     fun testSettingsGradleWorkingCopy() {
-        val agpRepoConverted = wrapGradlePlaceholdersWithInlineValue(
-            settingsGradleSource.lines(), "\$AGP_REPOSITORY", ""
-        )
+        val agpRepoConverted =
+            settingsGradleSource.lines()
+                .wrapGradlePlaceholdersWithInlineValue("\$AGP_REPOSITORY", "")
 
-        val agpAndPluginRepoConverted = wrapGradlePlaceholdersWithList(
-            agpRepoConverted,
-            "\$PLUGIN_REPOSITORIES",
-            listOf(
-                "        gradlePluginPortal()",
-                "        google()",
-                "        mavenCentral()"
+        val agpAndPluginRepoConverted =
+            agpRepoConverted.wrapGradlePlaceholdersWithList(
+                "\$PLUGIN_REPOSITORIES",
+                listOf(
+                    "        gradlePluginPortal()",
+                    "        google()",
+                    "        mavenCentral()"
+                )
             )
-        )
 
         val agpAndPluginRepoAndDepsRepoConverted =
-            wrapGradlePlaceholdersWithList(
-                agpAndPluginRepoConverted,
+            agpAndPluginRepoConverted.wrapGradlePlaceholdersWithList(
                 "\$DEPENDENCY_REPOSITORIES",
                 listOf("        google()", "        mavenCentral()")
             )
@@ -276,31 +268,30 @@ dependencyResolutionManagement {
 
     @Test
     fun testSettingsGradleSource() {
-        val result = unwrapGradlePlaceholders(settingsGradleWorkingCopy.lines())
+        val result = settingsGradleWorkingCopy.lines().unwrapGradlePlaceholders()
         assertThat(result).isEqualTo(settingsGradleSource.lines())
     }
 
     @Test
     fun testSettingsGradleGithubRelease() {
-        val agpRepoConverted = replacePlaceHolderWithLine(
-            settingsGradleSource.lines(), "\$AGP_REPOSITORY", ""
-        )
+        val agpRepoConverted =
+            settingsGradleSource.lines().replacePlaceHolderWithLine("\$AGP_REPOSITORY", "")
 
-        val agpAndPluginRepoConverted = replacePlaceHolderWithList(
-            agpRepoConverted,
-            "\$PLUGIN_REPOSITORIES",
-            listOf(
-                "        gradlePluginPortal()",
-                "        google()",
-                "        mavenCentral()"
+        val agpAndPluginRepoConverted =
+            agpRepoConverted.replacePlaceHolderWithList(
+                "\$PLUGIN_REPOSITORIES",
+                listOf(
+                    "        gradlePluginPortal()",
+                    "        google()",
+                    "        mavenCentral()"
+                )
             )
-        )
 
-        val agpAndPluginAndDependencyRepoConverted = replacePlaceHolderWithList(
-            agpAndPluginRepoConverted,
-            "\$DEPENDENCY_REPOSITORIES",
-            listOf("        google()", "        mavenCentral()")
-        )
+        val agpAndPluginAndDependencyRepoConverted =
+            agpAndPluginRepoConverted.replacePlaceHolderWithList(
+                "\$DEPENDENCY_REPOSITORIES",
+                listOf("        google()", "        mavenCentral()")
+            )
 
         assertThat(agpAndPluginAndDependencyRepoConverted).isEqualTo(
             settingsGradleGithubRelease.lines()
@@ -309,19 +300,20 @@ dependencyResolutionManagement {
 
     @Test
     fun testSettingsGradleCIRelease() {
-        val agpRepoConverted = replacePlaceHolderWithLine(
-            settingsGradleSource.lines(),
-            "\$AGP_REPOSITORY",
-            "..\\..\\private-repo\\"
-        )
+        val agpRepoConverted =
+            settingsGradleSource.lines().replacePlaceHolderWithLine(
+                "\$AGP_REPOSITORY",
+                "..\\..\\private-repo\\"
+            )
 
-        val agpAndPluginRepoConverted = replacePlaceHolderWithList(
-            agpRepoConverted, "\$PLUGIN_REPOSITORIES", listOf()
-        )
+        val agpAndPluginRepoConverted =
+            agpRepoConverted.replacePlaceHolderWithList("\$PLUGIN_REPOSITORIES", listOf())
 
-        val agpAndPluginAndDependencyRepoConverted = replacePlaceHolderWithList(
-            agpAndPluginRepoConverted, "\$DEPENDENCY_REPOSITORIES", listOf()
-        )
+        val agpAndPluginAndDependencyRepoConverted =
+            agpAndPluginRepoConverted.replacePlaceHolderWithList(
+                "\$DEPENDENCY_REPOSITORIES",
+                listOf()
+            )
 
         assertThat(agpAndPluginAndDependencyRepoConverted).isEqualTo(
             settingsGradleCIRelease.lines()
@@ -346,21 +338,21 @@ dependencyResolutionManagement {
 
     @Test
     fun testGradleWrapperWorkingCopy() {
-        val result = wrapGradleWrapperPlaceholders(
-            gradleWrapperSource,
-            "\$GRADLE_LOCATION",
-            "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
-        )
+        val result =
+            gradleWrapperSource.wrapGradleWrapperPlaceholders(
+                "\$GRADLE_LOCATION",
+                "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
+            )
         assertThat(result).isEqualTo(gradleWrapperWorkingCopy)
     }
 
     @Test
     fun testGradleWrapperReleaseGithub() {
-        val result = replaceGradlePlaceholdersWithInlineValue(
-            gradleWrapperSource,
-            "\$GRADLE_LOCATION",
-            "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
-        )
+        val result =
+            gradleWrapperSource.replaceGradlePlaceholdersWithInlineValue(
+                "\$GRADLE_LOCATION",
+                "https\\://services.gradle.org/distributions/gradle-7.5-bin.zip"
+            )
         assertThat(gradleWrapperReleaseGithub).isEqualTo(result)
     }
 
@@ -382,23 +374,27 @@ dependencyResolutionManagement {
 
     @Test
     fun testVersionCatalogSource() {
-        val result = unwrapVersionCatalogPlaceholders(versionCatalogWorkingCopy)
+        val result = versionCatalogWorkingCopy.unwrapVersionCatalogPlaceholders()
         assertThat(versionCatalogSource).isEqualTo(result)
     }
 
     @Test
     fun testVersionCatalogWorkingCopy() {
-        val result = wrapVersionCatalogPlaceholders(
-            versionCatalogSource, "\$AGP_VERSION", "\"8.0.0-alpha10\""
-        )
+        val result =
+            versionCatalogSource.wrapVersionCatalogPlaceholders(
+                "\$AGP_VERSION",
+                "\"8.0.0-alpha10\""
+            )
         assertThat(versionCatalogWorkingCopy).isEqualTo(result)
     }
 
     @Test
     fun testVersionCatalogRelease() {
-        val result = replaceVersionCatalogPlaceholders(
-            versionCatalogSource, "\$AGP_VERSION", "\"8.0.0-alpha10\""
-        )
+        val result =
+            versionCatalogSource.replaceVersionCatalogPlaceholders(
+                "\$AGP_VERSION",
+                "\"8.0.0-alpha10\""
+            )
         assertThat(versionCatalogRelease).isEqualTo(result)
     }
 }

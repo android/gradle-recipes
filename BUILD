@@ -1,4 +1,4 @@
-load("//tools/base/bazel:kotlin.bzl", "kotlin_library")
+load("//tools/base/bazel:kotlin.bzl", "kotlin_library", "kotlin_test")
 load("//tools/base/bazel:maven.bzl", "maven_repository")
 load("//tools/base/build-system/integration-test:common-dependencies.bzl", "KGP_1_8_10", "KGP_1_9_20")
 load(":recipes.bzl", "recipe_test")
@@ -15,6 +15,22 @@ kotlin_library(
         "@maven//:org.gradle.gradle-tooling-api",
         "@maven//:org.jetbrains.kotlinx.kotlinx-cli-jvm",
         "@maven//:org.tomlj.tomlj",
+    ],
+)
+
+kotlin_test(
+    name = "convert_tool_tests",
+    srcs = glob([
+        "convert-tool/app/src/test/kotlin/com/google/android/gradle_recipe/converter/**/*.kt",
+    ]),
+    jvm_flags = ["-Dtest.suite.jar=convert_tool_tests.jar"],
+    test_class = "com.android.testutils.JarTestSuite",
+    deps = [
+        ":convert_tool",
+        "//tools/base/testutils:tools.testutils",
+        "@maven//:com.github.rising3.semver",
+        "@maven//:com.google.truth.truth",
+        "@maven//:junit.junit",
     ],
 )
 

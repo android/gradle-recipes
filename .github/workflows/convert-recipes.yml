@@ -31,22 +31,28 @@ jobs:
       - name: Convert recipes
         run: |
           cd main
+          RECIPES_CONVERTER_JAR="convert-tool/app/build/libs/recipes-converter-all.jar"
+          curl -o $RUNNER_TEMP/maven_metadata.xml \
+                    https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml
           grep -v "^#" version_mappings.txt | while read line
           do
             versions=(${line//;/ })
-            AGP=${versions[0]}
+            AGP_MAJOR_MINOR=${versions[0]}
             GRADLE=${versions[1]}
-            echo "Converting for AGP $AGP with Gradle $GRADLE"
+            echo "Converting for AGP $AGP_MAJOR_MINOR with Gradle $GRADLE"
             BRANCH="agp-"
-            BRANCH+=${AGP:0:3}
+            BRANCH+=$AGP_MAJOR_MINOR
             BRANCH_DIR="../$BRANCH"
             echo "Working on branch $BRANCH in $BRANCH_DIR"
             mkdir $BRANCH_DIR
             cp -r .git "$BRANCH_DIR/.git"
-            STANDALONE_JAR=true java -jar convert-tool/app/build/libs/recipes-converter-all.jar \
+            AGP_VERSION=$(java -cp "$RECIPES_CONVERTER_JAR" \
+                      com.google.android.gradle_recipe.converter.LatestVersionFinderKt \
+                      $RUNNER_TEMP/maven_metadata.xml $AGP_MAJOR_MINOR)
+            STANDALONE_JAR=true java -jar "$RECIPES_CONVERTER_JAR" \
                       convert --sourceAll recipes \
                       --destination "$BRANCH_DIR" \
-                      --agpVersion "$AGP" --gradleVersion "$GRADLE" --overwrite
+                      --agpVersion "$AGP_VERSION" --gradleVersion "$GRADLE" --overwrite
             echo "Converted recipes"
             cd $BRANCH_DIR
             find . -name gradlew | xargs chmod +x
