@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,28 @@
  * limitations under the License.
  */
 
-rootProject.name = "transformClasses"
+plugins {
+    `java-gradle-plugin`
+    alias(libs.plugins.kotlin.jvm)
+}
 
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        $AGP_REPOSITORY
-        $PLUGIN_REPOSITORIES
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        $AGP_REPOSITORY
-        $DEPENDENCY_REPOSITORIES
+dependencies {
+    compileOnly(libs.android.gradlePlugin.api)
+    implementation(gradleKotlinDsl())
+}
+
+gradlePlugin {
+    plugins {
+        create("customPlugin") {
+            id = "android.recipes.transform_multiple"
+            implementationClass = "CustomPlugin"
+        }
     }
 }
 
-include(":app")

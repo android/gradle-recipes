@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-rootProject.name = "transformClasses"
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    id("android.recipes.transform_multiple")
+}
 
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        $AGP_REPOSITORY
-        $PLUGIN_REPOSITORIES
+android {
+    namespace = "com.example.android.recipes.transformMultiple"
+    compileSdk = $COMPILE_SDK
+    defaultConfig {
+        minSdk = $MINIMUM_SDK
+        targetSdk = $COMPILE_SDK
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        $AGP_REPOSITORY
-        $DEPENDENCY_REPOSITORIES
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
-
-include(":app")

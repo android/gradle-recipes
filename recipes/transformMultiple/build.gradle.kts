@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,7 @@
  * limitations under the License.
  */
 
-rootProject.name = "transformClasses"
-
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        $AGP_REPOSITORY
-        $PLUGIN_REPOSITORIES
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        $AGP_REPOSITORY
-        $DEPENDENCY_REPOSITORIES
-    }
-}
-
-include(":app")
