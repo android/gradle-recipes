@@ -49,6 +49,10 @@ jobs:
             AGP_VERSION=$(java -cp "$RECIPES_CONVERTER_JAR" \
                       com.google.android.gradle_recipe.converter.LatestVersionFinderKt \
                       $RUNNER_TEMP/maven_metadata.xml $AGP_MAJOR_MINOR)
+            if [ "$AGP_VERSION" = "NA" ]; then
+                echo "No released version available for AGP $AGP_MAJOR_MINOR."
+                continue
+            fi
             STANDALONE_JAR=true java -jar "$RECIPES_CONVERTER_JAR" \
                       convert --sourceAll recipes \
                       --destination "$BRANCH_DIR" \
