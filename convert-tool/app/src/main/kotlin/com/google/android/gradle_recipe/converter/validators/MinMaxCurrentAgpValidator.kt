@@ -69,7 +69,7 @@ class MinMaxCurrentAgpValidator(
             source = from, destination = destinationFolder
         )
 
-        if (conversionResult.result == ResultMode.SUCCESS) {
+        if (conversionResult.resultMode == ResultMode.SUCCESS) {
             println("Validating: Recipe $name ($destinationFolder) with AGP: $agpVersion and Gradle: $gradleVersion")
             val tasksExecutor = GradleTasksExecutor(destinationFolder)
             tasksExecutor.executeTasks(conversionResult.recipeData.tasks)

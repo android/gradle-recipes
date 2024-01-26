@@ -68,7 +68,7 @@ class RecursiveConverter(
         visitRecipes(sourceAll) { recipeFolder: Path ->
             val conversionResult = recipeConverter.convert(recipeFolder, destination)
 
-            if (conversionResult.result == ResultMode.SUCCESS) {
+            if (conversionResult.resultMode == ResultMode.SUCCESS) {
                 for (keyword in conversionResult.recipeData.keywords) {
 
                     // split the keyword in category/keyword if there is one

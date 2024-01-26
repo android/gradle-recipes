@@ -18,7 +18,6 @@ package com.google.android.gradle_recipe.converter.converters
 import com.google.android.gradle_recipe.converter.deleteNonHiddenRecursively
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
-import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -94,7 +93,7 @@ enum class ResultMode {
     SUCCESS, FAILURE, SKIPPED
 }
 
-data class ConversionResult(val recipeData: RecipeData, val result: ResultMode)
+data class ConversionResult(val recipeData: RecipeData, val resultMode: ResultMode)
 
 /**
  *  Converts the individual recipe, calculation the conversion mode by input parameters
@@ -164,7 +163,7 @@ class RecipeConverter(
             }
         }
 
-        val success = if (converter.isConversionCompliant(recipeData)) {
+        val resultMode = if (converter.isConversionCompliant(recipeData)) {
             if (mode == Mode.WORKINGCOPY) {
                 converter.minAgp = recipeData.minAgpVersion
             }
@@ -231,7 +230,7 @@ class RecipeConverter(
             ResultMode.SKIPPED
         }
 
-        return ConversionResult(recipeData, success)
+        return ConversionResult(recipeData, resultMode)
     }
 }
 
