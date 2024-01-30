@@ -23,6 +23,9 @@ import kotlin.system.exitProcess
 
 /**
  * Entry point to call [findLatestVersion]
+ *
+ * Prints the latest version that begins with majorMinorVersion, or "NA" if no released version
+ * begins with majorMinorVersion.
  */
 fun main(args: Array<String>) {
     if (args.size != 2 || args.contains("--help")) {
@@ -31,10 +34,7 @@ fun main(args: Array<String>) {
     }
     val mavenMetadataFile = args[0]
     val majorMinorVersion = args[1]
-    val latestVersion =
-        findLatestVersion(File(mavenMetadataFile), majorMinorVersion)
-            ?: throw RuntimeException("Unable to find any version starting with $majorMinorVersion")
-    println(latestVersion)
+    println(findLatestVersion(File(mavenMetadataFile), majorMinorVersion) ?: "NA")
 }
 
 /**
