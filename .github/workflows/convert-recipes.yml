@@ -3,6 +3,8 @@ name: Convert recipes flow
 on:
   push:
   workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 0' # Run every Sunday at 8:00 UTC
 
 jobs:
   build-gradle-project:
