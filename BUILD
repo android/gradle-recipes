@@ -134,3 +134,7 @@ recipe_test(
 recipe_test(
     name = "onVariants",
 )
+
+recipe_test(
+    name = "legacyTaskBridging",
+)
