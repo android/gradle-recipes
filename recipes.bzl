@@ -23,6 +23,7 @@ def recipe_test(
             "manifest_repos": [
                 "//tools/base/build-system/previous-versions:8.1.0",
                 ":kotlin_1_8_10",
+                "//tools/base/build-system:gradle-8.0-runtime-maven",
             ],
             "zip_repos": [],
             "data": [
@@ -36,6 +37,7 @@ def recipe_test(
             "manifest_repos": [
                 "//tools/base/build-system/previous-versions:8.2.0",
                 ":kotlin_1_8_10",
+                "//tools/base/build-system:gradle-8.2-runtime-maven",
             ],
             "zip_repos": [],
             "data": [
@@ -49,6 +51,7 @@ def recipe_test(
             "manifest_repos": [
                 "//tools/base/build-system/previous-versions:8.3.0",
                 ":kotlin_1_9_20",
+                "//tools/base/build-system:gradle-8.4-runtime-maven",
             ],
             "zip_repos": [],
             "data": [
@@ -62,6 +65,7 @@ def recipe_test(
             "manifest_repos": [
                 "//tools/base/build-system/integration-test:kotlin_gradle_plugin_prebuilts",
                 ":kotlin_1_9_20",
+                "//tools/base/build-system:gradle-runtime-maven",
             ],
             "zip_repos": ["//tools/base/build-system:android_gradle_plugin"],
             "data": [
