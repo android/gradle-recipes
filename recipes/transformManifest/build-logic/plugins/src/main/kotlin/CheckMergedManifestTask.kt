@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import java.lang.RuntimeException
 
-abstract class ManifestTransformerTask: DefaultTask() {
+abstract class CheckMergedManifestTask : DefaultTask() {
+
+    // In order for the task to be up-to-date when the inputs have not changed,
+    // the task must declare an output, even if it's not used. Tasks with no
+    // output are always run regardless of whether the inputs changed
+    @get:OutputDirectory
+    abstract val output: DirectoryProperty
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
@@ -31,15 +40,18 @@ abstract class ManifestTransformerTask: DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val mergedManifest: RegularFileProperty
 
-    @get:OutputFile
-    abstract val updatedManifest: RegularFileProperty
-
     @TaskAction
     fun taskAction() {
+        if (!mergedManifest.isPresent || !mergedManifest.get().asFile.exists()) {
+            throw RuntimeException("Merged manifest does not exist.")
+        }
 
+        val fileContents = mergedManifest.get().asFile.readText()
         val gitVersion = gitInfoFile.get().asFile.readText()
-        var manifest = mergedManifest.asFile.get().readText()
-        manifest = manifest.replace("android:targetSdkVersion=\"34\"", "android:targetSdkVersion=\"$gitVersion\"")
-        updatedManifest.get().asFile.writeText(manifest)
+        if (fileContents.contains("android:targetSdkVersion=\"$gitVersion\"")) {
+            return
+        } else {
+            throw RuntimeException("Merged manifest does not contains transformed data.")
+        }
     }
 }
