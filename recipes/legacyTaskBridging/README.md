@@ -1,6 +1,6 @@
 # Bridging a Legacy Task with new Variant API Property<> instances
 
-This recipe shows how you can adapt an existing `Task` using intrinsic file types like `File` in order to be
+This recipe shows how you can adapt a built-in Gradle `Task` using intrinsic file types like `File` in order to be
 compatible with the new Variant API. The new variant API requires using instances of `Property<>` when wiring
 things up in order to carry task dependency within those property objects. This is not easy when you want to use
 an old task expressing its input or output using `File` for instance.
@@ -40,7 +40,7 @@ The easiest way to do that is to subclass the original Task and override the rig
 output values to properties. In our case, the subclass is simply :
 
 ```
-abstract class AssetCreatorTask: Copy() {
+abstract class PropertyBasedCopy: Copy() {
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -58,8 +58,8 @@ Once the `TaskProvider` is created, you need to use `SourceDirectories.addGenera
 output as a new source folder.
 ```
 variant.sources.assets?.addGeneratedSourceDirectory(
-                    assetCreationTask,
-                    AssetCreatorTask::outputDirectory)
+                    propertyBasedCopyTaskProvider,
+                    PropertyBasedCopy::outputDirectory)
 ```
 
 ### Run the example

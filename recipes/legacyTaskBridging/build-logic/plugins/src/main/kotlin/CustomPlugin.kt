@@ -15,17 +15,13 @@
  */
 
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.api.variant.BuiltArtifactsLoader
-import com.android.build.api.artifact.MultipleArtifact
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.gradle.AppPlugin
 import java.io.File
-import java.util.jar.JarFile
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
@@ -57,11 +53,11 @@ class CustomPlugin : Plugin<Project> {
             androidComponents.onVariants { variant ->
                 variant.sources.assets
                     ?.let {
-                        // create the task that will add new source files to the asset source folder.
-                        val assetCreationTask =
-                            project.tasks.register<AssetCreatorTask>("create${variant.name}Asset")
+                        // create the task that will copy new source files to the asset source folder.
+                        val propertyBasedCopyTaskProvider =
+                            project.tasks.register<PropertyBasedCopy>("create${variant.name}Asset")
 
-                        assetCreationTask.configure { task: AssetCreatorTask ->
+                        propertyBasedCopyTaskProvider.configure { task: PropertyBasedCopy ->
                                 task.from("src/common")
                                 task.include("**/*asset*.*")
                             }
@@ -71,8 +67,8 @@ class CustomPlugin : Plugin<Project> {
                         // The task will execute only when the `assets` source folders are looked
                         // up at execution time (during asset merging basically).
                         it.addGeneratedSourceDirectory(
-                            assetCreationTask,
-                            AssetCreatorTask::outputDirectory
+                            propertyBasedCopyTaskProvider,
+                            PropertyBasedCopy::outputDirectory
                         )
                     }
 
@@ -91,13 +87,13 @@ class CustomPlugin : Plugin<Project> {
 }
 
 /**
- * This task is creating an asset that will be used as a source asset file.
+ * This task is copying files.
  *
  * It is based on the Gradle's [org.gradle.api.tasks.Copy] task and bridge the
  * `destinationDir` output to a `DirectoryProperty` that can be used with the
  * Variant APIs.
  */
-abstract class AssetCreatorTask: Copy() {
+abstract class PropertyBasedCopy: Copy() {
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
