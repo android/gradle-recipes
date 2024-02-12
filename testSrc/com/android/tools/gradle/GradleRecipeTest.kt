@@ -18,6 +18,7 @@ package com.android.tools.gradle
 
 import com.android.tools.gradle.Gradle
 import com.android.utils.FileUtils
+import com.android.testutils.TestUtils
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
 import com.google.android.gradle_recipe.converter.converters.ResultMode
@@ -45,6 +46,8 @@ class GradleRecipeTest {
         val gradlePath =
             System.getProperty("gradle_path")
                 ?: error("Missing required system property \"gradle_path\".")
+        val jdkVersion = System.getProperty("jdk_version")
+
         checkVersionMappings(
             Paths.get("tools/gradle-recipes/version_mappings.txt").toFile(),
             allTestedAgpVersions,
@@ -92,7 +95,17 @@ class GradleRecipeTest {
             repos.forEach { gradle.addRepo(it) }
             gradle.addArgument("-Dcom.android.gradle.version=$agpVersion")
             gradle.addArgument("-Duser.home=${destination.resolve("tmp_home").toString()}")
+            gradle.addArgument("-Porg.gradle.java.installations.paths=${getJDKPath(jdkVersion)}")
             gradle.run(tasks)
+        }
+    }
+
+    private fun getJDKPath(jdkVersion: String?): Path {
+        return when(jdkVersion) {
+            "8" -> TestUtils.getJava8Jdk()
+            "11" -> TestUtils.getJava11Jdk()
+            "17" -> TestUtils.getJava17Jdk()
+            else -> TestUtils.getJava17Jdk()
         }
     }
 

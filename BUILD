@@ -10,6 +10,7 @@ kotlin_library(
     ]),
     lint_baseline = "lint_baseline.xml",
     deps = [
+        "//tools/base/testutils:tools.testutils",
         "@maven//:com.github.rising3.semver",
         "@maven//:com.google.guava.guava",
         "@maven//:org.gradle.gradle-tooling-api",
