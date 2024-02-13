@@ -21,6 +21,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.lang.RuntimeException
@@ -40,24 +42,28 @@ abstract class CheckClassesTask: DefaultTask() {
      * Project scope, not including dependencies.
      */
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val projectDirectories: ListProperty<Directory>
 
     /**
      * Project scope, not including dependencies.
      */
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
     abstract val projectJars: ListProperty<RegularFile>
 
     /**
      * Full scope, including project scope and all dependencies.
      */
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val allDirectories: ListProperty<Directory>
 
     /**
      * Full scope, including project scope and all dependencies.
      */
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
     abstract val allJars: ListProperty<RegularFile>
 
     /**
