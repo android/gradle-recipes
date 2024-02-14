@@ -84,14 +84,18 @@ private fun initAgpToGradleMap() {
         val map = mutableMapOf<ShortAgpVersion, VersionInfo>()
 
         for (versions in versionList) {
+            val shortAgpVersion = ShortAgpVersion.ofOrNull(versions[0])
+                ?: throw RuntimeException("unable to parse short AGP version ${versions[0]}")
+
             val versionInfo = VersionInfo(
-                // TODO handle the case where there is no published version (e.g. new API in yet unpublished AGP)
-                agp = FullAgpVersion.of(publishedAgpMap[versions[0]] ?: versions[0]),
+                // if there is not published version, convert the short version to a dev version and parse it.
+                agp = publishedAgpMap[versions[0]] ?: FullAgpVersion.of("${versions[0]}.0-dev"),
                 gradle = versions[1],
                 kotlin = versions[2]
             )
+
             lastVersionInfo = versionInfo
-            map[ShortAgpVersion.of(versions[0])] = versionInfo
+            map[shortAgpVersion] = versionInfo
         }
 
         // max is the last lime read

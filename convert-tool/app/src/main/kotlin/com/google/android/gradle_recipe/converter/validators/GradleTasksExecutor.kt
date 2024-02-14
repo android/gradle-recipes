@@ -17,13 +17,8 @@
 package com.google.android.gradle_recipe.converter.validators
 
 import org.gradle.tooling.BuildException
-import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProjectConnection
-import org.gradle.tooling.ResultHandler
-import java.lang.System.err
 import java.nio.file.Path
-import java.util.concurrent.CountDownLatch
 
 /** Executes Gradle tasks via GradleConnector API
  */

@@ -16,10 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.github.rising3.semver.SemVer
-import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion.Companion.isShortVersion
-import com.google.android.gradle_recipe.converter.printErrorAndTerminate
-import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
+import java.util.regex.Pattern
 
 // in order to make it clearer what versions of AGP the code expect, we are creating String wrapper to
 // use type-safety
@@ -30,31 +27,23 @@ interface AgpVersion
  *
  * Example: 8.3.0, 8.4.0-alpha01
  */
-data class FullAgpVersion(val value: String): AgpVersion, Comparable<FullAgpVersion> {
+data class FullAgpVersion(val version: AndroidPluginVersion): AgpVersion, Comparable<FullAgpVersion> {
+
     companion object {
         /**
          * Wraps the given string with a [FullAgpVersion]. The value must be a properly
          * formatted full version that is published
          */
-        fun of(value: String) = FullAgpVersion(value)
-
-        /**
-         * From the given version, attempts to find a matching published AGP version
-         */
-        fun String.toPublishedAgp(): FullAgpVersion = if (isShortVersion()) {
-            val version = ShortAgpVersion.of(this)
-            getVersionsFromAgp(version)?.agp ?: printErrorAndTerminate("AGP version '$this' does not match a published AGP version")
-        } else {
-            of(this)
-        }
+        fun of(value: String) = FullAgpVersion(AndroidPluginVersion.parse(value))
     }
 
-    fun toShort() = ShortAgpVersion.of(value.toMajorMinor())
+    fun toShort(): ShortAgpVersion = ShortAgpVersion(version.major, version.minor)
+
     override fun compareTo(other: FullAgpVersion): Int {
-        return SemVer.parse(value).compareTo(SemVer.parse(other.value))
+        return this.version.compareTo(other.version)
     }
 
-    override fun toString(): String = value
+    override fun toString(): String = version.version
 }
 
 /**
@@ -62,26 +51,27 @@ data class FullAgpVersion(val value: String): AgpVersion, Comparable<FullAgpVers
  *
  * Example: 8.3, 8.4
  */
-data class ShortAgpVersion(val value: String): AgpVersion, Comparable<ShortAgpVersion> {
+data class ShortAgpVersion(val major: Int, val minor: Int): AgpVersion, Comparable<ShortAgpVersion> {
     companion object {
-        fun of(value: String) = ShortAgpVersion(value)
+        private val VERSION_REGEX: Pattern = Pattern.compile("^(\\d+)\\.(\\d+)$")
 
-        fun String.isShortVersion(): Boolean {
-            return this.matches(Regex("^\\d+\\.\\d+$"))
+        fun ofOrNull(value: String): ShortAgpVersion? {
+            val matcher = VERSION_REGEX.matcher(value)
+            if (matcher.matches()) {
+                return ShortAgpVersion(matcher.group(1).toInt(), matcher.group(2).toInt())
+            }
+
+            return null
         }
 
-        fun String.convertIfMatch(): ShortAgpVersion? {
-            return if (this.isShortVersion()) {
-                of(this)
-            } else null
-        }
+        private val comparator: Comparator<ShortAgpVersion> =
+            Comparator.comparingInt<ShortAgpVersion> { it.major }
+                .thenComparingInt { it.minor }
     }
 
     override fun compareTo(other: ShortAgpVersion): Int {
-        // in order to be able to parse with SemVer, we need x.y.z but this class only deals with
-        // x.y, so we add a .0
-        return SemVer.parse(value + ".0").compareTo(SemVer.parse(other.value + ".0"))
+        return comparator.compare(this, other)
     }
 
-    override fun toString(): String = value
+    override fun toString(): String = "$major.$minor"
 }

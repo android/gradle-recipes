@@ -3,7 +3,6 @@ kotlin = "1.9.21"
 guava = "30.1.1-jre"
 kotlinx-cli = "0.3.4"
 tomlj = "1.0.0"
-semver = "0.3.1"
 gradle-api = "8.4"
 slf4j = "1.7.10"
 truth = "1.1.3"
@@ -15,7 +14,6 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.re
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli", version.ref = "kotlinx-cli" }
 tomlj = { module = "org.tomlj:tomlj", version.ref = "tomlj" }
-semver = { module = "com.github.rising3:semver", version.ref = "semver" }
 gradle-api = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-api" }
 slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

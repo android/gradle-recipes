@@ -16,12 +16,9 @@
 
 package com.google.android.gradle_recipe.converter.recipe
 
-import com.github.rising3.semver.SemVer
-import com.google.android.gradle_recipe.converter.converters.AgpVersion
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
-import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion.Companion.isShortVersion
 import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import org.tomlj.Toml
@@ -98,18 +95,22 @@ class RecipeData private constructor(
             val minAgpString = parseResult.getString("agpVersion.min")
                 ?: printErrorAndTerminate("Did not find mandatory 'agpVersion.min' in $toml")
 
-            val minAgpVersion = if (minAgpString.isShortVersion()) {
-                getVersionsFromAgp(ShortAgpVersion.of(minAgpString))?.agp
+            val minAgpVersion = ShortAgpVersion.ofOrNull(minAgpString)?.let {
+                getVersionsFromAgp(it)?.agp
                     ?: printErrorAndTerminate("Unable to get published AGP version from '$minAgpString'")
-            } else {
-                FullAgpVersion.of(minAgpString)
-            }
+            } ?: FullAgpVersion.of(minAgpString)
+
+            val maxAgpString = parseResult.getString("agpVersion.max")
+            val maxAgpVersion = if (maxAgpString != null) {
+                ShortAgpVersion.ofOrNull(maxAgpString)
+                    ?: printErrorAndTerminate("unable to parse 'agpVersion.max' with value '$maxAgpString'")
+            } else null
 
             return RecipeData(
                 indexName = indexName,
                 destinationFolder = destinationFolder,
                 minAgpVersion = minAgpVersion,
-                maxAgpVersion = parseResult.getString("agpVersion.max")?.let { ShortAgpVersion.of(it) },
+                maxAgpVersion = maxAgpVersion,
                 tasks = parseResult.getArray("gradleTasks.tasks")?.toList()?.map { it as String } ?: emptyList(),
                 validationTasks = parseResult.getArray("gradleTasks.validationTasks")?.toList()?.map { it as String },
                 keywords = parseResult.getArray("indexMetadata.index")?.toList()?.map { it as String } ?: emptyList()
@@ -117,7 +118,5 @@ class RecipeData private constructor(
         }
     }
 }
-
-fun String.toMajorMinor(): String = SemVer.parse(this).run { "${this.major}.${this.minor}" }
 
 fun isRecipeFolder(folder: Path) = File(folder.toFile(), RECIPE_METADATA_FILE).exists()

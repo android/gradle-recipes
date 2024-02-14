@@ -29,7 +29,6 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.kotlinx.cli)
     implementation(libs.tomlj)
-    implementation(libs.semver)
     implementation(libs.gradle.api)
     implementation(libs.okhttp)
     runtimeOnly(libs.slf4j)
