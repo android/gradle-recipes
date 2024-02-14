@@ -18,6 +18,8 @@ package com.google.android.gradle_recipe.converter
 
 import com.github.rising3.semver.SemVer
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.system.exitProcess
 
@@ -44,24 +46,44 @@ fun main(args: Array<String>) {
  * [mavenMetadataFile] is assumed to be a xml file in the expected maven metadata format.
  */
 fun findLatestVersion(mavenMetadataFile: File, majorMinorVersion: String): String? {
-    validateMajorMinorVersion(majorMinorVersion)
+    FileInputStream(mavenMetadataFile).use { stream ->
+        val map = findLatestVersion(stream, listOf(majorMinorVersion))
+
+        return map[majorMinorVersion]
+    }
+}
+
+/**
+ * Parse [mavenMetadataContent] and return the latest version of AGP for all short-versions (x.y) provided
+ *
+ * [mavenMetadataContent] is assumed to be a xml file in the expected maven metadata format.
+ */
+internal fun findLatestVersion(mavenMetadataContent: InputStream, shortAgpVersions: List<String>): Map<String, String> {
+    val maxMap = mutableMapOf<String, String>()
+    shortAgpVersions.forEach(::validateMajorMinorVersion)
+
     val versionNodeList =
         DocumentBuilderFactory.newInstance()
             .newDocumentBuilder()
-            .parse(mavenMetadataFile)
+            .parse(mavenMetadataContent)
             .getElementsByTagName("version")
-    var maxVersion: String? = null
+
     for (i in 0 until versionNodeList.length) {
         val version = versionNodeList.item(i).textContent
-        if (version.startsWith("$majorMinorVersion.")) {
-            maxVersion = when {
-                maxVersion == null -> version
-                SemVer.parse(version) > SemVer.parse(maxVersion) -> version
-                else -> maxVersion
+
+        for (agpVersion in shortAgpVersions) {
+            if (version.startsWith("$agpVersion.")) {
+                when (val max = maxMap[agpVersion]) {
+                    null -> maxMap[agpVersion] = version
+                    else -> if (SemVer.parse(version) > SemVer.parse(max)) {
+                        maxMap[agpVersion] = version
+                    }
+                }
             }
         }
     }
-    return maxVersion
+
+    return maxMap
 }
 
 /**

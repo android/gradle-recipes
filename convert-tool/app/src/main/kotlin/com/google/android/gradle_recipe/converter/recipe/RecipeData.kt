@@ -17,7 +17,12 @@
 package com.google.android.gradle_recipe.converter.recipe
 
 import com.github.rising3.semver.SemVer
+import com.google.android.gradle_recipe.converter.converters.AgpVersion
+import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
+import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
+import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion.Companion.isShortVersion
+import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import org.tomlj.Toml
 import org.tomlj.TomlParseResult
@@ -35,20 +40,21 @@ class RecipeData private constructor(
     val indexName: String,
     /** the name of the folder that should contain the recipe */
     val destinationFolder: String,
-    val minAgpVersion: String,
-    val maxAgpVersion: String?,
+    val minAgpVersion: FullAgpVersion,
+    val maxAgpVersion: ShortAgpVersion?,
     val tasks: List<String>,
+    val validationTasks: List<String>?,
     val keywords: List<String>,
 ) {
-    fun isCompliantWithAgp(agpVersion: String): Boolean {
+    fun isCompliantWithAgp(agpVersion: FullAgpVersion): Boolean {
         val min = minAgpVersion
         val max = maxAgpVersion
 
         return if (max != null) {
-            SemVer.parse(agpVersion) >= SemVer.parse(min) && SemVer.parse(agpVersion) <= SemVer.parse(max)
+            agpVersion >= min && agpVersion.toShort() <= max
         } else {
             // when maxAgpVersion is not specified
-            SemVer.parse(agpVersion) >= SemVer.parse(min)
+            agpVersion >= min
         }
     }
 
@@ -89,13 +95,23 @@ class RecipeData private constructor(
                 recipeFolder.name
             }
 
+            val minAgpString = parseResult.getString("agpVersion.min")
+                ?: printErrorAndTerminate("Did not find mandatory 'agpVersion.min' in $toml")
+
+            val minAgpVersion = if (minAgpString.isShortVersion()) {
+                getVersionsFromAgp(ShortAgpVersion.of(minAgpString))?.agp
+                    ?: printErrorAndTerminate("Unable to get published AGP version from '$minAgpString'")
+            } else {
+                FullAgpVersion.of(minAgpString)
+            }
+
             return RecipeData(
                 indexName = indexName,
                 destinationFolder = destinationFolder,
-                minAgpVersion = parseResult.getString("agpVersion.min")
-                    ?: printErrorAndTerminate("Did not find mandatory 'agpVersion.min' in $toml"),
-                maxAgpVersion = parseResult.getString("agpVersion.max"),
+                minAgpVersion = minAgpVersion,
+                maxAgpVersion = parseResult.getString("agpVersion.max")?.let { ShortAgpVersion.of(it) },
                 tasks = parseResult.getArray("gradleTasks.tasks")?.toList()?.map { it as String } ?: emptyList(),
+                validationTasks = parseResult.getArray("gradleTasks.validationTasks")?.toList()?.map { it as String },
                 keywords = parseResult.getArray("indexMetadata.index")?.toList()?.map { it as String } ?: emptyList()
             )
         }

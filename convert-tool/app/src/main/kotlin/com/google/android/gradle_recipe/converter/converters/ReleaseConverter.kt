@@ -28,12 +28,11 @@ import kotlin.io.path.writeLines
  *  This is for releases ando/or tests
  */
 class ReleaseConverter(
-    private val agpVersion: String,
+    private val agpVersion: FullAgpVersion,
     gradleVersion: String?,
     repoLocation: String?,
     gradlePath: String?,
-    branchRoot: Path,
-) : Converter(branchRoot) {
+) : Converter() {
 
     private var pathToGradle: String = ""
     private var pathToAgpRepo: String = ""

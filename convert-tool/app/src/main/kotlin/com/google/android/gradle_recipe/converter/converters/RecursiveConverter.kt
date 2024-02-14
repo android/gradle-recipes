@@ -20,7 +20,6 @@ import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mod
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
 import java.io.File
-import java.io.IOException
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.exists
@@ -36,11 +35,10 @@ private const val COMMA_DELIMITER = ", "
  * to release mode
  */
 class RecursiveConverter(
-    private val agpVersion: String?,
+    private val agpVersion: FullAgpVersion?,
     private var repoLocation: String?,
     var gradleVersion: String?,
     var gradlePath: String?,
-    private val branchRoot: Path,
 ) {
 
     // dual level map. The first level is the category of keywords, the 2nd is the keywords themselves
@@ -62,7 +60,6 @@ class RecursiveConverter(
             gradleVersion = gradleVersion,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            branchRoot = branchRoot,
         )
 
         visitRecipes(sourceAll) { recipeFolder: Path ->
@@ -99,12 +96,12 @@ class RecursiveConverter(
     private fun writeRecipesIndexFile(
         map: MutableMap<String, MutableMap<String, MutableList<IndexData>>>,
         destination: Path,
-        agpVersion: String,
+        agpVersion: FullAgpVersion,
     ) {
         val builder = StringBuilder()
         builder.appendLine("""
-            # Recipes for AGP version `$agpVersion`
-            This branch contains recipes compatible with AGP $agpVersion. If you want to find recipes
+            # Recipes for AGP version `${agpVersion.toShort()}`
+            This branch contains recipes compatible with AGP ${agpVersion.toShort()}. If you want to find recipes
             for other AGP versions, switch to the corresponding `agp-*` branch.
 
             This branch is read only. Contributions are only accepted on the `studio-main` branch. See `CONTRIBUTION.md`

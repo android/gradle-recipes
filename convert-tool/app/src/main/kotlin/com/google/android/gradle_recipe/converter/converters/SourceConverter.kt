@@ -23,7 +23,7 @@ import kotlin.io.path.writeLines
 /**  This mode has the placeholders ($AGP_VERSION etc') and
  *   this is how we store the recipes in the dev branch
  */
-class SourceConverter(branchRoot: Path) : Converter(branchRoot) {
+class SourceConverter : Converter() {
     override fun convertBuildGradle(source: Path, target: Path) {
         target.writeLines(Files.readAllLines(source).unwrapGradlePlaceholders(), Charsets.UTF_8)
     }

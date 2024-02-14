@@ -16,11 +16,11 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.converters.ResultMode
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
-import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 
@@ -28,10 +28,9 @@ import kotlin.io.path.createTempDirectory
  *  of AGP, and Gradle, in specific locations
  */
 class InternalCIValidator(
-    private val agpVersion: String,
+    private val agpVersion: FullAgpVersion,
     private val repoLocation: String,
     private val gradlePath: String,
-    private val branchRoot: Path,
 ) {
     fun validate(sourceAll: Path, tmpFolder: Path?) {
 
@@ -41,7 +40,6 @@ class InternalCIValidator(
             gradleVersion = null,
             gradlePath = gradlePath,
             mode = Mode.RELEASE,
-            branchRoot = branchRoot,
         )
 
         val destinationFolder = tmpFolder ?: createTempDirectory().also {
@@ -58,6 +56,10 @@ class InternalCIValidator(
                 println("Validating: $destinationFolder with AGP: $agpVersion and Gradle: $gradlePath")
                 val tasksExecutor = GradleTasksExecutor(destinationFolder)
                 tasksExecutor.executeTasks(conversionResult.recipeData.tasks)
+
+                if (conversionResult.recipeData.validationTasks != null) {
+                    tasksExecutor.executeTasks(conversionResult.recipeData.validationTasks)
+                }
             }
         }
     }

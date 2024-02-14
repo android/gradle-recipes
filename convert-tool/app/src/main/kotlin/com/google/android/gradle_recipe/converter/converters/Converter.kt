@@ -16,9 +16,9 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.branchRoot
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
-import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -34,14 +34,12 @@ const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
  *  The objects are created and called from the RecipeConverter class,
  *  using a Template Method pattern.
  */
-abstract class Converter(
-    protected val branchRoot: Path
-) {
+abstract class Converter {
     protected val DEFAULT_SKIP_FILENAMES = setOf("gradlew", "gradlew.bat", "local.properties")
     protected val DEFAULT_SKIP_FOLDERNAMES = setOf("build", ".idea", ".gradle", "out", "wrapper")
 
     // some converters may need the minimum AGP version supported by the recipe.
-    var minAgp: String? = null
+    var minAgp: FullAgpVersion? = null
 
     protected open val skippedFilenames: Set<String>
         get() = DEFAULT_SKIP_FILENAMES
@@ -131,9 +129,8 @@ abstract class Converter(
 
     open fun processGradleWrapperProperties(file: Path) { }
 
-    protected fun getVersionInfoFromAgp(agpVersion: String): VersionInfo {
-        val agp = agpVersion.toMajorMinor()
-        return getVersionsFromAgp(branchRoot, agp)
-            ?: printErrorAndTerminate("Unable to fetch VersionInfo for AGP $agp")
+    protected fun getVersionInfoFromAgp(agpVersion: FullAgpVersion): VersionInfo {
+        return getVersionsFromAgp(agpVersion.toShort())
+            ?: printErrorAndTerminate("Unable to fetch VersionInfo for AGP $agpVersion")
     }
 }

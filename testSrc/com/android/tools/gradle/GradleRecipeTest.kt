@@ -19,6 +19,8 @@ package com.android.tools.gradle
 import com.android.tools.gradle.Gradle
 import com.android.utils.FileUtils
 import com.android.testutils.TestUtils
+import com.google.android.gradle_recipe.converter.branchRoot
+import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
 import com.google.android.gradle_recipe.converter.converters.ResultMode
@@ -68,16 +70,16 @@ class GradleRecipeTest {
         val data = RecipeData.loadFrom(source, RELEASE)
         val destinationFolder = destination.resolve(data.destinationFolder)
 
+        branchRoot = Paths.get("tools/gradle-recipes")
         Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), getJDKPath(jdkVersion).toFile(), false).use { gradle ->
             val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
             val recipeConverter =
                 RecipeConverter(
-                    agpVersion,
+                    FullAgpVersion.of(agpVersion),
                     repoLocation = "maven { url = uri(\"$repoPath\") }",
                     gradleVersion = null,
                     gradlePath,
                     mode = RELEASE,
-                    branchRoot = Paths.get("tools/gradle-recipes"),
                     generateWrapper = false,
                 )
             val result = recipeConverter.convert(source, destination)
@@ -97,6 +99,9 @@ class GradleRecipeTest {
             gradle.addArgument("-Duser.home=${destination.resolve("tmp_home").toString()}")
             gradle.addArgument("-Porg.gradle.java.installations.paths=${getJDKPath(jdkVersion)}")
             gradle.run(tasks)
+            if (result.recipeData.validationTasks != null) {
+                gradle.run(result.recipeData.validationTasks)
+            }
         }
     }
 

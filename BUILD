@@ -13,6 +13,7 @@ kotlin_library(
         "//tools/base/testutils:tools.testutils",
         "@maven//:com.github.rising3.semver",
         "@maven//:com.google.guava.guava",
+        "@maven//:com.squareup.okhttp3.okhttp",
         "@maven//:org.gradle.gradle-tooling-api",
         "@maven//:org.jetbrains.kotlinx.kotlinx-cli-jvm",
         "@maven//:org.tomlj.tomlj",
