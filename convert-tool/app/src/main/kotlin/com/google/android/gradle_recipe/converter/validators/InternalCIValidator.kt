@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
@@ -28,6 +29,7 @@ import kotlin.io.path.createTempDirectory
  *  of AGP, and Gradle, in specific locations
  */
 class InternalCIValidator(
+    private val context: Context,
     private val agpVersion: FullAgpVersion,
     private val repoLocation: String,
     private val gradlePath: String,
@@ -35,6 +37,7 @@ class InternalCIValidator(
     fun validate(sourceAll: Path, tmpFolder: Path?) {
 
         val converter = RecipeConverter(
+            context = context,
             agpVersion = agpVersion,
             repoLocation = repoLocation,
             gradleVersion = null,

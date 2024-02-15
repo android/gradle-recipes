@@ -16,16 +16,17 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
 import java.nio.file.Path
 
 /** This will test all recipes found against both they min and
  *  current/max version of AGP
  */
-class GithubPresubmitValidator {
+class GithubPresubmitValidator(private val context: Context) {
 
     fun validateAll(rootFolder: Path) {
-        val recipeValidator = MinMaxCurrentAgpValidator()
+        val recipeValidator = MinMaxCurrentAgpValidator(context)
         visitRecipes(rootFolder) { recipeFolder: Path ->
             recipeValidator.validate(recipeFolder)
         }

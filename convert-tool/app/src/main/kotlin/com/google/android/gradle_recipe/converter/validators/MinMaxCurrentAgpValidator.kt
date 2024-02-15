@@ -16,12 +16,11 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.converters.ResultMode
-import com.google.android.gradle_recipe.converter.converters.getMaxAgp
-import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Path
@@ -32,18 +31,18 @@ import kotlin.io.path.name
  * Validates recipe from source mode and with currentAgpFileLocation, by calling validation
  *  with min and current/max AGP versions
  */
-class MinMaxCurrentAgpValidator {
+class MinMaxCurrentAgpValidator(private val context: Context) {
 
     fun validate(recipeFolder: Path, name: String? = null) {
         val finalName = name ?: recipeFolder.name
-        val recipeData = RecipeData.loadFrom(recipeFolder, Mode.RELEASE)
+        val recipeData = RecipeData.loadFrom(recipeFolder, Mode.RELEASE, context)
 
         validateRecipeFromSource(finalName, recipeFolder, recipeData.minAgpVersion)
 
         val max = if (recipeData.maxAgpVersion == null) {
-            getMaxAgp()
+            context.maxPublishedAgp
         } else {
-            getVersionsFromAgp(recipeData.maxAgpVersion)?.agp ?: printErrorAndTerminate("Unable to find AGP version matching '${recipeData.maxAgpVersion}'")
+            context.getPublishedAgp(recipeData.maxAgpVersion)
         }
 
         validateRecipeFromSource(finalName, recipeFolder, max)
@@ -54,10 +53,10 @@ class MinMaxCurrentAgpValidator {
         from: Path,
         agpVersion: FullAgpVersion,
     ) {
-        val gradleVersion = getVersionsFromAgp(agpVersion.toShort())?.gradle
-            ?: printErrorAndTerminate("Unable to find Gradle version for AGP version $agpVersion - Make sure it's present in version_mappings.txt")
+        val gradleVersion = context.getGradleVersion(agpVersion.toShort())
 
         val recipeConverter = RecipeConverter(
+            context = context,
             agpVersion = agpVersion,
             gradleVersion = gradleVersion,
             repoLocation = null,

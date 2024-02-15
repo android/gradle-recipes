@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RECIPE_METADATA_FILE
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
@@ -28,11 +29,12 @@ import kotlin.io.path.writeLines
  *  This is for releases ando/or tests
  */
 class ReleaseConverter(
+    private val context: Context,
     private val agpVersion: FullAgpVersion,
     gradleVersion: String?,
     repoLocation: String?,
     gradlePath: String?,
-) : Converter() {
+) : Converter(context) {
 
     private var pathToGradle: String = ""
     private var pathToAgpRepo: String = ""
@@ -71,7 +73,7 @@ class ReleaseConverter(
                 "\"$agpVersion\""
             ).replaceGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
-                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
+                "\"${context.getKotlinVersion(agpVersion)}\""
             ).replaceGradlePlaceholdersWithInlineValue(
                 "\$COMPILE_SDK",
                 compileSdkVersion
@@ -106,7 +108,7 @@ class ReleaseConverter(
                 "\"$agpVersion\""
             ).replaceGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
-                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
+                "\"${context.getKotlinVersion(agpVersion)}\""
             )
 
         target.writeLines(convertedText, Charsets.UTF_8)

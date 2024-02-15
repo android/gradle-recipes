@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "convert-tool"
 include("app")
+include("integTest")

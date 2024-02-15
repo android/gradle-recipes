@@ -16,7 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.branchRoot
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.io.File
@@ -25,16 +25,12 @@ import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.isDirectory
 
-/** The position of the gradle-resources folder
- *  to take the Gradle wrapper
- */
-const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
 
 /** Interface for different converters.
  *  The objects are created and called from the RecipeConverter class,
  *  using a Template Method pattern.
  */
-abstract class Converter {
+abstract class Converter(private val context: Context) {
     protected val DEFAULT_SKIP_FILENAMES = setOf("gradlew", "gradlew.bat", "local.properties")
     protected val DEFAULT_SKIP_FOLDERNAMES = setOf("build", ".idea", ".gradle", "out", "wrapper")
 
@@ -105,7 +101,7 @@ abstract class Converter {
      * to dest.
      */
     fun copyGradleFolder(dest: Path) {
-        val source = branchRoot.resolve(GRADLE_RESOURCES_FOLDER)
+        val source = context.gradleResourceFolder
         if (!source.isDirectory()) {
             printErrorAndTerminate("Unable to find gradle resources at $source")
         }
@@ -128,9 +124,4 @@ abstract class Converter {
     }
 
     open fun processGradleWrapperProperties(file: Path) { }
-
-    protected fun getVersionInfoFromAgp(agpVersion: FullAgpVersion): VersionInfo {
-        return getVersionsFromAgp(agpVersion.toShort())
-            ?: printErrorAndTerminate("Unable to fetch VersionInfo for AGP $agpVersion")
-    }
 }

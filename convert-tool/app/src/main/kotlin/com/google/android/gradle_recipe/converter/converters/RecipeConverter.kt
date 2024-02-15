@@ -15,14 +15,10 @@
  */
 package com.google.android.gradle_recipe.converter.converters
 
-import com.google.android.gradle_recipe.converter.branchRoot
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.deleteNonHiddenRecursively
-import com.google.android.gradle_recipe.converter.findLatestVersion
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.InputStream
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -31,91 +27,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.readLines
-
-private const val VERSION_MAPPING = "version_mappings.txt"
-
-
-data class VersionInfo(
-    val agp: FullAgpVersion,
-    val gradle: String,
-    val kotlin: String
-)
-
-private lateinit var agpToVersionsMap: Map<ShortAgpVersion, VersionInfo>
-private lateinit var maxAgp: FullAgpVersion
-
-fun getVersionsFromAgp(agp: ShortAgpVersion): VersionInfo? {
-    initAgpToGradleMap()
-    return agpToVersionsMap[agp].also {
-        if (it == null) {
-            println(agpToVersionsMap.entries)
-        }
-    }
-}
-
-fun getMaxAgp(): FullAgpVersion {
-    initAgpToGradleMap()
-    return maxAgp
-}
-
-@Synchronized
-private fun initAgpToGradleMap() {
-    if (!::agpToVersionsMap.isInitialized) {
-        val file = branchRoot.resolve(VERSION_MAPPING)
-        if (!file.isRegularFile()) {
-            printErrorAndTerminate("Missing AGP version mapping file at $file")
-        }
-
-        // split the lines into list of 3 versions
-        val versionList = file
-            .readLines()
-            .asSequence()
-            .filter { !it.startsWith("#") }
-            .map { it.split(";")}.toList()
-
-        // get the published AGP for each version
-        // download the AGP maven-metadata.xml file
-        val publishedAgpMap = findLatestVersion(getAgpVersionData(), versionList.map { it[0]} )
-
-        // iterate through the list of version, which should be ordered, and keep track of last one.
-        var lastVersionInfo: VersionInfo? = null
-
-        val map = mutableMapOf<ShortAgpVersion, VersionInfo>()
-
-        for (versions in versionList) {
-            val shortAgpVersion = ShortAgpVersion.ofOrNull(versions[0])
-                ?: throw RuntimeException("unable to parse short AGP version ${versions[0]}")
-
-            val versionInfo = VersionInfo(
-                // if there is not published version, convert the short version to a dev version and parse it.
-                agp = publishedAgpMap[versions[0]] ?: FullAgpVersion.of("${versions[0]}.0-dev"),
-                gradle = versions[1],
-                kotlin = versions[2]
-            )
-
-            lastVersionInfo = versionInfo
-            map[shortAgpVersion] = versionInfo
-        }
-
-        // max is the last lime read
-        maxAgp = lastVersionInfo?.agp ?: throw RuntimeException("No AGP info found in $VERSION_MAPPING")
-
-        agpToVersionsMap = map.toMap()
-    }
-}
-
-private fun getAgpVersionData(): InputStream {
-    val client = OkHttpClient()
-
-    val request = Request.Builder()
-        .url("https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml")
-        .build();
-
-    val response = client.newCall(request).execute()
-
-    return response.body()?.byteStream() ?: throw RuntimeException("Failed to download AGP version information from gmaven")
-}
 
 /**
  * The compile SDK version for recipes
@@ -137,6 +48,7 @@ data class ConversionResult(val recipeData: RecipeData, val resultMode: ResultMo
  *  Converts the individual recipe, calculation the conversion mode by input parameters
  */
 class RecipeConverter(
+    private val context: Context,
     val agpVersion: FullAgpVersion?,
     repoLocation: String?,
     gradleVersion: String?,
@@ -153,15 +65,16 @@ class RecipeConverter(
     init {
         converter = when (mode) {
             Mode.WORKINGCOPY -> {
-                WorkingCopyConverter()
+                WorkingCopyConverter(context)
             }
 
             Mode.SOURCE -> {
-                SourceConverter()
+                SourceConverter(context)
             }
 
             Mode.RELEASE -> {
                 ReleaseConverter(
+                    context = context,
                     agpVersion = agpVersion ?: printErrorAndTerminate("Must specify the AGP version for release"),
                     gradleVersion = gradleVersion,
                     repoLocation = repoLocation,
@@ -183,7 +96,7 @@ class RecipeConverter(
             printErrorAndTerminate("Source $source is not a directory!")
         }
 
-        val recipeData = RecipeData.loadFrom(source, mode)
+        val recipeData = RecipeData.loadFrom(source, mode, context)
 
         val recipeDestination = destination.resolve(recipeData.destinationFolder)
 

@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.context.Context
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -24,7 +25,7 @@ import kotlin.io.path.writeLines
  * This is the working copy where the recipe has static values for $AGP_VERSION, etc...
  * but markers to revert them back to placeholders.
  */
-class WorkingCopyConverter : Converter() {
+class WorkingCopyConverter(private val context: Context) : Converter(context) {
 
     override fun convertBuildGradle(source: Path, target: Path) {
         val agpVersion = minAgp ?: error("Calling WorkingCopyConverter without minAgp value")
@@ -35,7 +36,7 @@ class WorkingCopyConverter : Converter() {
                 "\"$agpVersion\""
             ).wrapGradlePlaceholdersWithInlineValue(
                 "\$KOTLIN_VERSION",
-                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
+                "\"${context.getKotlinVersion(agpVersion)}\""
             ).wrapGradlePlaceholdersWithInlineValue(
                 "\$COMPILE_SDK",
                 compileSdkVersion
@@ -76,7 +77,7 @@ class WorkingCopyConverter : Converter() {
                 "\"$agpVersion\""
             ).wrapVersionCatalogPlaceholders(
                 "\$KOTLIN_VERSION",
-                "\"${getVersionInfoFromAgp(agpVersion).kotlin}\""
+                "\"${context.getKotlinVersion(agpVersion)}\""
             )
 
         target.writeLines(convertedText, Charsets.UTF_8)
@@ -91,7 +92,7 @@ class WorkingCopyConverter : Converter() {
             Files.readAllLines(file)
                 .wrapGradleWrapperPlaceholders(
                     "\$GRADLE_LOCATION",
-                    "https\\://services.gradle.org/distributions/gradle-${getVersionInfoFromAgp(agpVersion).gradle}-bin.zip"
+                    "https\\://services.gradle.org/distributions/gradle-${context.getGradleVersion(agpVersion)}-bin.zip"
                 ),
             Charsets.UTF_8
         )

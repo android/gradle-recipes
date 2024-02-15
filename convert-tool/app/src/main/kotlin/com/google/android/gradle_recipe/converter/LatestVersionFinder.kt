@@ -61,7 +61,10 @@ fun findLatestVersion(mavenMetadataFile: File, majorMinorVersion: String): Strin
  * It is possible that the map does not contains values for all provided versions. This can happen if a version
  * of AGP is not yet published.
  */
-internal fun findLatestVersion(mavenMetadataContent: InputStream, shortAgpVersions: List<String>): Map<String, FullAgpVersion> {
+internal fun findLatestVersion(
+    mavenMetadataContent: InputStream,
+    shortAgpVersions: List<String>
+): Map<String, FullAgpVersion> {
     shortAgpVersions.forEach(::validateMajorMinorVersion)
 
     val versionNodeList =

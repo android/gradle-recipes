@@ -16,10 +16,10 @@
 
 package com.google.android.gradle_recipe.converter.recipe
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
-import com.google.android.gradle_recipe.converter.converters.getVersionsFromAgp
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import org.tomlj.Toml
 import org.tomlj.TomlParseResult
@@ -56,7 +56,11 @@ class RecipeData private constructor(
     }
 
     companion object {
-        fun loadFrom(recipeFolder: Path, mode: RecipeConverter.Mode): RecipeData {
+        fun loadFrom(
+            recipeFolder: Path,
+            mode: RecipeConverter.Mode,
+            context: Context
+        ): RecipeData {
             val toml = recipeFolder.resolve(RECIPE_METADATA_FILE)
             val parseResult: TomlParseResult = Toml.parse(toml)
 
@@ -96,8 +100,7 @@ class RecipeData private constructor(
                 ?: printErrorAndTerminate("Did not find mandatory 'agpVersion.min' in $toml")
 
             val minAgpVersion = ShortAgpVersion.ofOrNull(minAgpString)?.let {
-                getVersionsFromAgp(it)?.agp
-                    ?: printErrorAndTerminate("Unable to get published AGP version from '$minAgpString'")
+                context.getPublishedAgp(it)
             } ?: FullAgpVersion.of(minAgpString)
 
             val maxAgpString = parseResult.getString("agpVersion.max")

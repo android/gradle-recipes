@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.validators
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import java.nio.file.Path
@@ -26,10 +27,10 @@ import kotlin.io.path.name
  *  and then create 2 release versions, using the min and current/max versions of
  *  AGP and tests against these.
  */
-class WorkingCopyValidator {
+class WorkingCopyValidator(private val context: Context) {
 
     fun validate(recipeSource: Path) {
-        val recipeValidator = MinMaxCurrentAgpValidator()
+        val recipeValidator = MinMaxCurrentAgpValidator(context)
         recipeValidator.validate(convertToSourceOfTruth(recipeSource), recipeSource.name)
     }
 
@@ -37,6 +38,7 @@ class WorkingCopyValidator {
         val destination: Path = createTempDirectory().also { it.toFile().deleteOnExit() }
 
         val convertToSourceTruth = RecipeConverter(
+            context = context,
             agpVersion = null,
             gradleVersion = null,
             repoLocation = null,

@@ -19,16 +19,16 @@ package com.android.tools.gradle
 import com.android.tools.gradle.Gradle
 import com.android.utils.FileUtils
 import com.android.testutils.TestUtils
-import com.google.android.gradle_recipe.converter.branchRoot
+import com.google.android.gradle_recipe.converter.context.DefaultContext
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
 import com.google.android.gradle_recipe.converter.converters.ResultMode
+import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
-import com.google.android.gradle_recipe.converter.recipe.toMajorMinor
 import com.google.common.truth.Truth.assertThat
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import org.junit.Assert.fail
@@ -50,10 +50,13 @@ class GradleRecipeTest {
                 ?: error("Missing required system property \"gradle_path\".")
         val jdkVersion = System.getProperty("jdk_version")
 
+        val context = DefaultContext.createFromCustomRoot(Paths.get("tools/gradle-recipes"))
+        val fullAgpVersion = FullAgpVersion.of(agpVersion)
+
         checkVersionMappings(
-            Paths.get("tools/gradle-recipes/version_mappings.txt").toFile(),
+            context,
             allTestedAgpVersions,
-            agpVersion,
+            fullAgpVersion,
             gradlePath
         )
         val destination = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
@@ -67,15 +70,15 @@ class GradleRecipeTest {
         // this again later, in order to get the name of the destination folder (because
         // we are in RELEASE mode, this can be overridden, so it's not safe to hardcode the
         // logic.)
-        val data = RecipeData.loadFrom(source, RELEASE)
+        val data = RecipeData.loadFrom(source, RELEASE, context)
         val destinationFolder = destination.resolve(data.destinationFolder)
 
-        branchRoot = Paths.get("tools/gradle-recipes")
         Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), getJDKPath(jdkVersion).toFile(), false).use { gradle ->
             val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
             val recipeConverter =
                 RecipeConverter(
-                    FullAgpVersion.of(agpVersion),
+                    context,
+                    fullAgpVersion,
                     repoLocation = "maven { url = uri(\"$repoPath\") }",
                     gradleVersion = null,
                     gradlePath,
@@ -125,42 +128,28 @@ class GradleRecipeTest {
      * used on github.
      */
     private fun checkVersionMappings(
-        versionMappingsFile: File,
+        context: Context,
         allTestedAgpVersions: List<String>,
-        agpVersion: String,
+        agpVersion: FullAgpVersion,
         gradlePath: String
     ) {
-        // Read the version_mappings.txt file and create lists of expected AGP and Gradle versions
-        val expectedAgpVersions = mutableListOf<String>()
-        val expectedGradleVersions = mutableListOf<String>()
-        versionMappingsFile.forEachLine { line ->
-            if (!line.startsWith("#")) {
-                val versionList = line.split(";")
-                expectedAgpVersions.add(versionList[0])
-                expectedGradleVersions.add(versionList[1])
-            }
-        }
+        val versionMappings: Map<ShortAgpVersion, Context.VersionInfo> = context.versionMappings
+        val keys = versionMappings.keys
 
         // Check that all versions from allTestedAgpVersions (except "ToT") are represented in the
         // version_mappings.txt file (i.e., the file has an AGP version with matching major and
         // minor versions).
         allTestedAgpVersions.forEachIndexed { i, testedAgpVersion ->
             if (testedAgpVersion != "ToT") {
-                assertThat(testedAgpVersion.toMajorMinor()).isEqualTo(expectedAgpVersions[i])
+                val shortVersion = FullAgpVersion.of(testedAgpVersion).toShort()
+                assertThat(keys).contains(shortVersion)
             }
         }
 
         // Check that agpVersion is represented in the version_mappings.txt file with a Gradle
         // version matching gradlePath.
-        var found = false
-        expectedAgpVersions.forEachIndexed { i, expectedAgpVersion ->
-            if (agpVersion.toMajorMinor() == expectedAgpVersion) {
-                found = true
-                assertThat(gradlePath).contains(expectedGradleVersions[i])
-            }
-        }
-        if (!found) {
-            fail("AGP Version $agpVersion not found in version_mappings.txt.")
-        }
+        context.getGradleVersion(agpVersion)?.let {
+            assertThat(gradlePath).contains(context.getGradleVersion(agpVersion))
+        } ?: fail("AGP Version $agpVersion not found in version_mappings.txt.")
     }
 }

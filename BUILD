@@ -6,11 +6,10 @@ load(":recipes.bzl", "recipe_test")
 kotlin_library(
     name = "convert_tool",
     srcs = glob([
-        "convert-tool/app/src/main/kotlin/com/google/android/gradle_recipe/converter/**/*.kt",
+        "convert-tool/app/src/main/kotlin/**/*.kt",
     ]),
     lint_baseline = "lint_baseline.xml",
     deps = [
-        "//tools/base/testutils:tools.testutils",
         "@maven//:com.github.rising3.semver",
         "@maven//:com.google.guava.guava",
         "@maven//:com.squareup.okhttp3.okhttp",
@@ -23,7 +22,7 @@ kotlin_library(
 kotlin_test(
     name = "convert_tool_tests",
     srcs = glob([
-        "convert-tool/app/src/test/kotlin/com/google/android/gradle_recipe/converter/**/*.kt",
+        "convert-tool/app/src/test/kotlin/**/*.kt",
     ]),
     jvm_flags = ["-Dtest.suite.jar=convert_tool_tests.jar"],
     test_class = "com.android.testutils.JarTestSuite",
@@ -39,7 +38,7 @@ kotlin_test(
 kotlin_library(
     name = "gradle_recipe_test",
     testonly = 1,
-    srcs = glob(["testSrc/com/android/tools/gradle/**/*.kt"]),
+    srcs = glob(["convert-tool/integTest/src/main/kotlin/**/*.kt"]),
     visibility = ["//visibility:public"],
     deps = [
         ":convert_tool",

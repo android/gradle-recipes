@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.context.Context
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.writeLines
@@ -23,7 +24,7 @@ import kotlin.io.path.writeLines
 /**  This mode has the placeholders ($AGP_VERSION etc') and
  *   this is how we store the recipes in the dev branch
  */
-class SourceConverter : Converter() {
+class SourceConverter(context: Context) : Converter(context) {
     override fun convertBuildGradle(source: Path, target: Path) {
         target.writeLines(Files.readAllLines(source).unwrapGradlePlaceholders(), Charsets.UTF_8)
     }

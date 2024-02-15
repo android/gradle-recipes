@@ -16,6 +16,7 @@
 
 package com.google.android.gradle_recipe.converter.converters
 
+import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.visitRecipes
@@ -35,6 +36,7 @@ private const val COMMA_DELIMITER = ", "
  * to release mode
  */
 class RecursiveConverter(
+    private val context: Context,
     private val agpVersion: FullAgpVersion?,
     private var repoLocation: String?,
     var gradleVersion: String?,
@@ -55,6 +57,7 @@ class RecursiveConverter(
         }
 
         val recipeConverter = RecipeConverter(
+            context = context,
             agpVersion = agpVersion,
             repoLocation = repoLocation,
             gradleVersion = gradleVersion,
