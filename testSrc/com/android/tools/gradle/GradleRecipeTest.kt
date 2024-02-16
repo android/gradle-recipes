@@ -68,7 +68,7 @@ class GradleRecipeTest {
         val data = RecipeData.loadFrom(source, RELEASE)
         val destinationFolder = destination.resolve(data.destinationFolder)
 
-        Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), null, false).use { gradle ->
+        Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), getJDKPath(jdkVersion).toFile(), false).use { gradle ->
             val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
             val recipeConverter =
                 RecipeConverter(
