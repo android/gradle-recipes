@@ -125,7 +125,7 @@ abstract class ModifyClassesTask: DefaultTask() {
 
     private fun JarOutputStream.writeEntity(relativePath: String, byteArray: ByteArray) {
         // check for duplication name first
-        if (jarPaths.contains(path)) {
+        if (jarPaths.contains(relativePath)) {
             printDuplicatedMessage(relativePath)
         } else {
             putNextEntry(JarEntry(relativePath))
