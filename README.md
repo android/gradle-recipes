@@ -3,8 +3,7 @@
 This branch contains recipes compatible with AGP 7.0. If you want to find recipes
 for other AGP versions, switch to the corresponding `agp-*` branch.
 
-This branch is read only. Contributions are only accepted on the `studio-main` branch. See `CONTRIBUTION.md`
-there.
+This branch is maintained manually, and accepts Pull Requests. For contributions to newer branches (8.1 and later), please see `CONTRIBUTION.md` on the `studio-main` branch.
 
 The top level folder represents different ways to use the APIs:
 - From Groovy-based `build.gradle` files
