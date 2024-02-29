@@ -1,18 +1,14 @@
-# Android Plugin for Gradle cookbook
+# Recipes for AGP version `7.1`
+This branch contains recipes compatible with AGP 7.1. If you want to find recipes
+for other AGP versions, switch to the corresponding `agp-*` branch.
 
-This repository contains ready-to-use recipes for common build 
-customizations that showcase the Android Gradle plugin's public APIs and DSL.
+This branch is read only. Contributions are only accepted on the `studio-main` branch. See `CONTRIBUTION.md`
+there.
 
 The top level folder represents different ways to use the APIs:
 - From Groovy-based `build.gradle` files
 - From Kotlin-based `build.gradle.kts` files
 - From `buildSrc`
-
-The Master branch currently represents the state of AGP 4.1.
-
-The agp-4.2 branch currently represents the state of AGP 4.2.
-
-The agp-7.0 branch currently represents the state of AGP 7.0
 
 ## License ##
 
