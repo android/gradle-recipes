@@ -47,7 +47,7 @@ def recipe_test(
             ],
             "jdk_version": 17,
         },
-        "8.3.0-beta01": {
+        "8.3.0": {
             "name": name + "_8_3_0",
             "gradle_path": "$(location //tools/base/build-system:gradle-distrib-8.4)",
             "manifest_repos": [
