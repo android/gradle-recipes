@@ -143,3 +143,7 @@ recipe_test(
 recipe_test(
     name = "testFixtures",
 )
+
+recipe_test(
+    name = "asmTransformClasses",
+)
