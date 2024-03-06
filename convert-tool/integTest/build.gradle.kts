@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin)
-    `java-library`
+    java
 }
 
 dependencies {

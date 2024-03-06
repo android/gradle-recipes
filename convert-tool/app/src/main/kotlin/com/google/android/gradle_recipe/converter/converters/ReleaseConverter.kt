@@ -32,8 +32,6 @@ class ReleaseConverter(
     private val context: Context,
     private val agpVersion: FullAgpVersion,
     gradleVersion: String?,
-    repoLocation: String?,
-    gradlePath: String?,
 ) : Converter(context) {
 
     private var pathToGradle: String = ""
@@ -54,8 +52,8 @@ class ReleaseConverter(
 
         } else {
             // internal CI release
-            pathToAgpRepo = repoLocation ?: printErrorAndTerminate("must specify path to repo")
-            pathToGradle = gradlePath ?: printErrorAndTerminate("must specify path to Gradle")
+            pathToAgpRepo = context.repoLocation ?: printErrorAndTerminate("must specify path to repo")
+            pathToGradle = context.gradlePath ?: printErrorAndTerminate("must specify path to Gradle")
         }
     }
 
@@ -89,7 +87,7 @@ class ReleaseConverter(
         val convertedText = Files.readAllLines(source)
             .replacePlaceHolderWithLine(
                 "\$AGP_REPOSITORY",
-                "$pathToAgpRepo"
+                "maven { url = uri(\"$pathToAgpRepo\") }"
             ).replacePlaceHolderWithList(
             "\$PLUGIN_REPOSITORIES",
             pluginRepo

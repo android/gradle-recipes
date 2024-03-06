@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gradle_recipe.converter
+package com.google.android.gradle_recipe.converter.versioning
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail

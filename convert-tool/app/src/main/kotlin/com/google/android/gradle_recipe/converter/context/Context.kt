@@ -25,15 +25,6 @@ import java.nio.file.Path
  */
 interface Context {
 
-    companion object {
-        /**
-         * Returns the standlone context. This is to be used when using the convert tool.
-         *
-         * This will find the location of the tool, resources and download AGP version information from gmaven.
-         */
-        fun standalone(): Context = DefaultContext.localContext
-    }
-
     data class VersionInfo(
         val gradle: String,
         val kotlin: String
@@ -53,4 +44,19 @@ interface Context {
 
     fun getKotlinVersion(agp: ShortAgpVersion): String?
     fun getKotlinVersion(agp: FullAgpVersion): String? = getKotlinVersion(agp.toShort())
+
+    /** Whether validation is being done on CI */
+    val ci: Boolean
+
+    /** Location of the repo to replace $AGP_REPOSITORY in the recipe(s), if specified. */
+    val repoLocation: String?
+
+    /** Value used for distributionUrl in gradle-wrapper.properties, if specified. */
+    val gradlePath: String?
+
+    /** Java home used for validation, if specified. */
+    val javaHome: String?
+
+    /** ANDROID_HOME used for validation, if specified. */
+    val androidHome: String?
 }

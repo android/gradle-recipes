@@ -49,7 +49,7 @@ jobs:
             mkdir $BRANCH_DIR
             cp -r .git "$BRANCH_DIR/.git"
             AGP_VERSION=$(java -cp "$RECIPES_CONVERTER_JAR" \
-                      com.google.android.gradle_recipe.converter.LatestVersionFinderKt \
+                      com.google.android.gradle_recipe.converter.versioning.LatestVersionFinderKt \
                       $RUNNER_TEMP/maven_metadata.xml $AGP_MAJOR_MINOR)
             if [ "$AGP_VERSION" = "NA" ]; then
                 echo "No released version available for AGP $AGP_MAJOR_MINOR."

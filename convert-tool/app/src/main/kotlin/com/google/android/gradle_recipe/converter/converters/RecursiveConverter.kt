@@ -38,9 +38,7 @@ private const val COMMA_DELIMITER = ", "
 class RecursiveConverter(
     private val context: Context,
     private val agpVersion: FullAgpVersion?,
-    private var repoLocation: String?,
     var gradleVersion: String?,
-    var gradlePath: String?,
 ) {
 
     // dual level map. The first level is the category of keywords, the 2nd is the keywords themselves
@@ -59,9 +57,7 @@ class RecursiveConverter(
         val recipeConverter = RecipeConverter(
             context = context,
             agpVersion = agpVersion,
-            repoLocation = repoLocation,
             gradleVersion = gradleVersion,
-            gradlePath = gradlePath,
             mode = Mode.RELEASE,
         )
 
