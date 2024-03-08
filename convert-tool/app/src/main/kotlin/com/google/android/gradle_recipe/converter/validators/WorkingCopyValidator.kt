@@ -30,7 +30,7 @@ import kotlin.io.path.name
 class WorkingCopyValidator(private val context: Context) {
 
     fun validate(recipeSource: Path) {
-        val recipeValidator = MinMaxCurrentAgpValidator(context)
+        val recipeValidator = SourceValidator(context)
         recipeValidator.validate(convertToSourceOfTruth(recipeSource), recipeSource.name)
     }
 

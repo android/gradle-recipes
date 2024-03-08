@@ -26,7 +26,7 @@ import java.nio.file.Path
 class GithubPresubmitValidator(private val context: Context) {
 
     fun validateAll(rootFolder: Path) {
-        val recipeValidator = MinMaxCurrentAgpValidator(context)
+        val recipeValidator = SourceValidator(context)
         visitRecipes(rootFolder) { recipeFolder: Path ->
             recipeValidator.validate(recipeFolder)
         }

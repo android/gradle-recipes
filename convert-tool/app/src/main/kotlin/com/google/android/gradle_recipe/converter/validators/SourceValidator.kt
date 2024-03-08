@@ -21,7 +21,6 @@ import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.converters.ResultMode
-import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
@@ -31,7 +30,7 @@ import kotlin.io.path.name
  * Validates recipe from source mode and with currentAgpFileLocation, by calling validation
  *  with min and current/max AGP versions
  */
-class MinMaxCurrentAgpValidator(private val context: Context) {
+class SourceValidator(private val context: Context) {
 
     fun validate(recipeFolder: Path, name: String? = null) {
         val finalName = name ?: recipeFolder.name
