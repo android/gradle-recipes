@@ -139,3 +139,7 @@ recipe_test(
 recipe_test(
     name = "legacyTaskBridging",
 )
+
+recipe_test(
+    name = "testFixtures",
+)
