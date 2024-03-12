@@ -21,31 +21,39 @@ import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
 import com.google.android.gradle_recipe.converter.converters.ResultMode
-import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import java.nio.file.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.name
 
 /**
- * Validates recipe from source mode and with currentAgpFileLocation, by calling validation
- *  with min and current/max AGP versions
+ * Validates recipe from source mode.
+ *
+ * If [agpVersion] is not null, that version is used for validation. Otherwise, the recipe is
+ * validated using both the min and the current/max AGP versions.
  */
-class MinMaxCurrentAgpValidator(private val context: Context) {
+class SourceValidator(
+    private val context: Context,
+    private val agpVersion: FullAgpVersion? = null
+) {
 
     fun validate(recipeFolder: Path, name: String? = null) {
         val finalName = name ?: recipeFolder.name
         val recipeData = RecipeData.loadFrom(recipeFolder, Mode.RELEASE, context)
 
-        validateRecipeFromSource(finalName, recipeFolder, recipeData.minAgpVersion)
-
-        val max = if (recipeData.maxAgpVersion == null) {
-            context.maxPublishedAgp
+        if (agpVersion != null) {
+            validateRecipeFromSource(finalName, recipeFolder, agpVersion)
         } else {
-            context.getPublishedAgp(recipeData.maxAgpVersion)
-        }
+            validateRecipeFromSource(finalName, recipeFolder, recipeData.minAgpVersion)
 
-        validateRecipeFromSource(finalName, recipeFolder, max)
+            val max = if (recipeData.maxAgpVersion == null) {
+                context.maxPublishedAgp
+            } else {
+                context.getPublishedAgp(recipeData.maxAgpVersion)
+            }
+
+            validateRecipeFromSource(finalName, recipeFolder, max)
+        }
     }
 
     private fun validateRecipeFromSource(
@@ -53,14 +61,16 @@ class MinMaxCurrentAgpValidator(private val context: Context) {
         from: Path,
         agpVersion: FullAgpVersion,
     ) {
-        val gradleVersion = context.getGradleVersion(agpVersion.toShort())
+        val gradleVersion = if (context.gradlePath == null) {
+            context.getGradleVersion(agpVersion.toShort())
+        } else {
+            null
+        }
 
         val recipeConverter = RecipeConverter(
             context = context,
             agpVersion = agpVersion,
             gradleVersion = gradleVersion,
-            repoLocation = null,
-            gradlePath = null,
             mode = Mode.RELEASE,
         )
 
@@ -75,7 +85,7 @@ class MinMaxCurrentAgpValidator(private val context: Context) {
 
         if (conversionResult.resultMode == ResultMode.SUCCESS) {
             println("Validating: Recipe $name ($recipeFolder) with AGP: $agpVersion and Gradle: $gradleVersion")
-            val tasksExecutor = GradleTasksExecutor(recipeFolder)
+            val tasksExecutor = GradleTasksExecutor(recipeFolder, context)
             tasksExecutor.executeTasks(conversionResult.recipeData.tasks)
 
             if (conversionResult.recipeData.validationTasks != null) {

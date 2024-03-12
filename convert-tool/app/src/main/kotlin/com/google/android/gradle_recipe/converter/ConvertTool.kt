@@ -19,6 +19,7 @@
 package com.google.android.gradle_recipe.converter
 
 import com.google.android.gradle_recipe.converter.context.Context
+import com.google.android.gradle_recipe.converter.context.DefaultContext
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode
@@ -27,7 +28,6 @@ import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mod
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.WORKINGCOPY
 import com.google.android.gradle_recipe.converter.converters.RecursiveConverter
 import com.google.android.gradle_recipe.converter.validators.GithubPresubmitValidator
-import com.google.android.gradle_recipe.converter.validators.InternalCIValidator
 import com.google.android.gradle_recipe.converter.validators.WorkingCopyValidator
 import java.nio.file.Files
 import java.nio.file.Path
@@ -45,7 +45,6 @@ import kotlinx.cli.default
 const val TOOL_NAME = "convert-tool"
 const val COMMAND_VALIDATE = "validate"
 const val COMMAND_CONVERT = "convert"
-const val COMMAND_VALIDATE_CI = "validateCI"
 
 /**
  * The main entry to the Converter, parser the command line arguments, and calls
@@ -58,16 +57,44 @@ fun main(args: Array<String>) {
     val source by parser.option(ArgType.String, shortName = "s", description = "Recipe source: The folder directly containing a single recipe.")
     val sourceAll by parser.option(ArgType.String, shortName = "sa", description = "All recipe sources: The folder containing recipe folders")
     val destination by parser.option(ArgType.String, shortName = "d", description = "Destination folder. New folders will be created for each recipe.")
-    val tmpFolder by parser.option(ArgType.String, shortName = "tf", description = "Temp folder")
     val agpVersion by parser.option(ArgType.String, shortName = "a", description = "AGP version")
-    val repoLocation by parser.option(ArgType.String, shortName = "rl", description = "Repo location")
+    val repoLocation by parser.option(
+        ArgType.String,
+        shortName = "rl",
+        description = "Repo location: the location of the repo to replace ${"$"}AGP_REPOSITORY in the recipe(s)."
+    )
     val gradleVersion by parser.option(ArgType.String, shortName = "gv", description = "Gradle version")
-    val gradlePath by parser.option(ArgType.String, shortName = "gp", description = "Gradle path")
+    val gradlePath by parser.option(
+        ArgType.String,
+        shortName = "gp",
+        description = "Gradle path: the value used for distributionUrl in gradle-wrapper.properties "
+    )
+    val javaHome by parser.option(ArgType.String, description = "Java home used for validation")
+    val androidHome by parser.option(ArgType.String, description = "ANDROID_HOME used for validation")
     val mode by parser.option(
         ArgType.Choice<Mode>(),
         shortName = "m",
         description = "Conversion Mode",
     )
+    val gradleRecipesFolder by parser.option(
+        ArgType.String,
+        description = "The location of the gradle-recipes folder. If not specified, the tool will assume a location."
+    )
+    val ci by parser.option(
+        ArgType.Boolean,
+        description = "Whether validation is being done on CI - This is for Google internal usage."
+    ).default(false)
+
+    val context: Context by lazy {
+        DefaultContext.createDefaultContext(
+            rootFolder = gradleRecipesFolder?.let { Path.of(it) },
+            ci,
+            repoLocation,
+            gradlePath,
+            javaHome,
+            androidHome
+        )
+    }
 
     parser.subcommands(
         object : Subcommand(
@@ -75,6 +102,15 @@ fun main(args: Array<String>) {
             "Convert one or more recipes from one state to the other (default mode is $RELEASE)"
         ) {
             override fun execute() {
+                // ensure no extra/unused values
+                validateNullArg(
+                    javaHome,
+                    "'javaHome' must not be provided for subcommand '$COMMAND_CONVERT'"
+                )
+                validateNullArg(
+                    androidHome,
+                    "'androidHome' must not be provided for subcommand '$COMMAND_CONVERT'"
+                )
                 val finalSource = source
                 val finalSourceAll = sourceAll
 
@@ -87,11 +123,9 @@ fun main(args: Array<String>) {
 
                 if (finalSource != null) {
                     RecipeConverter(
-                        context = Context.standalone(),
+                        context = context,
                         agpVersion = agpVersion?.let { FullAgpVersion.of(it) },
-                        repoLocation = repoLocation,
                         gradleVersion = gradleVersion,
-                        gradlePath = gradlePath,
                         mode = mode ?: RELEASE,
                     ).convert(
                         source = Path.of(finalSource),
@@ -110,11 +144,9 @@ fun main(args: Array<String>) {
                     }
 
                     RecursiveConverter(
-                        context = Context.standalone(),
+                        context = context,
                         agpVersion = agpVersion?.let { FullAgpVersion.of(it) },
-                        repoLocation = repoLocation,
                         gradleVersion = gradleVersion,
-                        gradlePath = gradlePath,
                     ).convertAllRecipes(
                         sourceAll = Path.of(finalSourceAll),
                         destination = destinationPath
@@ -128,16 +160,7 @@ fun main(args: Array<String>) {
             override fun execute() {
                 // ensure no extra/unused values
                 validateNullArg(destination, "'destination' must not be provided for subcommand '$COMMAND_VALIDATE'")
-                validateNullArg(tmpFolder, "'tmpFolder' must not be provided for subcommand '$COMMAND_VALIDATE'")
-                validateNullArg(agpVersion, "'agpVersion' must not be provided for subcommand '$COMMAND_VALIDATE'")
-                validateNullArg(repoLocation, "'repoLocation' must not be provided for subcommand '$COMMAND_VALIDATE'")
                 validateNullArg(gradleVersion, "'gradleVersion' must not be provided for subcommand '$COMMAND_VALIDATE'")
-                validateNullArg(gradlePath, "'gradlePath' must not be provided for subcommand '$COMMAND_VALIDATE'")
-
-                // check the env var for the SDK exist
-                if (System.getenv("ANDROID_HOME") == null) {
-                    printErrorAndTerminate("To run $COMMAND_VALIDATE command, the environment variable ANDROID_HOME must be set and must point to your Android SDK.")
-                }
 
                 if (mode != null) {
                     val cliMode = mode
@@ -154,7 +177,8 @@ fun main(args: Array<String>) {
                         "'sourceAll' must not be provided for subcommand '$COMMAND_VALIDATE' and 'mode=$WORKINGCOPY'"
                     )
 
-                    val validator = WorkingCopyValidator(Context.standalone())
+                    val validator =
+                        WorkingCopyValidator(context, agpVersion?.let { FullAgpVersion.of(it) })
                     validator.validate(
                         Path.of(
                             source
@@ -162,13 +186,34 @@ fun main(args: Array<String>) {
                         )
                     )
                 } else {
+                    // TODO(b/328820202) modify this else block to check a single recipe in source mode.
                     // ensure no extra/unused values
                     validateNullArg(
                         source,
                         "'source' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
                     )
+                    validateNullArg(
+                        agpVersion,
+                        "'agpVersion' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
+                    )
+                    validateNullArg(
+                        repoLocation,
+                        "'repoLocation' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
+                    )
+                    validateNullArg(
+                        gradlePath,
+                        "'gradlePath' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
+                    )
+                    validateNullArg(
+                        javaHome,
+                        "'javaHome' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
+                    )
+                    validateNullArg(
+                        androidHome,
+                        "'androidHome' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
+                    )
 
-                    val validator = GithubPresubmitValidator(Context.standalone())
+                    val validator = GithubPresubmitValidator(context)
                     validator.validateAll(
                         Path.of(
                             sourceAll
@@ -176,36 +221,6 @@ fun main(args: Array<String>) {
                         )
                     )
                 }
-            }
-        },
-        object : Subcommand(COMMAND_VALIDATE_CI, "Validate all recipes on CI - This is for Google internal usage") {
-            override fun execute() {
-                // ensure no extra/unused values
-                validateNullArg(overwrite, "'overwrite' must not be provided for subcommand '$COMMAND_VALIDATE_CI'")
-                validateNullArg(source, "'source' must not be provided for subcommand '$COMMAND_VALIDATE_CI'")
-                validateNullArg(destination, "'destination' must not be provided for subcommand '$COMMAND_VALIDATE_CI'")
-                validateNullArg(
-                    gradleVersion,
-                    "'gradleVersion' must not be provided for subcommand '$COMMAND_VALIDATE_CI'"
-                )
-                validateNullArg(mode, "'mode' must not be provided for subcommand '$COMMAND_VALIDATE_CI'")
-
-                val validator = InternalCIValidator(
-                    context = Context.standalone(),
-                    agpVersion = agpVersion?.let { FullAgpVersion.of(it) }
-                        ?: printErrorAndTerminate("'agpVersion' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
-                    repoLocation = repoLocation
-                        ?: printErrorAndTerminate("'repoLocation' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
-                    gradlePath = gradlePath
-                        ?: printErrorAndTerminate("'gradlePath' must not be null with subcommand '$COMMAND_VALIDATE_CI'"),
-                )
-                validator.validate(
-                    sourceAll = Path.of(
-                        sourceAll
-                            ?: printErrorAndTerminate("'sourceAll' must not be null with subcommand '$COMMAND_VALIDATE_CI'")
-                    ),
-                    tmpFolder = if (tmpFolder != null) Path.of(tmpFolder) else null
-                )
             }
         },
         )

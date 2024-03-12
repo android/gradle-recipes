@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gradle_recipe.converter
+package com.google.android.gradle_recipe.converter.versioning
 
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import java.io.File

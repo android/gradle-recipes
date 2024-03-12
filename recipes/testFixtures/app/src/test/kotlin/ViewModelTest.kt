@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import org.junit.Test
-import com.google.common.truth.Truth.assertThat
 
 /**
  * JUnit test class that uses `lib` fixtures

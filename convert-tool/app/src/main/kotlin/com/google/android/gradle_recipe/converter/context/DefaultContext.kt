@@ -19,7 +19,7 @@ package com.google.android.gradle_recipe.converter.context
 import com.google.android.gradle_recipe.converter.context.Context.VersionInfo
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
-import com.google.android.gradle_recipe.converter.findLatestVersion
+import com.google.android.gradle_recipe.converter.versioning.findLatestVersion
 import com.google.android.gradle_recipe.converter.printErrorAndTerminate
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -38,7 +38,12 @@ class DefaultContext(
     private val versionMappingFile: Path,
     override val gradleResourceFolder: Path,
     /** the maven metadata file. If not provided it'll be automatically downloaded */
-    private val mavenMetadataFile: File? = null
+    private val mavenMetadataFile: File? = null,
+    override val ci: Boolean = false,
+    override val repoLocation: String? = null,
+    override val gradlePath: String? = null,
+    override val javaHome: String? = null,
+    override val androidHome: String? = null
 ): Context {
 
     override fun getPublishedAgp(agp: ShortAgpVersion): FullAgpVersion = shortToFullAgpVersionMap[agp]
@@ -109,18 +114,29 @@ class DefaultContext(
     companion object {
 
         /**
-         * Local context based on finding the git root folder and downloading the maven file
+         * Local context based on the given values, the contents of [rootFolder], and the contents
+         * of the remote maven metadata file (if needed).
+         *
+         * If [rootFolder] is null, assume a location via [computeGitRootFolder]
          */
-        val localContext: DefaultContext by lazy {
-            val rootFolder = computeGitRootFolder()
-            createFromCustomRoot(rootFolder)
-        }
-
-        fun createFromCustomRoot(rootFolder: Path): DefaultContext {
+        fun createDefaultContext(
+            rootFolder: Path?,
+            ci: Boolean = false,
+            repoLocation: String? = null,
+            gradlePath: String? = null,
+            javaHome: String? = null,
+            androidHome: String? = null
+        ): DefaultContext {
+            val finalRootFolder = rootFolder ?: computeGitRootFolder()
             return DefaultContext(
-                rootFolder.resolve(VERSION_MAPPING),
-                rootFolder.resolve(GRADLE_RESOURCES_FOLDER),
-                mavenMetadataFile = null
+                finalRootFolder.resolve(VERSION_MAPPING),
+                finalRootFolder.resolve(GRADLE_RESOURCES_FOLDER),
+                mavenMetadataFile = null,
+                ci,
+                repoLocation,
+                gradlePath,
+                javaHome,
+                androidHome
             )
         }
 

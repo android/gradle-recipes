@@ -50,9 +50,7 @@ data class ConversionResult(val recipeData: RecipeData, val resultMode: ResultMo
 class RecipeConverter(
     private val context: Context,
     val agpVersion: FullAgpVersion?,
-    repoLocation: String?,
     gradleVersion: String?,
-    gradlePath: String?,
     private val mode: Mode,
     private val generateWrapper: Boolean = true,
 ) {
@@ -77,8 +75,6 @@ class RecipeConverter(
                     context = context,
                     agpVersion = agpVersion ?: printErrorAndTerminate("Must specify the AGP version for release"),
                     gradleVersion = gradleVersion,
-                    repoLocation = repoLocation,
-                    gradlePath = gradlePath,
                 )
             }
         }

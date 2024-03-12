@@ -31,9 +31,8 @@ android {
     }
 }
 
-dependencies{
-    testImplementation(libs.junit)
-    testFixturesApi(libs.truth)
+dependencies {
+    testFixturesImplementation(libs.truth)
 }
 
 java {

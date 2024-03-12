@@ -23,6 +23,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
+import java.util.Locale
 import kotlin.io.path.isDirectory
 
 
@@ -114,13 +115,16 @@ abstract class Converter(private val context: Context) {
             dest.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties")
         )
 
-        // we need to reset the file permissions on `gradlew` to make it executable
-        val gradlew = dest.resolve("gradlew")
-        val currentPermission = Files.getPosixFilePermissions(gradlew)
-        Files.setPosixFilePermissions(
-            gradlew,
-            currentPermission + PosixFilePermission.OWNER_EXECUTE,
-        )
+        // we need to reset the file permissions on `gradlew` to make it executable (except on
+        // Windows)
+        if (!System.getProperty("os.name").lowercase(Locale.US).startsWith("win")) {
+            val gradlew = dest.resolve("gradlew")
+            val currentPermission = Files.getPosixFilePermissions(gradlew)
+            Files.setPosixFilePermissions(
+                gradlew,
+                currentPermission + PosixFilePermission.OWNER_EXECUTE,
+            )
+        }
     }
 
     open fun processGradleWrapperProperties(file: Path) { }

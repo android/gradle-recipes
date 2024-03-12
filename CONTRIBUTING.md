@@ -113,6 +113,9 @@ tasks = [
 ]
 ```
 
+To run the `validate` command, either the environment variable `ANDROID_HOME` or the flag
+`--androidHome` must be set and point to your Android SDK.
+
 On Google's internal CI, the recipe is also validated against all versions of AGP declared
 `version_mappings.txt` that are between the min and max or latest.
 

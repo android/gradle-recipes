@@ -19,14 +19,11 @@ package com.android.tools.gradle
 import com.android.tools.gradle.Gradle
 import com.android.utils.FileUtils
 import com.android.testutils.TestUtils
+import com.google.android.gradle_recipe.converter.main
 import com.google.android.gradle_recipe.converter.context.DefaultContext
 import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
-import com.google.android.gradle_recipe.converter.converters.RecipeConverter
-import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.RELEASE
-import com.google.android.gradle_recipe.converter.converters.ResultMode
 import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
-import com.google.android.gradle_recipe.converter.recipe.RecipeData
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Path
@@ -35,6 +32,11 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 class GradleRecipeTest {
+
+    /**
+     * This test uses commands similar to those found in CONTRIBUTING.md in order to provide test
+     * coverage for the developer workflow described there.
+     */
     @Test
     fun run() {
         val name = System.getProperty("name")
@@ -50,7 +52,7 @@ class GradleRecipeTest {
                 ?: error("Missing required system property \"gradle_path\".")
         val jdkVersion = System.getProperty("jdk_version")
 
-        val context = DefaultContext.createFromCustomRoot(Paths.get("tools/gradle-recipes"))
+        val context = DefaultContext.createDefaultContext(Paths.get("tools/gradle-recipes"))
         val fullAgpVersion = FullAgpVersion.of(agpVersion)
 
         checkVersionMappings(
@@ -59,53 +61,60 @@ class GradleRecipeTest {
             fullAgpVersion,
             gradlePath
         )
-        val destination = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
-        val outputDir = destination.resolve("out")
+        val tempDir = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
+        val repoDir = tempDir.resolve("repo").toFile()
+        val workingCopyDir = tempDir.resolve("working_copy").toFile()
+        FileUtils.mkdirs(repoDir)
+        FileUtils.mkdirs(workingCopyDir)
 
-        // destination is not where the project will be created, so we need to compute this.
-        // This is normally computed from the conversion itself, but the conversion need the
-        // repo location which is provided by the Gradle instance which requires the project
-        // location to be created.
-        // So we need to manually load the RecipeData, even though the converter will do
-        // this again later, in order to get the name of the destination folder (because
-        // we are in RELEASE mode, this can be overridden, so it's not safe to hardcode the
-        // logic.)
-        val data = RecipeData.loadFrom(source, RELEASE, context)
-        val destinationFolder = destination.resolve(data.destinationFolder)
+        // Create local maven repo
+        val repos = System.getProperty("repos").split(",").map { File(it) }
+        repos.forEach { Gradle.addRepo(it, repoDir) }
 
-        Gradle(destinationFolder.toFile(), outputDir.toFile(), File(gradlePath), getJDKPath(jdkVersion).toFile(), false).use { gradle ->
-            val repoPath = FileUtils.toSystemIndependentPath(gradle.repoDir.absolutePath)
-            val recipeConverter =
-                RecipeConverter(
-                    context,
-                    fullAgpVersion,
-                    repoLocation = "maven { url = uri(\"$repoPath\") }",
-                    gradleVersion = null,
-                    gradlePath,
-                    mode = RELEASE,
-                    generateWrapper = false,
-                )
-            val result = recipeConverter.convert(source, destination)
-            when (result.resultMode) {
-                ResultMode.SUCCESS -> { /* do nothing */}
-                // Return early if the AGP version is incompatible with the recipe.
-                ResultMode.SKIPPED -> return
-                ResultMode.FAILURE -> fail("Recipe conversion failed.")
-            }
+        // Convert to working copy
+        main(
+            arrayOf(
+                "convert",
+                "--mode",
+                "workingcopy",
+                "--source",
+                source.toFile().absolutePath,
+                "--destination",
+                workingCopyDir.absolutePath,
+                "--gradleRecipesFolder",
+                Paths.get("tools/gradle-recipes").toFile().absolutePath,
+                "--agpVersion",
+                agpVersion,
+                "--repoLocation",
+                FileUtils.toSystemIndependentPath(repoDir.absolutePath),
+                "--gradlePath",
+                File(gradlePath).toURI().toString()
+            )
+        )
 
-            val tasks = result.recipeData.tasks
-            assertThat(tasks).isNotEmpty()
-
-            val repos = System.getProperty("repos").split(",").map { File(it) }
-            repos.forEach { gradle.addRepo(it) }
-            gradle.addArgument("-Dcom.android.gradle.version=$agpVersion")
-            gradle.addArgument("-Duser.home=${destination.resolve("tmp_home").toString()}")
-            gradle.addArgument("-Porg.gradle.java.installations.paths=${getJDKPath(jdkVersion)}")
-            gradle.run(tasks)
-            if (result.recipeData.validationTasks != null) {
-                gradle.run(result.recipeData.validationTasks)
-            }
-        }
+        // Validate working copy
+        main(
+            arrayOf(
+                "validate",
+                "--mode",
+                "workingcopy",
+                "--source",
+                File(workingCopyDir, name).absolutePath,
+                "--gradleRecipesFolder",
+                Paths.get("tools/gradle-recipes").toFile().absolutePath,
+                "--agpVersion",
+                agpVersion,
+                "--repoLocation",
+                FileUtils.toSystemIndependentPath(repoDir.absolutePath),
+                "--gradlePath",
+                File(gradlePath).toURI().toString(),
+                "--javaHome",
+                getJDKPath(jdkVersion).toFile().absolutePath,
+                "--androidHome",
+                File(TestUtils.getRelativeSdk()).absolutePath,
+                "--ci"
+            )
+        )
     }
 
     private fun getJDKPath(jdkVersion: String?): Path {
