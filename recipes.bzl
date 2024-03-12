@@ -95,6 +95,7 @@ def recipe_test(
                             "-Dname=" + name,
                             "-Dversion_mappings_file=$(location :version_mappings.txt)",
                             "-Dall_tested_agp_versions=" + ",".join(test_scenarios),
+                            "-Dconvert_debug=true",
                         ] +
                         (["-Djdk_version=" + str(test_scenarios[agp_version].get("jdk_version"))] if test_scenarios[agp_version].get("jdk_version") else []) +
                         (select({

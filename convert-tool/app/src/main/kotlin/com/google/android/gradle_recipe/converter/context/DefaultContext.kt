@@ -31,8 +31,8 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.readLines
 
 // The position of the gradle-resources folder to take the Gradle wrapper
-private const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
-private const val VERSION_MAPPING = "version_mappings.txt"
+const val GRADLE_RESOURCES_FOLDER = "gradle-resources"
+const val VERSION_MAPPING = "version_mappings.txt"
 
 class DefaultContext(
     private val versionMappingFile: Path,
@@ -47,7 +47,7 @@ class DefaultContext(
 ): Context {
 
     override fun getPublishedAgp(agp: ShortAgpVersion): FullAgpVersion = shortToFullAgpVersionMap[agp]
-        ?: printErrorAndTerminate("Unable to find Published AGP version for AGP version $agp - Make sure it's present in version_mappings.txt")
+        ?: printErrorAndTerminate("Unable to find Published AGP version for AGP version $agp")
 
     override val maxPublishedAgp: FullAgpVersion by lazy {
         shortToFullAgpVersionMap.values.max()

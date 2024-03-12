@@ -241,7 +241,7 @@ private fun validateNullArg(arg: Any?, msg: String) {
 
 fun printErrorAndTerminate(msg: String): Nothing {
     System.err.println(msg)
-    if (System.getenv("CONVERT_DEBUG") != null) {
+    if (System.getProperty("convert_debug") != null) {
         throw RuntimeException("error. See console output")
     }
     exitProcess(1)
