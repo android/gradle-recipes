@@ -153,3 +153,7 @@ recipe_test(
 recipe_test(
     name = "transformMultiple",
 )
+
+recipe_test(
+    name = "variantOutput",
+)
