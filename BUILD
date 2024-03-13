@@ -145,3 +145,7 @@ recipe_test(
 recipe_test(
     name = "asmTransformClasses",
 )
+
+recipe_test(
+    name = "transformDirectory",
+)
