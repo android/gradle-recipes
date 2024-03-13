@@ -13,19 +13,21 @@ min = "8.1.0"
 # Relevant Gradle tasks to run per recipe
 [gradleTasks]
 tasks = [
-    ":app:debugManifestUpdater",
-    ":app:gitVersionProvider",
+    ":app:checkDebugMergedManifest"
 ]
 
 # All the relevant metadata fields to create an index based on language/API/etc'
 [indexMetadata]
 index = [
     "Themes/Android Manifest",
+    "Themes/Artifact API",
     "APIs/AndroidComponentsExtension.onVariants()",
+    "Call chains/variant.artifacts.get()",
     "Call chains/androidComponents.onVariants {}",
     "Call chains/variant.artifacts.use().wiredWithFiles().toTransform()",
     "APIs/Component.artifacts",
     "APIs/Artifacts.use()",
+    "APIs/Artifacts.get()",
     "APIs/TaskBasedOperation.wiredWithFiles()",
     "APIs/InAndOutFileOperationRequest.toTransform()",
     "Call chains/task.outputs.upToDateWhen {}",

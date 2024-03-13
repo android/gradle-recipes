@@ -19,6 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.register
 import com.android.build.api.artifact.SingleArtifact
 import java.io.File
@@ -56,11 +57,19 @@ class CustomPlugin : Plugin<Project> {
                     .wiredWithFiles(
                         ManifestTransformerTask::mergedManifest,
                         ManifestTransformerTask::updatedManifest
+                    ).toTransform(SingleArtifact.MERGED_MANIFEST)
+
+                // -- Verification --
+                // the following is just to validate the recipe and is not actually part of the recipe itself
+                val taskName = "check${variant.name.capitalized()}MergedManifest"
+                project.tasks.register<CheckMergedManifestTask>(taskName) {
+                    mergedManifest.set(
+                        variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
                     )
-                    .toTransform(SingleArtifact.MERGED_MANIFEST)
+                    gitInfoFile.set(gitVersionProvider.flatMap(GitVersionTask::gitVersionOutputFile))
+                    output.set(project.layout.buildDirectory.dir("intermediates/$taskName"))
+                }
             }
         }
-
-
     }
 }
