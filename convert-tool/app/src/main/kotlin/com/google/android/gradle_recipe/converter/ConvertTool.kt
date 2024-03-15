@@ -27,7 +27,7 @@ import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mod
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.SOURCE
 import com.google.android.gradle_recipe.converter.converters.RecipeConverter.Mode.WORKINGCOPY
 import com.google.android.gradle_recipe.converter.converters.RecursiveConverter
-import com.google.android.gradle_recipe.converter.validators.GithubPresubmitValidator
+import com.google.android.gradle_recipe.converter.validators.SourceValidator
 import com.google.android.gradle_recipe.converter.validators.WorkingCopyValidator
 import java.nio.file.Files
 import java.nio.file.Path
@@ -161,65 +161,32 @@ fun main(args: Array<String>) {
                 // ensure no extra/unused values
                 validateNullArg(destination, "'destination' must not be provided for subcommand '$COMMAND_VALIDATE'")
                 validateNullArg(gradleVersion, "'gradleVersion' must not be provided for subcommand '$COMMAND_VALIDATE'")
+                validateNullArg(
+                    sourceAll,
+                    "'sourceAll' must not be provided for subcommand '$COMMAND_VALIDATE'"
+                )
+                if (source == null) {
+                   printErrorAndTerminate(
+                       "'source' must not be null with subcommand '$COMMAND_VALIDATE'"
+                   )
+                }
 
-                if (mode != null) {
-                    val cliMode = mode
-                    if (cliMode != WORKINGCOPY) {
-                        printErrorAndTerminate("""
-                            '$COMMAND_VALIDATE' command with a mode, requires value '$WORKINGCOPY'.
-                            To convert all recipes from '$SOURCE' mode, omit the argument
-                        """.trimIndent())
+                when (mode) {
+                    WORKINGCOPY -> {
+                        val validator =
+                            WorkingCopyValidator(context, agpVersion?.let { FullAgpVersion.of(it) })
+                        validator.validate(Path.of(source))
                     }
-
-                    // ensure no extra/unused values
-                    validateNullArg(
-                        sourceAll,
-                        "'sourceAll' must not be provided for subcommand '$COMMAND_VALIDATE' and 'mode=$WORKINGCOPY'"
-                    )
-
-                    val validator =
-                        WorkingCopyValidator(context, agpVersion?.let { FullAgpVersion.of(it) })
-                    validator.validate(
-                        Path.of(
-                            source
-                                ?: printErrorAndTerminate("Source must not be null with subcommand '$COMMAND_VALIDATE' and 'mode=$WORKINGCOPY'")
+                    SOURCE -> {
+                        val validator =
+                            SourceValidator(context, agpVersion?.let { FullAgpVersion.of(it) })
+                        validator.validate(Path.of(source))
+                    }
+                    else -> {
+                        printErrorAndTerminate(
+                            "'$COMMAND_VALIDATE' command requires a 'mode' value of '$WORKINGCOPY' or '$SOURCE'"
                         )
-                    )
-                } else {
-                    // TODO(b/328820202) modify this else block to check a single recipe in source mode.
-                    // ensure no extra/unused values
-                    validateNullArg(
-                        source,
-                        "'source' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-                    validateNullArg(
-                        agpVersion,
-                        "'agpVersion' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-                    validateNullArg(
-                        repoLocation,
-                        "'repoLocation' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-                    validateNullArg(
-                        gradlePath,
-                        "'gradlePath' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-                    validateNullArg(
-                        javaHome,
-                        "'javaHome' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-                    validateNullArg(
-                        androidHome,
-                        "'androidHome' must not be provided for subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument"
-                    )
-
-                    val validator = GithubPresubmitValidator(context)
-                    validator.validateAll(
-                        Path.of(
-                            sourceAll
-                                ?: printErrorAndTerminate("SourceAll must not be null with subcommand '$COMMAND_VALIDATE' when not providing 'mode' argument")
-                        )
-                    )
+                    }
                 }
             }
         },

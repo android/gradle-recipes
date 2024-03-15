@@ -51,6 +51,10 @@ class GradleRecipeTest {
             System.getProperty("gradle_path")
                 ?: error("Missing required system property \"gradle_path\".")
         val jdkVersion = System.getProperty("jdk_version")
+        val validateSource =
+            System.getProperty("validate_source")?.toBooleanStrict()
+                ?: error("Missing required system property \"validate_source\".")
+
 
         val context = DefaultContext.createDefaultContext(Paths.get("tools/gradle-recipes"))
         val fullAgpVersion = FullAgpVersion.of(agpVersion)
@@ -70,6 +74,34 @@ class GradleRecipeTest {
         // Create local maven repo
         val repos = System.getProperty("repos").split(",").map { File(it) }
         repos.forEach { Gradle.addRepo(it, repoDir) }
+
+        // Validate with --mode source to test that code path, but the validation itself is
+        // redundant because the recipe is validated with --mode workingcopy below.
+        // Because of this redundancy, we only validate the source copy for "ToT" AGP.
+        if (validateSource) {
+            main(
+                arrayOf(
+                    "validate",
+                    "--mode",
+                    "source",
+                    "--source",
+                    source.toFile().absolutePath,
+                    "--gradleRecipesFolder",
+                    Paths.get("tools/gradle-recipes").toFile().absolutePath,
+                    "--agpVersion",
+                    agpVersion,
+                    "--repoLocation",
+                    FileUtils.toSystemIndependentPath(repoDir.absolutePath),
+                    "--gradlePath",
+                    File(gradlePath).toURI().toString(),
+                    "--javaHome",
+                    getJDKPath(jdkVersion).toFile().absolutePath,
+                    "--androidHome",
+                    File(TestUtils.getRelativeSdk()).absolutePath,
+                    "--ci"
+                )
+            )
+        }
 
         // Convert to working copy
         main(
