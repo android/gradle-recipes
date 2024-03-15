@@ -20,7 +20,7 @@ The [onVariants] block will wire the [ModifyClassesTask] input properties [allJa
             { it.getAllDirectories() },
             { it.getOutput() })
 `
-to transform [MultipleArtifact.ALL_CLASSES_DIRS]
+to transform [ScopedArtifact.CLASSES]
 
 ## To Run
 ./gradlew :app:assembleDebug

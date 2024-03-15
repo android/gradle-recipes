@@ -42,18 +42,6 @@ abstract class CopyApksTask @Inject constructor(private val workers: WorkerExecu
     @TaskAction
     fun taskAction() {
 
-      transformationRequest.get().submit(
-         this,
-         workers.noIsolation(),
-         WorkItem::class.java) {
-             builtArtifact: BuiltArtifact,
-             outputLocation: Directory,
-             param: WorkItemParameters ->
-                val inputFile = File(builtArtifact.outputFile)
-                param.inputApkFile.set(inputFile)
-                param.outputApkFile.set(File(outputLocation.asFile, inputFile.name))
-                param.outputApkFile.get().asFile
-         }
     }
 }
 

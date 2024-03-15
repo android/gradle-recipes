@@ -35,11 +35,11 @@ abstract class DisplayAllSources: DefaultTask() {
 }
 
 android {
+    namespace = "com.example.customSource"
     compileSdkVersion(29)
     defaultConfig {
         minSdkVersion(21)
     }
-    namespace="com.example.customsourceindsl"
 }
 
 androidComponents {
