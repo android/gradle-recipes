@@ -46,6 +46,8 @@ class GradleTasksExecutor(
                     .toFile()
                     .also { it.mkdirs() }
             )
+            // Workaround for issue https://github.com/gradle/gradle/issues/5188
+            System.setProperty("gradle.user.home", "")
         }
     }
 
