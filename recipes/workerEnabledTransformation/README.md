@@ -1,7 +1,10 @@
-# Worker Enable Transformation recipe
+# Worker-enabled transformation recipe
 
-This sample shows how to transform the artifact that has artifact directory type.
-It copies the build APK to the specified directory.
+This sample uses the `InAndOutDirectoryOperationRequest.toTransformMany()` API on an object of type
+[Artifact.Single](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/artifact/Artifact.Single),
+[Artifact.ContainsMany](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/artifact/Artifact.ContainsMany),
+and [Artifact.Transformable](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/artifact/Artifact.Transformable).
+This method is defined in [InAndOutDirectoryOperationRequest](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/artifact/InAndOutDirectoryOperationRequest).
 
 Custom plugin is defined in [CustomPlugin.kt](build-logic/plugins/src/main/kotlin/CustomPlugin.kt).
 It registers task [CopyApksTask.kt](build-logic/plugins/src/main/kotlin/CopyApksTask.kt) that creates asynchronous
@@ -16,7 +19,7 @@ and accelerating build completion. Android Gradle Plugin made it simpler to use 
 
 ## To Run
 Just type `./gradlew copyDebugApks`
-you will be able to find two APKs: before copying its
+you will be able to find two APKs: before copying, it is
 `app/build/intermediates/apk/debug/packageDebug/app-debug.apk`
 and `app/build/outputs/apk/debug/app-debug.apk` after copying.
 

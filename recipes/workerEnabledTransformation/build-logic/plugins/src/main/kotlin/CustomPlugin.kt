@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.register
 import com.android.build.api.artifact.SingleArtifact
 
@@ -46,19 +42,19 @@ class CustomPlugin : Plugin<Project> {
                 // registering copy<Variant>Apk task and getting provider for it
                 val copyApksProvider = project.tasks.register("copy${variant.name}Apks", CopyApksTask::class.java)
 
-                // Adds the task as APK transformer. This automatically creates
-                // a dependency of `copyApks` task to the last transformer of
-                // SingleArtifact.APK. This also creates transformationRequest of type
-                // [com.android.build.api.artifact.ArtifactTransformationRequest]. It allows to
-                // submit WorkAction to Gradle's [WorkQueue] to parallelize
-                // the transformations.
+                // Adds the task as APK transformer. This automatically creates a dependency of `copyApks` task to the
+                // last transformer of SingleArtifact.APK. This also creates transformationRequest of type
+                // [com.android.build.api.artifact.ArtifactTransformationRequest]. It allows to submit WorkAction to
+                // Gradle's [WorkQueue] to parallelize the transformations.
+                // Lastly, this uses the toTransformMany() API, used on directory artifacts of type 'Single',
+                // 'Transformable', and 'ContainsMany'.
                 val transformationRequest = variant.artifacts.use(copyApksProvider)
                     .wiredWithDirectories(
                         CopyApksTask::apkFolder,
                         CopyApksTask::outFolder)
                     .toTransformMany(SingleArtifact.APK)
 
-                // configures copyApk task by adding transformation request as a property value
+                // Configures copyApk task by adding transformation request as a property value
                 copyApksProvider.configure {
                     it.transformationRequest.set(transformationRequest)
                 }
