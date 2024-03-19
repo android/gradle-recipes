@@ -27,7 +27,7 @@ import kotlin.io.path.exists
 
 private const val INDEX_METADATA_FILE = "README.md"
 
-private val THEME_ORDER = listOf("Themes", "APIs", "Call chains")
+private val THEME_ORDER = listOf("Themes", "Plugin Features", "APIs", "Call chains")
 
 private const val COMMA_DELIMITER = ", "
 

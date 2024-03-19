@@ -25,7 +25,7 @@ index = [
     "APIs/Instrumentation.transformClassesWith()",
     "APIs/AndroidComponentsExtension.onVariants()",
     "APIs/ScopedArtifact.CLASSES",
-    "APIS/ScopedArtifacts.Scope.PROJECT",
+    "APIs/ScopedArtifacts.Scope.PROJECT",
     "APIs/ScopedArtifacts.use()",
     "APIs/ScopedArtifactsOperation.toGet()",
     "Call chains/variant.artifacts.forScope().use().toGet()"
