@@ -47,11 +47,11 @@ def recipe_test(
             ],
             "jdk_version": 17,
         },
-        "8.3.0": {
-            "name": name + "_8_3_0",
+        "8.3.1": {
+            "name": name + "_8_3_1",
             "gradle_path": "$(location //tools/base/build-system:gradle-distrib-8.4)",
             "manifest_repos": [
-                "//tools/base/build-system/previous-versions:8.3.0",
+                "//tools/base/build-system/previous-versions:8.3.1",
                 ":kotlin_1_9_20",
                 "//tools/base/build-system:gradle-8.4-runtime-maven",
             ],
