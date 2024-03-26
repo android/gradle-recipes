@@ -1,0 +1,16 @@
+[versions]
+androidGradlePlugin = "8.1.4"
+kotlin = "1.8.10"
+junit = "4.13.2"
+truth = "0.44"
+
+[libraries]
+junit = { name = "junit", group = "junit", version.ref = "junit" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+
