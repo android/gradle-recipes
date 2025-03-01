@@ -26,7 +26,7 @@ Test dependency must be declared in Gradle script to target the fixture artifact
 
 You can check details of logic we test in [ViewModel](app/src/main/kotlin/ViewModel.kt),
 test itself in [ViewModelTest](app/src/test/kotlin/ViewModelTest.kt) and 
-fixture [UserRepoFixture](lib/src/testFixtures/java/UserRepoFixture.java).
+fixture [JavaUserRepoFixture](lib/src/testFixtures/java/JavaUserRepoFixture.java).
 
 ## To Run
 To execute example and run tests you need to enter command:

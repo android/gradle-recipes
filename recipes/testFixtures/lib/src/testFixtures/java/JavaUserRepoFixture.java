@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-public class UserRepoFixture {
+public class JavaUserRepoFixture {
 
     private Map<Integer, User> users;
 
-    public UserRepoFixture() {
+    public JavaUserRepoFixture() {
         users = new HashMap<>();
         users.put(1, new User(1, "Bob", "Wilson", "active"));
         users.put(2, new User(2, "John", "Johnson", "vacation"));
