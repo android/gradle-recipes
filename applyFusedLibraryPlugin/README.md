@@ -51,7 +51,7 @@ and instrumentation tests.
    gradle/libs.versions.toml append
 ```toml
 [plugins]
-android-fusedlibrary = { id = "com.android.fusedlibrary", version.ref = "agp" }
+android-fusedlibrary = { id = "com.android.fused-library", version.ref = "agp" }
 ```
 2. Create a new module. `File` > `New Module...` . Then, click `Android Library` and fill out the
    required module metadata. Click `Finish`.
