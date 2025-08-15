@@ -23,8 +23,19 @@ class ViewModelTest{
 
     @Test
     fun updateUserLogic(){
-        val fixture = UserRepoFixture()
+        val fixture = JavaUserRepoFixture()
         val model = ViewModel(fixture.getRepository())
+        val user = model.users[0].copy(status = "sick")
+        model.updateStatus(user.id, user.status)
+
+        fixture.inDataSet(user)
+        fixture.assertEventIsUpdateUser(model.getEvents()[0])
+    }
+
+    @Test
+    fun updateUserKotlinLogic(){
+        val fixture = KotlinUserRepoFixture()
+        val model = ViewModel(fixture.repository)
         val user = model.users[0].copy(status = "sick")
         model.updateStatus(user.id, user.status)
 

@@ -4,7 +4,8 @@ This recipe shows how to use test fixtures with Android projects.
 
 ---
 
-**Be Aware:** we don't support writing test-fixtures in Kotlin for AGP versions up to 8.4, only Java
+**Be Aware:** we don't support writing test-fixtures in Kotlin for AGP versions up to 8.4, only Java.
+Kotlin test fixtures are supported from AGP 8.5 and later.
 
 ---
 Recipe has the following module structure:
@@ -26,7 +27,8 @@ Test dependency must be declared in Gradle script to target the fixture artifact
 
 You can check details of logic we test in [ViewModel](app/src/main/kotlin/ViewModel.kt),
 test itself in [ViewModelTest](app/src/test/kotlin/ViewModelTest.kt) and 
-fixture [UserRepoFixture](lib/src/testFixtures/java/UserRepoFixture.java).
+fixture using Java [JavaUserRepoFixture](lib/src/testFixtures/java/JavaUserRepoFixture.java) or 
+fixture using Kotlin [KotlinUserRepoFixture](lib/src/testFixtures/java/KotlinUserRepoFixture.kt).
 
 ## To Run
 To execute example and run tests you need to enter command:
