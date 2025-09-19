@@ -19,7 +19,6 @@ rootProject.name = "addGeneratedSourceFolder"
 pluginManagement {
     includeBuild("build-logic")
     repositories {
-maven { url = uri("") }
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -29,7 +28,6 @@ maven { url = uri("") }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-maven { url = uri("") }
         google()
         mavenCentral()
     }

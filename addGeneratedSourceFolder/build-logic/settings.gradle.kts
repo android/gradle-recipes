@@ -18,7 +18,6 @@ rootProject.name = "build-logic"
 
 pluginManagement {
     repositories {
-maven { url = uri("") }
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -27,7 +26,6 @@ maven { url = uri("") }
 
 dependencyResolutionManagement {
     repositories {
-maven { url = uri("") }
         google()
         mavenCentral()
     }
