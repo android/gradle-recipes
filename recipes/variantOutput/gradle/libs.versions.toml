@@ -1,5 +1,0 @@
-[versions]
-androidGradlePlugin = $AGP_VERSION
-
-[plugins]
-android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
