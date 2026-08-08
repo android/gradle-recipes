@@ -10,7 +10,7 @@ This recipe contains the following directories:
 | [build-logic](build-logic) | Contains the Project plugin that is the core of the recipe. |
 | [app](app)                 | An Android application that has the plugin applied.         |
 
-The [build-logic](build-logic) sub-project contains the [`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) and [`CheckTestStatusClass`](build-logic/plugins/src/main/kotlin/CheckTestStatusClass.kt).
+The [build-logic](build-logic) sub-project contains the [`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) and [`CheckTestStatusTask`](build-logic/plugins/src/main/kotlin/CheckTestStatusTask.kt).
 
 [`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) uses the [VariantBuilder] object to disable to the tests on different variants. These properties
 are then passed into the [`CheckTestStatusTask`](build-logic/plugins/src/main/kotlin/CheckTestStatusTask.kt) to validate
