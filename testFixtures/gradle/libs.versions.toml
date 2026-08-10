@@ -1,0 +1,12 @@
+[versions]
+androidGradlePlugin = "9.4.0-alpha08"
+junit = "4.13.2"
+truth = "0.44"
+
+[libraries]
+junit = { name = "junit", group = "junit", version.ref = "junit" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

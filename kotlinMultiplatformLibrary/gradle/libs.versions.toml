@@ -1,0 +1,8 @@
+[versions]
+androidGradlePlugin = "9.4.0-alpha08"
+kotlin = "2.3.21"
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

@@ -1,8 +1,0 @@
-[versions]
-androidGradlePlugin = $AGP_VERSION
-kotlin = $KOTLIN_VERSION
-
-[plugins]
-android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
-android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
