@@ -1,9 +1,0 @@
-[versions]
-androidGradlePlugin = $AGP_VERSION
-kotlin = $KOTLIN_VERSION
-
-[libraries]
-android-gradlePlugin-api = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }
-
-[plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
