@@ -106,7 +106,6 @@ class GradleRecipeTest {
 
     private fun getJDKPath(jdkVersion: String?): Path {
         return when(jdkVersion) {
-            "8" -> TestUtils.getJava8Jdk()
             "11" -> TestUtils.getJava11Jdk()
             "17" -> TestUtils.getJava17Jdk()
             else -> TestUtils.getJava17Jdk()
