@@ -12,7 +12,7 @@ This recipe contains the following directories:
 
 The [build-logic](build-logic) sub-project contains the [`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) and [`CheckTestStatusClass`](build-logic/plugins/src/main/kotlin/CheckTestStatusClass.kt).
 
-[`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) uses the [VariantBuilder] object to disable to the tests on different variants. These properties
+[`CustomPlugin`](build-logic/plugins/src/main/kotlin/CustomPlugin.kt) uses the [`VariantBuilder`](https://developer.android.com/reference/tools/gradle-api/current/com/android/build/api/variant/VariantBuilder) object to disable to the tests on different variants. These properties
 are then passed into the [`CheckTestStatusTask`](build-logic/plugins/src/main/kotlin/CheckTestStatusTask.kt) to validate
 they are turned off for each variant. Below is an example usage of disabling the Android test type:
 
