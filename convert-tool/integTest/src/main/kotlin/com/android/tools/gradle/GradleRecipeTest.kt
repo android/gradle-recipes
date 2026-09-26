@@ -106,9 +106,8 @@ class GradleRecipeTest {
 
     private fun getJDKPath(jdkVersion: String?): Path {
         return when(jdkVersion) {
-            "11" -> TestUtils.getJava11Jdk()
-            "17" -> TestUtils.getJava17Jdk()
-            else -> TestUtils.getJava17Jdk()
+            null, "17" -> TestUtils.getJava17Jdk()
+            else -> throw IllegalArgumentException("Unsupported jdk_version: $jdkVersion. Only JDK 17 is supported.")
         }
     }
 

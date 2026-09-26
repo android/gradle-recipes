@@ -367,9 +367,6 @@ def _recipe_test(
     return name + "_" + sanitized_name
 
 def _jdkRuntime(jdk_version):
-    if jdk_version == 17:
-        return ["//prebuilts/studio/jdk/jdk17:java_runtime"]
-    elif jdk_version == 11:
-        return ["//prebuilts/studio/jdk/jdk11:java_runtime"]
-    else:
-        return ["//prebuilts/studio/jdk/jdk17:java_runtime"]
+    if jdk_version != None and jdk_version != 17:
+        fail("Unsupported jdk_version: %s. Only JDK 17 is supported." % jdk_version)
+    return ["//prebuilts/studio/jdk/jdk17:java_runtime"]
