@@ -1,29 +1,161 @@
-# Recipes for the Android Gradle Plugin
+# Recipes for AGP version `8.11`
+This branch contains recipes compatible with AGP 8.11. If you want to find recipes
+for other AGP versions, switch to the corresponding `agp-*` branch.
 
-This branch (`studio-main`) contains the source for all the recipes, as well as tooling
-to create, update, and validate them.
-
-*If you are looking for the recipes, please look in the various `agp-*` branches which
-contains specific recipes for each versions of AGP*
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on making changes
-to the recipes.
-
-## Project Layout
-
-This project structure is as follows :
-
-
-| Folder           | Contents                                                             |
-| -----------------|----------------------------------------------------------------------|
-| convert-tool     | source for the tool to convert source recipes into buildable projects|
-| recipes          | source recipes                                                       |
-| templates        | template recipes to help creating new recipes                        |
-
-
-## License
+This branch is read only. Contributions are only accepted on the `studio-main` branch. See `CONTRIBUTION.md`
+there.
+# Recipes Index
+Index is organized in categories, offering different ways to reach the recipe you want.
+## Themes
+* Android Assets - [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging)
+* Android Manifest - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [createSingleArtifact](createSingleArtifact), [transformManifest](transformManifest)
+* Artifact API - [appendToScopedArtifacts](appendToScopedArtifacts), [createSingleArtifact](createSingleArtifact), [listenToMultipleArtifact](listenToMultipleArtifact), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [transformAllClasses](transformAllClasses), [workerEnabledTransformation](workerEnabledTransformation), [appendToMultipleArtifact](appendToMultipleArtifact), [getSingleArtifact](getSingleArtifact), [transformMultiple](transformMultiple), [getScopedArtifacts](getScopedArtifacts), [getMultipleArtifact](getMultipleArtifact), [listenToArtifacts](listenToArtifacts), [transformDirectory](transformDirectory)
+* DSL - [addBuildTypeUsingDslFinalize](addBuildTypeUsingDslFinalize), [extendingAgp](extendingAgp)
+* Dependency Resolution - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* Sources - [addCustomSourceType](addCustomSourceType), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging)
+## Plugin Features
+* Fused Library Plugin - [applyFusedLibraryPlugin](applyFusedLibraryPlugin)
+## APIs
+* AndroidComponentsExtension.beforeVariants() - [selectVariants](selectVariants), [disableTests](disableTests)
+* AndroidComponentsExtension.onVariants() - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [appendToScopedArtifacts](appendToScopedArtifacts), [variantOutput](variantOutput), [createSingleArtifact](createSingleArtifact), [listenToMultipleArtifact](listenToMultipleArtifact), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [transformAllClasses](transformAllClasses), [allProjectsApkAction](allProjectsApkAction), [asmTransformClasses](asmTransformClasses), [workerEnabledTransformation](workerEnabledTransformation), [appendToMultipleArtifact](appendToMultipleArtifact), [onVariants](onVariants), [addCustomSourceType](addCustomSourceType), [variantDependencySubstitutionTest](variantDependencySubstitutionTest), [extendingAgp](extendingAgp), [getSingleArtifact](getSingleArtifact), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformMultiple](transformMultiple), [getScopedArtifacts](getScopedArtifacts), [disableTests](disableTests), [registerPreBuild](registerPreBuild), [addCustomBuildConfigFields](addCustomBuildConfigFields), [getMultipleArtifact](getMultipleArtifact), [listenToArtifacts](listenToArtifacts), [transformDirectory](transformDirectory)
+* AndroidComponentsExtension.registerExtension() - [extendingAgp](extendingAgp)
+* AndroidComponentsExtension.selector() - [variantOutput](variantOutput), [allProjectsApkAction](allProjectsApkAction), [selectVariants](selectVariants)
+* ApplicationVariant.applicationId - [onVariants](onVariants)
+* ApplicationVariant.outputs - [variantOutput](variantOutput)
+* Artifact.ContainsMany - [listenToArtifacts](listenToArtifacts)
+* ArtifactTransformationRequest - [workerEnabledTransformation](workerEnabledTransformation)
+* Artifacts.add() - [addMultipleArtifact](addMultipleArtifact), [transformMultiple](transformMultiple)
+* Artifacts.forScope() - [appendToScopedArtifacts](appendToScopedArtifacts), [transformAllClasses](transformAllClasses), [getScopedArtifacts](getScopedArtifacts)
+* Artifacts.get() - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [variantOutput](variantOutput), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [allProjectsApkAction](allProjectsApkAction), [appendToMultipleArtifact](appendToMultipleArtifact), [getSingleArtifact](getSingleArtifact), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformMultiple](transformMultiple), [transformDirectory](transformDirectory)
+* Artifacts.getAll() - [getMultipleArtifact](getMultipleArtifact)
+* Artifacts.use() - [createSingleArtifact](createSingleArtifact), [listenToMultipleArtifact](listenToMultipleArtifact), [transformManifest](transformManifest), [workerEnabledTransformation](workerEnabledTransformation), [appendToMultipleArtifact](appendToMultipleArtifact), [transformMultiple](transformMultiple), [listenToArtifacts](listenToArtifacts), [transformDirectory](transformDirectory)
+* BuildConfigField() - [addCustomBuildConfigFields](addCustomBuildConfigFields)
+* BuiltArtifact - [workerEnabledTransformation](workerEnabledTransformation)
+* BuiltArtifact.versionCode - [listenToArtifacts](listenToArtifacts)
+* BuiltArtifact.versionName - [listenToArtifacts](listenToArtifacts)
+* BuiltArtifacts.elements - [listenToArtifacts](listenToArtifacts)
+* BuiltArtifacts.variantName - [listenToArtifacts](listenToArtifacts)
+* BuiltArtifactsLoader.load() - [listenToArtifacts](listenToArtifacts)
+* CanMinifyAndroidResourcesBuilder.shrinkResources - [selectVariants](selectVariants)
+* CanMinifyCodeBuilder.isMinifyEnabled - [selectVariants](selectVariants)
+* CombiningOperationRequest.toTransform() - [transformMultiple](transformMultiple)
+* Component.artifacts - [appendToScopedArtifacts](appendToScopedArtifacts), [variantOutput](variantOutput), [createSingleArtifact](createSingleArtifact), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [appendToMultipleArtifact](appendToMultipleArtifact), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformMultiple](transformMultiple), [getScopedArtifacts](getScopedArtifacts), [getMultipleArtifact](getMultipleArtifact), [transformDirectory](transformDirectory)
+* Component.compileConfiguration - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* Component.runtimeConfiguration - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* Component.sources - [addCustomSourceType](addCustomSourceType), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging)
+* Configuration.resolutionStrategy - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* DslExtension.Builder.build() - [extendingAgp](extendingAgp)
+* DslExtension.Builder.extendBuildTypeWith() - [extendingAgp](extendingAgp)
+* DslExtension.Builder.extendProductFlavorWith() - [extendingAgp](extendingAgp)
+* DslExtension.Builder.extendProjectWith() - [extendingAgp](extendingAgp)
+* DslLifecycle.finalizeDsl() - [addBuildTypeUsingDslFinalize](addBuildTypeUsingDslFinalize)
+* GeneratesApk.applicationId - [onVariants](onVariants)
+* Gradle.beforeProject() - [allProjectsApkAction](allProjectsApkAction)
+* HasDeviceTests.deviceTests - [disableTests](disableTests)
+* HasDeviceTestsBuilder.deviceTests - [disableTests](disableTests)
+* HasHostTests.hostTests - [disableTests](disableTests)
+* HasHostTestsBuilder.hostTests - [disableTests](disableTests)
+* HasUnitTestBuilder.enableUnitTest - [selectVariants](selectVariants)
+* InAndOutDirectoryOperationRequest.toTransform() - [transformDirectory](transformDirectory)
+* InAndOutDirectoryOperationRequest.toTransformMany() - [workerEnabledTransformation](workerEnabledTransformation)
+* InAndOutFileOperationRequest.toTransform() - [transformManifest](transformManifest)
+* Instrumentation.transformClassesWith() - [asmTransformClasses](asmTransformClasses)
+* LifeCycleTasks.registerPreBuild() - [registerPreBuild](registerPreBuild)
+* MapProperty.put() - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [addCustomBuildConfigFields](addCustomBuildConfigFields)
+* MultipleArtifact.MULTIDEX_KEEP_PROGUARD - [getMultipleArtifact](getMultipleArtifact)
+* MultipleArtifact.NATIVE_DEBUG_METADATA - [listenToMultipleArtifact](listenToMultipleArtifact), [addMultipleArtifact](addMultipleArtifact), [appendToMultipleArtifact](appendToMultipleArtifact), [transformMultiple](transformMultiple)
+* MultipleArtifactTypeOutOperationRequest.toListenTo() - [listenToMultipleArtifact](listenToMultipleArtifact)
+* OutOperationRequest.toAppendTo() - [appendToMultipleArtifact](appendToMultipleArtifact)
+* OutOperationRequest.toCreate() - [createSingleArtifact](createSingleArtifact)
+* OutOperationRequest.toListenTo() - [listenToArtifacts](listenToArtifacts)
+* Plugin<Settings> - [allProjectsApkAction](allProjectsApkAction)
+* ResolutionStrategy.dependencySubstitution() - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* ScopedArtifact.CLASSES - [appendToScopedArtifacts](appendToScopedArtifacts), [transformAllClasses](transformAllClasses), [asmTransformClasses](asmTransformClasses), [getScopedArtifacts](getScopedArtifacts)
+* ScopedArtifacts.Scope.ALL - [appendToScopedArtifacts](appendToScopedArtifacts), [getScopedArtifacts](getScopedArtifacts)
+* ScopedArtifacts.Scope.PROJECT - [appendToScopedArtifacts](appendToScopedArtifacts), [transformAllClasses](transformAllClasses), [asmTransformClasses](asmTransformClasses), [getScopedArtifacts](getScopedArtifacts)
+* ScopedArtifacts.use() - [appendToScopedArtifacts](appendToScopedArtifacts), [transformAllClasses](transformAllClasses), [asmTransformClasses](asmTransformClasses), [getScopedArtifacts](getScopedArtifacts)
+* ScopedArtifactsOperation.toAppend() - [appendToScopedArtifacts](appendToScopedArtifacts)
+* ScopedArtifactsOperation.toGet() - [appendToScopedArtifacts](appendToScopedArtifacts), [asmTransformClasses](asmTransformClasses), [getScopedArtifacts](getScopedArtifacts)
+* ScopedArtifactsOperation.toTransform() - [transformAllClasses](transformAllClasses)
+* SingleArtifact.APK - [allProjectsApkAction](allProjectsApkAction), [workerEnabledTransformation](workerEnabledTransformation), [listenToArtifacts](listenToArtifacts)
+* SingleArtifact.ASSETS - [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformDirectory](transformDirectory)
+* SingleArtifact.BUNDLE - [addMultipleArtifact](addMultipleArtifact), [appendToMultipleArtifact](appendToMultipleArtifact), [getSingleArtifact](getSingleArtifact)
+* SingleArtifact.MERGED_MANIFEST - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [variantOutput](variantOutput), [createSingleArtifact](createSingleArtifact), [transformManifest](transformManifest)
+* SourceDirectories.addGeneratedSourceDirectory() - [addCustomSourceType](addCustomSourceType), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging)
+* SourceDirectories.addStaticSourceDirectory() - [addCustomSourceType](addCustomSourceType)
+* TaskBasedOperation.wiredWith() - [createSingleArtifact](createSingleArtifact), [transformMultiple](transformMultiple), [listenToArtifacts](listenToArtifacts)
+* TaskBasedOperation.wiredWithDirectories() - [workerEnabledTransformation](workerEnabledTransformation), [transformDirectory](transformDirectory)
+* TaskBasedOperation.wiredWithFiles() - [transformManifest](transformManifest)
+* TaskBasedOperation.wiredWithMultiple() - [listenToMultipleArtifact](listenToMultipleArtifact)
+* TaskOutputs.upToDateWhen() - [transformManifest](transformManifest)
+* TaskProvider.flatMap() - [createSingleArtifact](createSingleArtifact)
+* TaskProvider.map() - [addCustomBuildConfigFields](addCustomBuildConfigFields)
+* Variant.buildConfigFields - [addCustomBuildConfigFields](addCustomBuildConfigFields)
+* Variant.components - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* Variant.manifestPlaceholders - [perVariantManifestPlaceholder](perVariantManifestPlaceholder)
+* Variant.nestedComponents - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* VariantBuilder.minSdk - [selectVariants](selectVariants)
+* VariantExtensionConfig - [extendingAgp](extendingAgp)
+* VariantOutputConfiguration.OutputType.SINGLE - [variantOutput](variantOutput)
+* VariantOutputConfiguration.outputType - [variantOutput](variantOutput)
+* VariantSelector.all() - [variantOutput](variantOutput), [selectVariants](selectVariants)
+* VariantSelector.withBuildType() - [allProjectsApkAction](allProjectsApkAction), [selectVariants](selectVariants), [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* VariantSelector.withFlavor() - [variantOutput](variantOutput), [selectVariants](selectVariants)
+* VariantSelector.withName() - [selectVariants](selectVariants)
+* task.getOutputs() - [transformManifest](transformManifest)
+## Call chains
+* DslExtension.Builder().extendProjectWith().extendBuildTypeWith().extendProductFlavorWith().build() - [extendingAgp](extendingAgp)
+* HasDeviceTests.deviceTests.get() - [disableTests](disableTests)
+* HasDeviceTestsBuilder.deviceTests.get().enable - [disableTests](disableTests)
+* HasHostTests.hostTests.get() - [disableTests](disableTests)
+* HasHostTestsBuilder.hostTests.get().enable - [disableTests](disableTests)
+* androidComponents.beforeVariants {} - [selectVariants](selectVariants), [disableTests](disableTests)
+* androidComponents.finalizeDsl {} - [addBuildTypeUsingDslFinalize](addBuildTypeUsingDslFinalize)
+* androidComponents.onVariants {} - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [appendToScopedArtifacts](appendToScopedArtifacts), [variantOutput](variantOutput), [createSingleArtifact](createSingleArtifact), [listenToMultipleArtifact](listenToMultipleArtifact), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [transformAllClasses](transformAllClasses), [allProjectsApkAction](allProjectsApkAction), [asmTransformClasses](asmTransformClasses), [workerEnabledTransformation](workerEnabledTransformation), [appendToMultipleArtifact](appendToMultipleArtifact), [onVariants](onVariants), [addCustomSourceType](addCustomSourceType), [variantDependencySubstitutionTest](variantDependencySubstitutionTest), [extendingAgp](extendingAgp), [getSingleArtifact](getSingleArtifact), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformMultiple](transformMultiple), [getScopedArtifacts](getScopedArtifacts), [disableTests](disableTests), [registerPreBuild](registerPreBuild), [addCustomBuildConfigFields](addCustomBuildConfigFields), [getMultipleArtifact](getMultipleArtifact), [listenToArtifacts](listenToArtifacts), [transformDirectory](transformDirectory)
+* androidComponents.registerExtension() - [extendingAgp](extendingAgp)
+* androidComponents.selector().all() - [variantOutput](variantOutput), [selectVariants](selectVariants)
+* androidComponents.selector().withBuildType() - [allProjectsApkAction](allProjectsApkAction), [selectVariants](selectVariants), [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* androidComponents.selector().withFlavor() - [variantOutput](variantOutput), [selectVariants](selectVariants)
+* androidComponents.selector().withName() - [selectVariants](selectVariants)
+* configuration.resolutionStrategy.dependencySubstitution {} - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* settings.gradle.beforeProject {} - [allProjectsApkAction](allProjectsApkAction)
+* substitute().using() - [variantDependencySubstitutionTest](variantDependencySubstitutionTest)
+* task.outputs.upToDateWhen {} - [transformManifest](transformManifest)
+* transformationRequest.submit() - [workerEnabledTransformation](workerEnabledTransformation)
+* variant.applicationId - [onVariants](onVariants)
+* variant.artifacts.add() - [addMultipleArtifact](addMultipleArtifact), [transformMultiple](transformMultiple)
+* variant.artifacts.forScope().use().toAppend() - [appendToScopedArtifacts](appendToScopedArtifacts)
+* variant.artifacts.forScope().use().toGet() - [asmTransformClasses](asmTransformClasses), [getScopedArtifacts](getScopedArtifacts)
+* variant.artifacts.forScope().use().toTransform() - [transformAllClasses](transformAllClasses)
+* variant.artifacts.get() - [perVariantManifestPlaceholder](perVariantManifestPlaceholder), [variantOutput](variantOutput), [addMultipleArtifact](addMultipleArtifact), [transformManifest](transformManifest), [allProjectsApkAction](allProjectsApkAction), [asmTransformClasses](asmTransformClasses), [appendToMultipleArtifact](appendToMultipleArtifact), [getSingleArtifact](getSingleArtifact), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging), [transformMultiple](transformMultiple), [transformDirectory](transformDirectory)
+* variant.artifacts.getAll() - [getMultipleArtifact](getMultipleArtifact)
+* variant.artifacts.use().wiredWith().toAppendTo() - [appendToMultipleArtifact](appendToMultipleArtifact)
+* variant.artifacts.use().wiredWith().toCreate() - [createSingleArtifact](createSingleArtifact)
+* variant.artifacts.use().wiredWith().toListenTo() - [listenToMultipleArtifact](listenToMultipleArtifact), [listenToArtifacts](listenToArtifacts)
+* variant.artifacts.use().wiredWith().toTransform() - [transformMultiple](transformMultiple)
+* variant.artifacts.use().wiredWithDirectories().toTransform() - [transformDirectory](transformDirectory)
+* variant.artifacts.use().wiredWithDirectories().toTransformMany() - [workerEnabledTransformation](workerEnabledTransformation)
+* variant.artifacts.use().wiredWithFiles().toTransform() - [transformManifest](transformManifest)
+* variant.buildConfigFields.put() - [addCustomBuildConfigFields](addCustomBuildConfigFields)
+* variant.instrumentation.transformClassesWith() - [asmTransformClasses](asmTransformClasses)
+* variant.manifestPlaceholders.put() - [perVariantManifestPlaceholder](perVariantManifestPlaceholder)
+* variant.registerPreBuild() - [registerPreBuild](registerPreBuild)
+* variant.sources.*.addGeneratedSourceDirectory() - [addCustomSourceType](addCustomSourceType), [addGeneratedSourceFolder](addGeneratedSourceFolder), [legacyTaskBridging](legacyTaskBridging)
+* variant.sources.*.addStaticSourceDirectory() - [addCustomSourceType](addCustomSourceType)
+* variant.sources.*.all - [addCustomSourceType](addCustomSourceType), [addGeneratedSourceFolder](addGeneratedSourceFolder)
+## Others
+* All projects - [allProjectsApkAction](allProjectsApkAction)
+* DeviceTestBuilder.ANDROID_TEST_TYPE - [disableTests](disableTests)
+* Extending AGP DSL - [extendingAgp](extendingAgp)
+* HostTestBuilder.UNIT_TEST_TYPE - [disableTests](disableTests)
+* Legacy API bridging - [legacyTaskBridging](legacyTaskBridging)
+* Placeholders - [perVariantManifestPlaceholder](perVariantManifestPlaceholder)
+* Renaming APKs - [listenToArtifacts](listenToArtifacts)
+* SourceDirectories.Flat - [addCustomSourceType](addCustomSourceType)
+* SourceDirectories.Layered - [addGeneratedSourceFolder](addGeneratedSourceFolder)
+* SourceDirectories.add - [addCustomSourceType](addCustomSourceType)
+* registerSourceType - [addCustomSourceType](addCustomSourceType)
+# License
 ```
 Copyright 2022 The Android Open Source Project
 
