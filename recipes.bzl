@@ -304,7 +304,7 @@ def _recipe_test(
             "gradle_path": "$(location //tools/base/build-system:gradle-distrib)",
             "manifest_repos": [
                 "//tools/base/build-system/integration-test:kotlin_gradle_plugin_prebuilts",
-                ":kotlin_2_4_0",
+                ":kotlin_2_4_10",
                 ":test_deps",
                 "//tools/base/build-system:gradle-runtime-maven",
             ],
