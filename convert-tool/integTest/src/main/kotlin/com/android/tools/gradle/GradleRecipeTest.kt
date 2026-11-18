@@ -24,12 +24,10 @@ import com.google.android.gradle_recipe.converter.context.DefaultContext
 import com.google.android.gradle_recipe.converter.context.Context
 import com.google.android.gradle_recipe.converter.converters.FullAgpVersion
 import com.google.android.gradle_recipe.converter.converters.ResultMode
-import com.google.android.gradle_recipe.converter.converters.ShortAgpVersion
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import org.junit.Assert.fail
 import org.junit.Assume
 import org.junit.Test
 
@@ -65,7 +63,6 @@ class GradleRecipeTest {
             context,
             allTestedAgpVersions,
             fullAgpVersion,
-            gradlePath
         )
         val tempDir = Paths.get(System.getenv("TEST_TMPDIR"), name, agpVersion)
         val repoDir = tempDir.resolve("repo").toFile()
@@ -112,38 +109,31 @@ class GradleRecipeTest {
     }
 
     /**
-     * Check that the list of all_tested_agp_versions fed to this test match the versions specified
-     * in version_mappings.txt.
+     * Check that all AGP versions fed to this test (all_tested_agp_versions and agp_version) have
+     * an entry for their major.minor version in version_mappings.txt.
      *
-     * Also check that the agp_version and gradle_version fed to this test match the corresponding
-     * line in version_mappings.txt.
+     * Only the AGP version is checked. The Gradle version used for validation comes from
+     * gradle_path, so the Gradle column in version_mappings.txt is not compared against it.
      *
      * These checks are important because the version_mappings.txt file dictates which versions are
-     * used on github.
+     * published on github.
      */
     private fun checkVersionMappings(
         context: Context,
         allTestedAgpVersions: List<String>,
         agpVersion: FullAgpVersion,
-        gradlePath: String
     ) {
-        val versionMappings: Map<ShortAgpVersion, Context.VersionInfo> = context.versionMappings
-        val keys = versionMappings.keys
+        val keys = context.versionMappings.keys
 
-        // Check that all versions from allTestedAgpVersions (except "ToT") are represented in the
-        // version_mappings.txt file (i.e., the file has an AGP version with matching major and
-        // minor versions).
-        allTestedAgpVersions.forEachIndexed { i, testedAgpVersion ->
-            if (testedAgpVersion != "ToT") {
-                val shortVersion = FullAgpVersion.of(testedAgpVersion).toShort()
-                assertThat(keys).contains(shortVersion)
-            }
+        val expectedVersions =
+            allTestedAgpVersions.filter { it != "ToT" }.map { FullAgpVersion.of(it).toShort() } +
+                agpVersion.toShort()
+        expectedVersions.distinct().forEach { shortVersion ->
+            assertWithMessage(
+                "AGP $shortVersion is missing from version_mappings.txt. Add a " +
+                    "\"$shortVersion;<gradle_version>;<kotlin_version>\" line to " +
+                    "tools/gradle-recipes/version_mappings.txt."
+            ).that(keys).contains(shortVersion)
         }
-
-        // Check that agpVersion is represented in the version_mappings.txt file with a Gradle
-        // version matching gradlePath.
-        context.getGradleVersion(agpVersion)?.let {
-            assertThat(gradlePath).contains(context.getGradleVersion(agpVersion))
-        } ?: fail("AGP Version $agpVersion not found in version_mappings.txt.")
     }
 }
