@@ -1,4 +1,7 @@
-# mapping of AGP versions to Gradle and Kotlin Versions, separated by ';'
+# Mapping of AGP major.minor versions to Gradle and Kotlin versions, separated by ';'.
+# Used by recipe tests, standalone convert-tool runs and .github/workflows/convert-recipes.yml.
+# Must contain the in-development AGP major.minor from tools/base/common/release_version.bzl
+# (checked by //tools/gradle-recipes:convert_tool_tests).
 8.1;8.0;1.8.10
 8.2;8.2;1.8.10
 8.3;8.4;1.9.22

@@ -1,6 +1,7 @@
 load("//tools/base/bazel:kotlin.bzl", "kotlin_library", "kotlin_test")
 load("//tools/base/bazel:maven.bzl", "maven_repository")
 load("//tools/base/build-system/integration-test:common-dependencies.bzl", "KGP_1_8_10", "KGP_1_9_22", "KGP_2_1_20", "KGP_2_2_0", "KGP_2_2_10", "KGP_2_2_21", "KGP_2_3_10", "KGP_2_3_21", "KGP_2_4_0", "KGP_2_4_10")
+load("//tools/base/common:version.bzl", "DEV_AGP_MAJOR_MINOR")
 load(":recipes.bzl", "recipe_test_suite")
 
 kotlin_library(
@@ -23,7 +24,13 @@ kotlin_test(
     srcs = glob([
         "convert-tool/app/src/test/kotlin/**/*.kt",
     ]),
-    jvm_flags = ["-Dtest.suite.jar=convert_tool_tests.jar"],
+    data = ["version_mappings.txt"],
+    jvm_flags = [
+        "-Dtest.suite.jar=convert_tool_tests.jar",
+        # Checked by VersionMappingsTest: the in-development AGP major.minor from
+        # tools/base/common/release_version.bzl must be listed in version_mappings.txt.
+        "-Ddev_agp_major_minor=" + DEV_AGP_MAJOR_MINOR,
+    ],
     test_class = "com.android.testutils.JarTestSuite",
     deps = [
         ":convert_tool",
